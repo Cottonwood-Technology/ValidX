@@ -1,0 +1,2 @@
+include *.rst *.txt
+include validateit/cy/*.pxd validateit/cy/*.pyx
