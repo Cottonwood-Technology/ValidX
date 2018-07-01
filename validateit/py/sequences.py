@@ -3,7 +3,7 @@ import sys
 
 try:
     import typing as t  # noqa
-except ImportError:
+except ImportError:  # pragma: no cover
     pass
 
 from .. import exc

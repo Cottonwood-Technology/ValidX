@@ -14,7 +14,7 @@ try:
         Dict,
         Mapping,
     )
-except ImportError:
+except ImportError:  # pragma: no cover
     from .py import (
         Validator,
         Int,
