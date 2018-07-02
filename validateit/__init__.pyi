@@ -203,7 +203,7 @@ class Dict(Validator):
 
     schema: t.Dict[t.Any, Validator]
     nullable: t.Optional[bool]
-    extra: t.Optional[Tuple]
+    extra: t.Optional[t.Tuple[Validator, Validator]]
     defaults: t.Optional[t.Dict]
     optional: t.Optional[t.Container]
 
@@ -227,7 +227,7 @@ class Mapping(Validator):
 
     schema: t.Dict[t.Any, Validator]
     nullable: t.Optional[bool]
-    extra: t.Optional[Tuple]
+    extra: t.Optional[t.Tuple[Validator, Validator]]
     defaults: t.Optional[t.Dict]
     optional: t.Optional[t.Container]
 

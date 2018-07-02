@@ -117,9 +117,9 @@ def test_dict_defaults_and_optional(class_, defaults, optional):
 
 
 @pytest.mark.parametrize("class_", dict_classes)
-@pytest.mark.parametrize("extra", [None, py.Tuple(py.Str(), py.Int())])
+@pytest.mark.parametrize("extra", [None, (py.Str(), py.Int())])
 def test_dict_extra(class_, extra):
-    # type: (t.Type[py.Dict], t.Optional[py.Tuple]) -> None
+    # type: (t.Type[py.Dict], t.Optional[t.Tuple[py.Str, py.Int]]) -> None
     v = class_({u"x": py.Int(), u"y": py.Int()}, extra=extra)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
@@ -128,19 +128,20 @@ def test_dict_extra(class_, extra):
 
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, 3: None})
-        assert len(info.value.errors) == 2
+        assert len(info.value.errors) == 1
 
-        ne_1, ne_2 = info.value.errors
+        ne = info.value.errors[0]
 
-        assert isinstance(ne_1, exc.InvalidTypeError)
-        assert ne_1.context == [3, 0]
-        assert ne_1.expected == str
-        assert ne_1.actual == int
+        assert isinstance(ne, exc.ExtraKeyError)
+        assert ne.context == [3]
 
-        assert isinstance(ne_2, exc.InvalidTypeError)
-        assert ne_2.context == [3, 1]
-        assert ne_2.expected == int
-        assert ne_2.actual == NoneType
+        assert isinstance(ne.key_error, exc.InvalidTypeError)
+        assert ne.key_error.expected == str
+        assert ne.key_error.actual == int
+
+        assert isinstance(ne.value_error, exc.InvalidTypeError)
+        assert ne.value_error.expected == int
+        assert ne.value_error.actual == NoneType
     else:
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, u"z": 3})

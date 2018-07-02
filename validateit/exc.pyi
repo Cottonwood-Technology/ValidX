@@ -84,7 +84,7 @@ class PatternMatchError(ConditionError):
 class MappingKeyError(ValidationError):
     __slots__: t.Tuple[str, ...]
 
-    def __init__(self, key: t.Any) -> None:
+    def __init__(self, key: t.Any, **kw) -> None:
         ...
 
 
@@ -94,6 +94,13 @@ class ForbiddenKeyError(MappingKeyError):
 
 class MissingKeyError(MappingKeyError):
     __slots__: t.Tuple[str, ...]
+
+
+class ExtraKeyError(MappingKeyError):
+    __slots__: t.Tuple[str, ...]
+
+    key_error: t.Optional[ValidationError]
+    value_error: t.Optional[ValidationError]
 
 
 class SchemaError(ValidationError):

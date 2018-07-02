@@ -32,7 +32,26 @@ cdef class Dict(abstract.Validator):
                 if key in self.schema:
                     val = self.schema[key](val)
                 elif self.extra is not None:
-                    key, val = self.extra((key, val))
+                    try:
+                        key = self.extra[0](key)
+                    except exc.ValidationError as e:
+                        extra_key_error = e
+                    else:
+                        extra_key_error = None
+                    try:
+                        val = self.extra[1](val)
+                    except exc.ValidationError as e:
+                        extra_value_error = e
+                    else:
+                        extra_value_error = None
+                    if extra_key_error is not None or extra_value_error is not None:
+                        errors.append(
+                            exc.ExtraKeyError(
+                                key,
+                                key_error=extra_key_error,
+                                value_error=extra_value_error,
+                            )
+                        )
                 else:
                     errors.append(exc.ForbiddenKeyError(key))
             except exc.ValidationError as e:
@@ -90,7 +109,26 @@ cdef class Mapping(abstract.Validator):
                 if key in self.schema:
                     val = self.schema[key](val)
                 elif self.extra is not None:
-                    key, val = self.extra((key, val))
+                    try:
+                        key = self.extra[0](key)
+                    except exc.ValidationError as e:
+                        extra_key_error = e
+                    else:
+                        extra_key_error = None
+                    try:
+                        val = self.extra[1](val)
+                    except exc.ValidationError as e:
+                        extra_value_error = e
+                    else:
+                        extra_value_error = None
+                    if extra_key_error is not None or extra_value_error is not None:
+                        errors.append(
+                            exc.ExtraKeyError(
+                                key,
+                                key_error=extra_key_error,
+                                value_error=extra_value_error,
+                            )
+                        )
                 else:
                     errors.append(exc.ForbiddenKeyError(key))
             except exc.ValidationError as e:

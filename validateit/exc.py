@@ -91,8 +91,8 @@ class PatternMatchError(ConditionError):
 class MappingKeyError(ValidationError):
     __slots__ = ValidationError.__slots__
 
-    def __init__(self, key):
-        super(MappingKeyError, self).__init__(context=[key])
+    def __init__(self, key, **kw):
+        super(MappingKeyError, self).__init__(context=[key], **kw)
 
 
 class ForbiddenKeyError(MappingKeyError):
@@ -101,6 +101,10 @@ class ForbiddenKeyError(MappingKeyError):
 
 class MissingKeyError(MappingKeyError):
     __slots__ = MappingKeyError.__slots__
+
+
+class ExtraKeyError(MappingKeyError):
+    __slots__ = MappingKeyError.__slots__ + ("key_error", "value_error")
 
 
 class SchemaError(ValidationError):
