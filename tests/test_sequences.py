@@ -56,17 +56,17 @@ def test_list(class_):
         v([1, u"2", 3, None])
     assert len(info.value.errors) == 2
 
-    (index_1, error_1), (index_2, error_2) = info.value.errors
+    ne_1, ne_2 = info.value.errors
 
-    assert index_1 == 1
-    assert isinstance(error_1, exc.InvalidTypeError)
-    assert error_1.expected == int
-    assert error_1.actual == str
+    assert isinstance(ne_1, exc.InvalidTypeError)
+    assert ne_1.context == [1]
+    assert ne_1.expected == int
+    assert ne_1.actual == str
 
-    assert index_2 == 3
-    assert isinstance(error_2, exc.InvalidTypeError)
-    assert error_2.expected == int
-    assert error_2.actual == NoneType
+    assert isinstance(ne_2, exc.InvalidTypeError)
+    assert ne_2.context == [3]
+    assert ne_2.expected == int
+    assert ne_2.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", list_classes)
@@ -150,17 +150,17 @@ def test_tuple(class_):
         v([u"1", None])
     assert len(info.value.errors) == 2
 
-    (index_1, error_1), (index_2, error_2) = info.value.errors
+    ne_1, ne_2 = info.value.errors
 
-    assert index_1 == 0
-    assert isinstance(error_1, exc.InvalidTypeError)
-    assert error_1.expected == int
-    assert error_1.actual == str
+    assert isinstance(ne_1, exc.InvalidTypeError)
+    assert ne_1.context == [0]
+    assert ne_1.expected == int
+    assert ne_1.actual == str
 
-    assert index_2 == 1
-    assert isinstance(error_2, exc.InvalidTypeError)
-    assert error_2.expected == int
-    assert error_2.actual == NoneType
+    assert isinstance(ne_2, exc.InvalidTypeError)
+    assert ne_2.context == [1]
+    assert ne_2.expected == int
+    assert ne_2.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", tuple_classes)

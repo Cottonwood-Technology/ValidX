@@ -34,11 +34,9 @@ cdef class Dict(abstract.Validator):
                 elif self.extra is not None:
                     key, val = self.extra((key, val))
                 else:
-                    errors.append((key, exc.ExtraKeyError(key=key)))
+                    errors.append(exc.ForbiddenKeyError(key))
             except exc.ValidationError as e:
-                errors.append((key, e))
-                result[key] = None  # To prevent ``exc.RequiredKeyError`` below
-                continue
+                errors.extend(ne.add_context(key) for ne in e)
             result[key] = val
 
         for key in self.schema:
@@ -57,10 +55,10 @@ cdef class Dict(abstract.Validator):
                     continue
             if self.optional is not None and key in self.optional:
                 continue
-            errors.append((key, exc.RequiredKeyError(key=key)))
+            errors.append(exc.MissingKeyError(key))
 
         if errors:
-            errors.sort(key=lambda item: item[0])
+            errors.sort(key=lambda e: e.context)
             raise exc.SchemaError(errors)
         return result
 
@@ -94,11 +92,9 @@ cdef class Mapping(abstract.Validator):
                 elif self.extra is not None:
                     key, val = self.extra((key, val))
                 else:
-                    errors.append((key, exc.ExtraKeyError(key=key)))
+                    errors.append(exc.ForbiddenKeyError(key))
             except exc.ValidationError as e:
-                errors.append((key, e))
-                result[key] = None  # To prevent ``exc.RequiredKeyError`` below
-                continue
+                errors.extend(ne.add_context(key) for ne in e)
             result[key] = val
 
         for key in self.schema:
@@ -117,9 +113,9 @@ cdef class Mapping(abstract.Validator):
                     continue
             if self.optional is not None and key in self.optional:
                 continue
-            errors.append((key, exc.RequiredKeyError(key=key)))
+            errors.append(exc.MissingKeyError(key))
 
         if errors:
-            errors.sort(key=lambda item: item[0])
+            errors.sort(key=lambda e: e.context)
             raise exc.SchemaError(errors)
         return result

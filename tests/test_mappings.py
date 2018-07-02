@@ -59,17 +59,17 @@ def test_dict(class_):
         v({u"x": u"1", u"y": None})
     assert len(info.value.errors) == 2
 
-    (index_1, error_1), (index_2, error_2) = info.value.errors
+    ne_1, ne_2 = info.value.errors
 
-    assert index_1 == u"x"
-    assert isinstance(error_1, exc.InvalidTypeError)
-    assert error_1.expected == int
-    assert error_1.actual == str
+    assert isinstance(ne_1, exc.InvalidTypeError)
+    assert ne_1.context == [u"x"]
+    assert ne_1.expected == int
+    assert ne_1.actual == str
 
-    assert index_2 == u"y"
-    assert isinstance(error_2, exc.InvalidTypeError)
-    assert error_2.expected == int
-    assert error_2.actual == NoneType
+    assert isinstance(ne_2, exc.InvalidTypeError)
+    assert ne_2.context == [u"y"]
+    assert ne_2.expected == int
+    assert ne_2.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", dict_classes)
@@ -99,10 +99,9 @@ def test_dict_defaults_and_optional(class_, defaults, optional):
     with pytest.raises(exc.SchemaError) as info:
         v({u"x": 1})
     assert len(info.value.errors) == 1
-    index, error = info.value.errors[0]
-    assert index == u"y"
-    assert isinstance(error, exc.RequiredKeyError)
-    assert error.key == u"y"
+    ne = info.value.errors[0]
+    assert isinstance(ne, exc.MissingKeyError)
+    assert ne.context == [u"y"]
 
     if defaults:
         assert v({u"y": 2}) == {u"x": 0, u"y": 2}
@@ -112,10 +111,9 @@ def test_dict_defaults_and_optional(class_, defaults, optional):
         with pytest.raises(exc.SchemaError) as info:
             v({u"y": 2})
         assert len(info.value.errors) == 1
-        index, error = info.value.errors[0]
-        assert index == u"x"
-        assert isinstance(error, exc.RequiredKeyError)
-        assert error.key == u"x"
+        ne = info.value.errors[0]
+        assert isinstance(ne, exc.MissingKeyError)
+        assert ne.context == [u"x"]
 
 
 @pytest.mark.parametrize("class_", dict_classes)
@@ -130,29 +128,23 @@ def test_dict_extra(class_, extra):
 
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, 3: None})
-        assert len(info.value.errors) == 1
+        assert len(info.value.errors) == 2
 
-        index, error = info.value.errors[0]
-        assert index == 3
-        assert isinstance(error, exc.SchemaError)
-        assert len(error.errors) == 2
+        ne_1, ne_2 = info.value.errors
 
-        (index_1, error_1), (index_2, error_2) = error.errors
+        assert isinstance(ne_1, exc.InvalidTypeError)
+        assert ne_1.context == [3, 0]
+        assert ne_1.expected == str
+        assert ne_1.actual == int
 
-        assert index_1 == 0
-        assert isinstance(error_1, exc.InvalidTypeError)
-        assert error_1.expected == str
-        assert error_1.actual == int
-
-        assert index_2 == 1
-        assert isinstance(error_2, exc.InvalidTypeError)
-        assert error_2.expected == int
-        assert error_2.actual == NoneType
+        assert isinstance(ne_2, exc.InvalidTypeError)
+        assert ne_2.context == [3, 1]
+        assert ne_2.expected == int
+        assert ne_2.actual == NoneType
     else:
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, u"z": 3})
         assert len(info.value.errors) == 1
-        index, error = info.value.errors[0]
-        assert index == u"z"
-        assert isinstance(error, exc.ExtraKeyError)
-        assert error.key == u"z"
+        ne = info.value.errors[0]
+        assert isinstance(ne, exc.ForbiddenKeyError)
+        assert ne.context == [u"z"]

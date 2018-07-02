@@ -33,7 +33,7 @@ class List(abstract.Validator):
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         result = []  # type: t.List[t.Any]
-        errors = []  # type: t.List[t.Tuple[int, exc.ValidationError]]
+        errors = []  # type: t.List[exc.ValidationError]
         if self.unique:
             unique = set()  # type: t.Set[t.Any]
 
@@ -41,7 +41,7 @@ class List(abstract.Validator):
             try:
                 val = self.item(val)
             except exc.ValidationError as e:
-                errors.append((num, e))
+                errors.extend(ne.add_context(num) for ne in e)
                 continue
             if self.unique:
                 if val in unique:
@@ -74,7 +74,7 @@ class Sequence(abstract.Validator):
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         result = []  # type: t.List[t.Any]
-        errors = []  # type: t.List[t.Tuple[int, exc.ValidationError]]
+        errors = []  # type: t.List[exc.ValidationError]
         if self.unique:
             unique = set()  # type: t.Set[t.Any]
 
@@ -82,7 +82,7 @@ class Sequence(abstract.Validator):
             try:
                 val = self.item(val)
             except exc.ValidationError as e:
-                errors.append((num, e))
+                errors.extend(ne.add_context(num) for ne in e)
                 continue
             if self.unique:
                 if val in unique:
@@ -110,14 +110,14 @@ class Tuple(abstract.Validator):
         if len(self.items) != len(value):
             raise exc.TupleLengthError(expected=len(self.items), actual=len(value))
 
-        result = []
-        errors = []
+        result = []  # type: t.List[t.Any]
+        errors = []  # type: t.List[exc.ValidationError]
 
         for num, val in enumerate(value):
             try:
                 val = self.items[num](val)
             except exc.ValidationError as e:
-                errors.append((num, e))
+                errors.extend(ne.add_context(num) for ne in e)
                 continue
             result.append(val)
 

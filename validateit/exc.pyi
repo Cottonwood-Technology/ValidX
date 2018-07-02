@@ -2,77 +2,105 @@ import typing as t
 
 
 class ValidationError(ValueError):
-    pass
+
+    __slots__: t.Tuple[str, ...]
+
+    args: t.Tuple[t.Any, t.Any]
+    context: t.List[t.Any]
+
+    def __init__(self, **kw) -> None:
+        ...
+
+    def add_context(self, node: t.Any) -> ValidationError:
+        ...
+
+    def __iter__(self) -> t.Iterator[ValidationError]:
+        ...
+
+    def __repr__(self) -> str:
+        ...
+
+    def __str__(self) -> str:
+        ...
+
+    def _repr_context(self) -> str:
+        ...
+
+    def _repr_error(self) -> str:
+        ...
 
 
 class ConditionError(ValidationError):
 
+    __slots__: t.Tuple[str, ...]
+
     expected: t.Any
     actual: t.Any
 
-    def __init__(self, expected: t.Any, actual: t.Any) -> None:
+    def __init__(self, *, expected: t.Any, actual: t.Any) -> None:
         ...
 
 
 class InvalidTypeError(ConditionError):
-    pass
+    __slots__: t.Tuple[str, ...]
 
 
 class OptionsError(ConditionError):
-    pass
+    __slots__: t.Tuple[str, ...]
 
 
 class MinValueError(ConditionError):
-    pass
+    __slots__: t.Tuple[str, ...]
 
 
 class MaxValueError(ConditionError):
-    pass
+    __slots__: t.Tuple[str, ...]
 
 
 class FloatValueError(ConditionError):
-    pass
+    __slots__: t.Tuple[str, ...]
 
 
 class StrDecodeError(ConditionError):
-    pass
+    __slots__: t.Tuple[str, ...]
 
 
 class MinLengthError(ConditionError):
-    pass
+    __slots__: t.Tuple[str, ...]
 
 
 class MaxLengthError(ConditionError):
-    pass
+    __slots__: t.Tuple[str, ...]
 
 
 class TupleLengthError(ConditionError):
-    pass
+    __slots__: t.Tuple[str, ...]
 
 
 class PatternMatchError(ConditionError):
-    pass
-
-
-class SchemaError(ValidationError):
-
-    errors: t.List[t.Tuple[t.Any, ValidationError]]
-
-    def __init__(self, errors: t.List[t.Tuple[t.Any, ValidationError]]) -> None:
-        ...
+    __slots__: t.Tuple[str, ...]
 
 
 class MappingKeyError(ValidationError):
-
-    key: t.List[t.Tuple[t.Any, ValidationError]]
+    __slots__: t.Tuple[str, ...]
 
     def __init__(self, key: t.Any) -> None:
         ...
 
 
-class ExtraKeyError(MappingKeyError):
-    pass
+class ForbiddenKeyError(MappingKeyError):
+    __slots__: t.Tuple[str, ...]
 
 
-class RequiredKeyError(MappingKeyError):
-    pass
+class MissingKeyError(MappingKeyError):
+    __slots__: t.Tuple[str, ...]
+
+
+class SchemaError(ValidationError):
+
+    __slots__: t.Tuple[str, ...]
+
+    errors: t.List[ValidationError]
+
+    def __init__(self, errors: t.List[ValidationError]) -> None:
+        ...

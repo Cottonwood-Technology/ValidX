@@ -55,7 +55,7 @@ cdef class List(abstract.Validator):
             try:
                 val = self.item(val)
             except exc.ValidationError as e:
-                errors.append((num, e))
+                errors.extend(ne.add_context(num) for ne in e)
                 continue
             if self.unique:
                 if val in unique:
@@ -118,7 +118,7 @@ cdef class Sequence(abstract.Validator):
             try:
                 val = self.item(val)
             except exc.ValidationError as e:
-                errors.append((num, e))
+                errors.extend(ne.add_context(num) for ne in e)
                 continue
             if self.unique:
                 if val in unique:
@@ -156,7 +156,7 @@ cdef class Tuple(abstract.Validator):
             try:
                 val = self.items[num](val)
             except exc.ValidationError as e:
-                errors.append((num, e))
+                errors.extend(ne.add_context(num) for ne in e)
                 continue
             result.append(val)
 
