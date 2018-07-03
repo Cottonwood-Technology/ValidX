@@ -1,5 +1,6 @@
 import typing as t
 from abc import ABC
+from datetime import date, time, datetime, timedelta
 
 class Validator(ABC):
     __slots__: t.Tuple[str, ...]
@@ -74,6 +75,63 @@ class Bytes(Validator):
         self, *, nullable: bool = None, minlen: int = None, maxlen: int = None
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[bytes]: ...
+
+class Date(Validator):
+    __slots__: t.Tuple[str, ...]
+    nullable: t.Optional[bool]
+    unixts: t.Optional[bool]
+    format: t.Optional[str]
+    min: t.Optional[date]
+    max: t.Optional[date]
+    relmin: t.Optional[timedelta]
+    relmax: t.Optional[timedelta]
+    def __init__(
+        self,
+        nullable: bool = None,
+        unixts: bool = None,
+        format: str = None,
+        min: date = None,
+        max: date = None,
+        relmin: timedelta = None,
+        relmax: timedelta = None,
+    ) -> None: ...
+    def __call__(self, value: t.Any) -> t.Optional[date]: ...
+
+class Time(Validator):
+    __slots__: t.Tuple[str, ...]
+    nullable: t.Optional[bool]
+    format: t.Optional[str]
+    min: t.Optional[time]
+    max: t.Optional[time]
+    def __init__(
+        self,
+        nullable: bool = None,
+        format: str = None,
+        min: time = None,
+        max: time = None,
+    ) -> None: ...
+    def __call__(self, value: t.Any) -> t.Optional[time]: ...
+
+class Datetime(Validator):
+    __slots__: t.Tuple[str, ...]
+    nullable: t.Optional[bool]
+    unixts: t.Optional[bool]
+    format: t.Optional[str]
+    min: t.Optional[datetime]
+    max: t.Optional[datetime]
+    relmin: t.Optional[timedelta]
+    relmax: t.Optional[timedelta]
+    def __init__(
+        self,
+        nullable: bool = None,
+        unixts: bool = None,
+        format: str = None,
+        min: datetime = None,
+        max: datetime = None,
+        relmin: timedelta = None,
+        relmax: timedelta = None,
+    ) -> None: ...
+    def __call__(self, value: t.Any) -> t.Optional[datetime]: ...
 
 class Bool(Validator):
     TRUE: t.ClassVar[t.Tuple[str, ...]]
