@@ -124,3 +124,16 @@ class SchemaError(ValidationError):
         for e in self.errors:
             e.add_context(node)
         return self
+
+
+class StepNo(object):
+    __slots__ = ("no",)
+
+    def __init__(self, no):
+        self.no = no
+
+    def __repr__(self):
+        return "<%s(%s)>" % (self.__class__.__name__, self.no)
+
+    def __eq__(self, other):
+        return self.__class__ is type(other) and self.no == other.no

@@ -111,3 +111,19 @@ class SchemaError(ValidationError):
 
     def __init__(self, errors: t.List[ValidationError]) -> None:
         ...
+
+
+class StepNo(object):
+
+    __slots__: t.Tuple[str, ...]
+
+    no: int
+
+    def __init__(self, no: int) -> None:
+        ...
+
+    def __repr__(self) -> str:
+        ...
+
+    def __eq__(self, other: t.Any) -> bool:
+        ...

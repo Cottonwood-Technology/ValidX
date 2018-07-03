@@ -49,3 +49,14 @@ def test_exc():
     assert list(te) == [te]
     assert list(me) == [me]
     assert list(se) == [te, me]
+
+
+def test_step_no():
+    # type: () -> None
+    step_1 = exc.StepNo(1)
+    step_2 = exc.StepNo(2)
+    assert step_1 != step_2
+    assert step_1 == exc.StepNo(1)
+    assert repr(step_1) == "<StepNo(1)>"
+    assert repr(step_2) == "<StepNo(2)>"
+    assert str(step_1) == repr(step_1)

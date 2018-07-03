@@ -4,6 +4,7 @@ from .chars import Str, Bytes
 from .bools import Bool
 from .sequences import List, Sequence, Tuple
 from .mappings import Dict, Mapping
+from .pipelines import All, Any
 
 
 __all__ = [
@@ -18,4 +19,6 @@ __all__ = [
     "Tuple",
     "Dict",
     "Mapping",
+    "All",
+    "Any",
 ]

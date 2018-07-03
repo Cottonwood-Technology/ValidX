@@ -4,6 +4,7 @@ from .chars import Str, Bytes  # type: ignore
 from .bools import Bool  # type: ignore
 from .sequences import List, Sequence, Tuple  # type: ignore
 from .mappings import Dict, Mapping  # type: ignore
+from .pipelines import All, Any  # type: ignore
 
 
 __all__ = [
@@ -18,4 +19,6 @@ __all__ = [
     "Tuple",
     "Dict",
     "Mapping",
+    "All",
+    "Any",
 ]
