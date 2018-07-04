@@ -32,7 +32,7 @@ cdef class Date(abstract.Validator):
                 try:
                     value = datetime.strptime(value, self.format).date()
                 except ValueError:
-                    raise exc.PatternMatchError(expected=self.format, actual=value)
+                    raise exc.DatetimeParseError(expected=self.format, actual=value)
             else:
                 raise exc.InvalidTypeError(expected=date, actual=type(value))
         if self.min is not None and value < self.min:
@@ -65,7 +65,7 @@ cdef class Time(abstract.Validator):
                 try:
                     value = datetime.strptime(value, self.format).time()
                 except ValueError:
-                    raise exc.PatternMatchError(expected=self.format, actual=value)
+                    raise exc.DatetimeParseError(expected=self.format, actual=value)
             else:
                 raise exc.InvalidTypeError(expected=time, actual=type(value))
         if self.min is not None and value < self.min:
@@ -100,7 +100,7 @@ cdef class Datetime(abstract.Validator):
                 try:
                     value = datetime.strptime(value, self.format)
                 except ValueError:
-                    raise exc.PatternMatchError(expected=self.format, actual=value)
+                    raise exc.DatetimeParseError(expected=self.format, actual=value)
             else:
                 raise exc.InvalidTypeError(expected=datetime, actual=type(value))
         if self.min is not None and value < self.min:

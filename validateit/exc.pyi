@@ -48,6 +48,9 @@ class TupleLengthError(ConditionError):
 class PatternMatchError(ConditionError):
     __slots__: t.Tuple[str, ...]
 
+class DatetimeParseError(ConditionError):
+    __slots__: t.Tuple[str, ...]
+
 class MappingKeyError(ValidationError):
     __slots__: t.Tuple[str, ...]
     def __init__(self, key: t.Any, **kw) -> None: ...

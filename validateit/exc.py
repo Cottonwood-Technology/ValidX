@@ -88,6 +88,10 @@ class PatternMatchError(ConditionError):
     __slots__ = ConditionError.__slots__
 
 
+class DatetimeParseError(ConditionError):
+    __slots__ = ConditionError.__slots__
+
+
 class MappingKeyError(ValidationError):
     __slots__ = ValidationError.__slots__
 

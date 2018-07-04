@@ -86,7 +86,7 @@ def test_date_format(class_, format):
         assert v("2018-07-03") == date(2018, 7, 3)
         assert v(u"2018-07-03") == date(2018, 7, 3)
 
-        with pytest.raises(exc.PatternMatchError) as info:
+        with pytest.raises(exc.DatetimeParseError) as info:
             v(u"03.07.2018")
         assert info.value.expected == format
         assert info.value.actual == u"03.07.2018"
@@ -186,7 +186,7 @@ def test_time_format(class_, format):
         assert v("13:35") == time(13, 35)
         assert v(u"13:35") == time(13, 35)
 
-        with pytest.raises(exc.PatternMatchError) as info:
+        with pytest.raises(exc.DatetimeParseError) as info:
             v(u"13:35:00")
         assert info.value.expected == format
         assert info.value.actual == u"13:35:00"
@@ -289,7 +289,7 @@ def test_datetime_format(class_, format):
         assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
         assert v(u"2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
 
-        with pytest.raises(exc.PatternMatchError) as info:
+        with pytest.raises(exc.DatetimeParseError) as info:
             v(u"03.07.2018 19:15")
         assert info.value.expected == format
         assert info.value.actual == u"03.07.2018 19:15"
