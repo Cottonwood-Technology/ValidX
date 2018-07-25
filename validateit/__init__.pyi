@@ -224,12 +224,12 @@ class Mapping(Validator):
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[t.Dict]: ...
 
-class All(Validator):
+class AllOf(Validator):
     __slots__: t.Tuple[str, ...]
     steps: t.List[Validator]
     def __init__(self, *steps: Validator, **kw) -> None: ...
 
-class Any(Validator):
+class AnyOf(Validator):
     __slots__: t.Tuple[str, ...]
     steps: t.List[Validator]
     def __init__(self, *steps: Validator, **kw) -> None: ...

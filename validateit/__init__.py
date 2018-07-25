@@ -16,8 +16,8 @@ try:
         Tuple,
         Dict,
         Mapping,
-        All,
-        Any,
+        AllOf,
+        AnyOf,
     )
 except ImportError:  # pragma: no cover
     from .py import (
@@ -35,8 +35,8 @@ except ImportError:  # pragma: no cover
         Tuple,
         Dict,
         Mapping,
-        All,
-        Any,
+        AllOf,
+        AnyOf,
     )
 
 
@@ -56,6 +56,6 @@ __all__ = [
     "Tuple",
     "Dict",
     "Mapping",
-    "All",
-    "Any",
+    "AllOf",
+    "AnyOf",
 ]

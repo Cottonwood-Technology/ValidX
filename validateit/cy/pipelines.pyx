@@ -2,14 +2,14 @@ from .. import exc
 from . cimport abstract
 
 
-cdef class All(abstract.Validator):
+cdef class AllOf(abstract.Validator):
 
     __slots__ = ("steps",)
 
     cdef public steps
 
     def __init__(self, *steps, **kw):
-        super(All, self).__init__(steps=list(steps), **kw)
+        super(AllOf, self).__init__(steps=list(steps), **kw)
 
     def __call__(self, value):
         for num, step in enumerate(self.steps):
@@ -20,17 +20,17 @@ cdef class All(abstract.Validator):
         return value
 
 
-cdef class Any(abstract.Validator):
+cdef class AnyOf(abstract.Validator):
 
     __slots__ = ("steps",)
 
     cdef public steps
 
     def __init__(self, *steps, **kw):
-        super(Any, self).__init__(steps=list(steps), **kw)
+        super(AnyOf, self).__init__(steps=list(steps), **kw)
 
     def __call__(self, value):
-        errors = []  # type: t.List[exc.ValidationError]
+        errors = []
         for num, step in enumerate(self.steps):
             try:
                 return step(value)
@@ -39,4 +39,4 @@ cdef class Any(abstract.Validator):
         if errors:
             raise exc.SchemaError(errors)
         # If there are no steps, return value as it is.
-        return value  # pragma: no cover
+        return value

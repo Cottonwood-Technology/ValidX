@@ -9,13 +9,13 @@ from validateit import py, cy
 from validateit import exc
 
 
-all_classes = [py.All, cy.All]
-any_classes = [py.Any, cy.Any]
+all_classes = [py.AllOf, cy.AllOf]
+any_classes = [py.AnyOf, cy.AnyOf]
 
 
 @pytest.mark.parametrize("class_", all_classes)
-def test_all(class_):
-    # type: (t.Type[py.All]) -> None
+def test_all_of(class_):
+    # type: (t.Type[py.AllOf]) -> None
     v = class_(py.Int(min=0), py.Int(max=10))
     assert v(1) == 1
 
@@ -33,8 +33,8 @@ def test_all(class_):
 
 
 @pytest.mark.parametrize("class_", any_classes)
-def test_any(class_):
-    # type: (t.Type[py.Any]) -> None
+def test_any_of(class_):
+    # type: (t.Type[py.AnyOf]) -> None
     v = class_(py.Int(options=[1, 2, 3]), py.Int(min=10))
     assert v(1) == 1
     assert v(2) == 2

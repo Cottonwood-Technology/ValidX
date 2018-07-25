@@ -7,12 +7,12 @@ from .. import exc
 from . import abstract
 
 
-class All(abstract.Validator):
+class AllOf(abstract.Validator):
 
     __slots__ = ("steps",)
 
     def __init__(self, *steps, **kw):
-        super(All, self).__init__(steps=list(steps), **kw)
+        super(AllOf, self).__init__(steps=list(steps), **kw)
 
     def __call__(self, value):
         for num, step in enumerate(self.steps):
@@ -23,12 +23,12 @@ class All(abstract.Validator):
         return value
 
 
-class Any(abstract.Validator):
+class AnyOf(abstract.Validator):
 
     __slots__ = ("steps",)
 
     def __init__(self, *steps, **kw):
-        super(Any, self).__init__(steps=list(steps), **kw)
+        super(AnyOf, self).__init__(steps=list(steps), **kw)
 
     def __call__(self, value):
         errors = []  # type: t.List[exc.ValidationError]
