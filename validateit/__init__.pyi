@@ -8,6 +8,10 @@ class Validator(ABC):
     def __call__(self, value: t.Any) -> t.Optional[t.Any]: ...
     def dump(self) -> t.Dict[str, t.Any]: ...
 
+class Any(Validator):
+    __slots__: t.Tuple[str, ...]
+    def __init__(self, *, nullable: bool = None) -> None: ...
+
 class Int(Validator):
     __slots__: t.Tuple[str, ...]
     nullable: t.Optional[bool]

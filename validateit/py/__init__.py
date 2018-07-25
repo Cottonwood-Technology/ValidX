@@ -1,4 +1,5 @@
 from .abstract import Validator
+from .any import Any
 from .numbers import Int, Float
 from .chars import Str, Bytes
 from .datetimes import Date, Time, Datetime
@@ -10,6 +11,7 @@ from .pipelines import AllOf, AnyOf
 
 __all__ = [
     "Validator",
+    "Any",
     "Int",
     "Float",
     "Str",
