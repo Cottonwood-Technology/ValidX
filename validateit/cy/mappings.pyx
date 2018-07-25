@@ -87,7 +87,15 @@ cdef class Dict(abstract.Validator):
 
 cdef class Mapping(abstract.Validator):
 
-    __slots__ = ("schema", "nullable", "extra", "defaults", "optional", "dispose")
+    __slots__ = (
+        "schema",
+        "nullable",
+        "extra",
+        "defaults",
+        "optional",
+        "dispose",
+        "multikeys",
+    )
 
     cdef public schema
     cdef public bint nullable
@@ -95,6 +103,7 @@ cdef class Mapping(abstract.Validator):
     cdef public defaults
     cdef public optional
     cdef public dispose
+    cdef public multikeys
 
     def __init__(self, schema, **kw):
         super(Mapping, self).__init__(schema=schema, **kw)
@@ -107,10 +116,25 @@ cdef class Mapping(abstract.Validator):
 
         result = {}
         errors = []
+        getall = None
+        if self.multikeys is not None:
+            # If value is a multidict, specified keys should be treated
+            # as sequences, not as scalars.  The following popular multidict
+            # interfaces are supported:
+            #   multidict (value.getall)
+            #   webob.multidict (value.getall)
+            #   werkzeug.datastructures.MultiDict (value.getlist)
+            getall = getattr(value, "getall", None) or getattr(value, "getlist", None)
 
         for key, val in value.items():
             if self.dispose is not None and key in self.dispose:
                 continue
+            if (
+                self.multikeys is not None
+                and getall is not None
+                and key in self.multikeys
+            ):
+                val = getall(key)
             try:
                 if key in self.schema:
                     val = self.schema[key](val)

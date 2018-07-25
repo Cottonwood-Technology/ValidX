@@ -7,6 +7,8 @@ except ImportError:
     pass
 
 import pytest  # type: ignore
+from webob.multidict import MultiDict as WebObMultiDict
+from werkzeug.datastructures import MultiDict as WerkzeugMultiDict
 
 from validateit import py, cy
 from validateit import exc
@@ -18,6 +20,15 @@ if sys.version_info[0] < 3:
 
 NoneType = type(None)
 dict_classes = [py.Dict, py.Mapping, cy.Dict, cy.Mapping]
+mapping_classes = [py.Mapping, cy.Mapping]
+multidict_classes = [WebObMultiDict, WerkzeugMultiDict]
+
+try:
+    from multidict import MultiDict
+
+    multidict_classes.append(MultiDict)
+except ImportError:
+    pass
 
 
 class CustomMapping(collections.Mapping):
@@ -167,3 +178,14 @@ def test_dict_dispose(class_, dispose):
         ne = info.value.errors[0]
         assert isinstance(ne, exc.ForbiddenKeyError)
         assert ne.context == [u"z"]
+
+
+@pytest.mark.parametrize("class_", mapping_classes)
+@pytest.mark.parametrize("multidict", multidict_classes)
+def test_mapping_multikeys(class_, multidict):
+    v1 = class_({u"x": py.Int(), u"y": py.Int()})
+    v2 = class_({u"x": py.Int(), u"y": py.List(py.Int())}, multikeys=[u"y"])
+    data = multidict([(u"x", 1), (u"y", 2), (u"y", 3)])
+
+    assert v1(data) == {u"x": 1, u"y": 3} or v1(data) == {u"x": 1, u"y": 2}
+    assert v2(data) == {u"x": 1, u"y": [2, 3]}

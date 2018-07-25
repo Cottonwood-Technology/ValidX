@@ -85,7 +85,15 @@ class Dict(abstract.Validator):
 
 class Mapping(abstract.Validator):
 
-    __slots__ = ("schema", "nullable", "extra", "defaults", "optional", "dispose")
+    __slots__ = (
+        "schema",
+        "nullable",
+        "extra",
+        "defaults",
+        "optional",
+        "dispose",
+        "multikeys",
+    )
 
     def __init__(self, schema, **kw):
         super(Mapping, self).__init__(schema=schema, **kw)
@@ -98,10 +106,25 @@ class Mapping(abstract.Validator):
 
         result = {}  # type: t.Dict[t.Any, t.Any]
         errors = []  # type: t.List[exc.ValidationError]
+        getall = None  # type: t.Optional[t.Callable[[t.Any], t.List]]
+        if self.multikeys is not None:
+            # If value is a multidict, specified keys should be treated
+            # as sequences, not as scalars.  The following popular multidict
+            # interfaces are supported:
+            #   multidict (value.getall)
+            #   webob.multidict (value.getall)
+            #   werkzeug.datastructures.MultiDict (value.getlist)
+            getall = getattr(value, "getall", None) or getattr(value, "getlist", None)
 
         for key, val in value.items():
             if self.dispose is not None and key in self.dispose:
                 continue
+            if (
+                self.multikeys is not None
+                and getall is not None
+                and key in self.multikeys
+            ):
+                val = getall(key)
             try:
                 if key in self.schema:
                     val = self.schema[key](val)
