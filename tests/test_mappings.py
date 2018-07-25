@@ -149,3 +149,21 @@ def test_dict_extra(class_, extra):
         ne = info.value.errors[0]
         assert isinstance(ne, exc.ForbiddenKeyError)
         assert ne.context == [u"z"]
+
+
+@pytest.mark.parametrize("class_", dict_classes)
+@pytest.mark.parametrize("dispose", [None, [u"z"]])
+def test_dict_dispose(class_, dispose):
+    # type: (t.Type[py.Dict], t.Optional[t.List]) -> None
+    v = class_({u"x": py.Int(), u"y": py.Int()}, dispose=dispose)
+    assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
+
+    if dispose:
+        assert v({u"x": 1, u"y": 2, u"z": 3}) == {u"x": 1, u"y": 2}
+    else:
+        with pytest.raises(exc.SchemaError) as info:
+            v({u"x": 1, u"y": 2, u"z": 3})
+        assert len(info.value.errors) == 1
+        ne = info.value.errors[0]
+        assert isinstance(ne, exc.ForbiddenKeyError)
+        assert ne.context == [u"z"]

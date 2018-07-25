@@ -201,6 +201,7 @@ class Dict(Validator):
     extra: t.Optional[t.Tuple[Validator, Validator]]
     defaults: t.Optional[t.Dict]
     optional: t.Optional[t.Container]
+    dispose: t.Optional[t.Container]
     def __init__(
         self,
         schema: t.Dict[t.Any, Validator],
@@ -208,6 +209,7 @@ class Dict(Validator):
         extra: Tuple = None,
         defaults: t.Dict = None,
         optional: t.Container = None,
+        dispose: t.Container = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[t.Dict]: ...
 
@@ -218,6 +220,7 @@ class Mapping(Validator):
     extra: t.Optional[t.Tuple[Validator, Validator]]
     defaults: t.Optional[t.Dict]
     optional: t.Optional[t.Container]
+    dispose: t.Optional[t.Container]
     def __init__(
         self,
         schema: t.Dict[t.Any, Validator],
@@ -225,6 +228,7 @@ class Mapping(Validator):
         extra: Tuple = None,
         defaults: t.Dict = None,
         optional: t.Container = None,
+        dispose: t.Container = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[t.Dict]: ...
 

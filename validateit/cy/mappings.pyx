@@ -7,13 +7,14 @@ from . cimport abstract
 
 cdef class Dict(abstract.Validator):
 
-    __slots__ = ("schema", "nullable", "extra", "defaults", "optional")
+    __slots__ = ("schema", "nullable", "extra", "defaults", "optional", "dispose")
 
     cdef public schema
     cdef public bint nullable
     cdef public extra
     cdef public defaults
     cdef public optional
+    cdef public dispose
 
     def __init__(self, schema, **kw):
         super(Dict, self).__init__(schema=schema, **kw)
@@ -28,6 +29,8 @@ cdef class Dict(abstract.Validator):
         errors = []
 
         for key, val in value.items():
+            if self.dispose is not None and key in self.dispose:
+                continue
             try:
                 if key in self.schema:
                     val = self.schema[key](val)
@@ -84,13 +87,14 @@ cdef class Dict(abstract.Validator):
 
 cdef class Mapping(abstract.Validator):
 
-    __slots__ = ("schema", "nullable", "extra", "defaults", "optional")
+    __slots__ = ("schema", "nullable", "extra", "defaults", "optional", "dispose")
 
     cdef public schema
     cdef public bint nullable
     cdef public extra
     cdef public defaults
     cdef public optional
+    cdef public dispose
 
     def __init__(self, schema, **kw):
         super(Mapping, self).__init__(schema=schema, **kw)
@@ -105,6 +109,8 @@ cdef class Mapping(abstract.Validator):
         errors = []
 
         for key, val in value.items():
+            if self.dispose is not None and key in self.dispose:
+                continue
             try:
                 if key in self.schema:
                     val = self.schema[key](val)

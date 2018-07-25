@@ -12,7 +12,7 @@ from . import abstract
 
 class Dict(abstract.Validator):
 
-    __slots__ = ("schema", "nullable", "extra", "defaults", "optional")
+    __slots__ = ("schema", "nullable", "extra", "defaults", "optional", "dispose")
 
     def __init__(self, schema, **kw):
         super(Dict, self).__init__(schema=schema, **kw)
@@ -27,6 +27,8 @@ class Dict(abstract.Validator):
         errors = []  # type: t.List[exc.ValidationError]
 
         for key, val in value.items():
+            if self.dispose is not None and key in self.dispose:
+                continue
             try:
                 if key in self.schema:
                     val = self.schema[key](val)
@@ -83,7 +85,7 @@ class Dict(abstract.Validator):
 
 class Mapping(abstract.Validator):
 
-    __slots__ = ("schema", "nullable", "extra", "defaults", "optional")
+    __slots__ = ("schema", "nullable", "extra", "defaults", "optional", "dispose")
 
     def __init__(self, schema, **kw):
         super(Mapping, self).__init__(schema=schema, **kw)
@@ -98,6 +100,8 @@ class Mapping(abstract.Validator):
         errors = []  # type: t.List[exc.ValidationError]
 
         for key, val in value.items():
+            if self.dispose is not None and key in self.dispose:
+                continue
             try:
                 if key in self.schema:
                     val = self.schema[key](val)
