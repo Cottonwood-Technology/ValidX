@@ -49,7 +49,7 @@ def test_date_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == date
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", date_classes)
@@ -171,7 +171,7 @@ def test_time_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == time
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", time_classes)
@@ -251,7 +251,7 @@ def test_datetime_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == datetime
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", datetime_classes)

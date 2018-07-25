@@ -7,7 +7,7 @@ except ImportError:
     pass
 
 import pytest  # type: ignore
-from webob.multidict import MultiDict as WebObMultiDict
+from webob.multidict import MultiDict as WebObMultiDict  # type: ignore
 from werkzeug.datastructures import MultiDict as WerkzeugMultiDict
 
 from validateit import py, cy
@@ -80,7 +80,7 @@ def test_dict(class_):
     assert isinstance(ne_2, exc.InvalidTypeError)
     assert ne_2.context == [u"y"]
     assert ne_2.expected == int
-    assert ne_2.actual == NoneType
+    assert ne_2.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", dict_classes)
@@ -96,7 +96,7 @@ def test_dict_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected in (dict, collections.Mapping)
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", dict_classes)
@@ -152,7 +152,7 @@ def test_dict_extra(class_, extra):
 
         assert isinstance(ne.value_error, exc.InvalidTypeError)
         assert ne.value_error.expected == int
-        assert ne.value_error.actual == NoneType
+        assert ne.value_error.actual == NoneType  # type: ignore
     else:
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, u"z": 3})
@@ -183,6 +183,7 @@ def test_dict_dispose(class_, dispose):
 @pytest.mark.parametrize("class_", mapping_classes)
 @pytest.mark.parametrize("multidict", multidict_classes)
 def test_mapping_multikeys(class_, multidict):
+    # type: (t.Type[py.Dict], t.Type[MultiDict]) -> None
     v1 = class_({u"x": py.Int(), u"y": py.Int()})
     v2 = class_({u"x": py.Int(), u"y": py.List(py.Int())}, multikeys=[u"y"])
     data = multidict([(u"x", 1), (u"y", 2), (u"y", 3)])

@@ -66,7 +66,7 @@ def test_list(class_):
     assert isinstance(ne_2, exc.InvalidTypeError)
     assert ne_2.context == [3]
     assert ne_2.expected == int
-    assert ne_2.actual == NoneType
+    assert ne_2.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", list_classes)
@@ -83,7 +83,7 @@ def test_list_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected in ((list, tuple), collections.Sequence)
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", list_classes)
@@ -160,7 +160,7 @@ def test_tuple(class_):
     assert isinstance(ne_2, exc.InvalidTypeError)
     assert ne_2.context == [1]
     assert ne_2.expected == int
-    assert ne_2.actual == NoneType
+    assert ne_2.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", tuple_classes)
@@ -177,4 +177,4 @@ def test_tuple_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == (list, tuple)
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore

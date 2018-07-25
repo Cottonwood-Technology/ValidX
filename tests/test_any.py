@@ -29,4 +29,4 @@ def test_any(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == object
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore

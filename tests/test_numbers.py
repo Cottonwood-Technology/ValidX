@@ -37,7 +37,7 @@ def test_int_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == int
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", int_classes)
@@ -133,7 +133,7 @@ def test_float_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == float
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", float_classes)

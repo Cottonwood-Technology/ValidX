@@ -42,7 +42,7 @@ def test_str_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == str
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", str_classes)
@@ -149,7 +149,7 @@ def test_bytes_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == bytes
-        assert info.value.actual == NoneType
+        assert info.value.actual == NoneType  # type: ignore
 
 
 @pytest.mark.parametrize("class_", bytes_classes)
