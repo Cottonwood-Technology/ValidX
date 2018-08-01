@@ -12,9 +12,18 @@ from . import abstract
 
 class Dict(abstract.Validator):
 
-    __slots__ = ("schema", "nullable", "extra", "defaults", "optional", "dispose")
+    __slots__ = (
+        "schema",
+        "nullable",
+        "minlen",
+        "maxlen",
+        "extra",
+        "defaults",
+        "optional",
+        "dispose",
+    )
 
-    def __init__(self, schema, **kw):
+    def __init__(self, schema=None, **kw):
         super(Dict, self).__init__(schema=schema, **kw)
 
     def __call__(self, value):
@@ -23,6 +32,12 @@ class Dict(abstract.Validator):
         if not isinstance(value, dict):
             raise exc.InvalidTypeError(expected=dict, actual=type(value))
 
+        length = len(value)
+        if self.minlen is not None and length < self.minlen:
+            raise exc.MinLengthError(expected=self.minlen, actual=length)
+        if self.maxlen is not None and length > self.maxlen:
+            raise exc.MaxLengthError(expected=self.maxlen, actual=length)
+
         result = {}
         errors = []
 
@@ -30,7 +45,7 @@ class Dict(abstract.Validator):
             if self.dispose is not None and key in self.dispose:
                 continue
             try:
-                if key in self.schema:
+                if self.schema is not None and key in self.schema:
                     val = self.schema[key](val)
                 elif self.extra is not None:
                     try:
@@ -59,23 +74,24 @@ class Dict(abstract.Validator):
                 errors.extend(ne.add_context(key) for ne in e)
             result[key] = val
 
-        for key in self.schema:
-            if key in result:
-                continue
-            if self.defaults is not None:
-                try:
-                    default = self.defaults[key]
-                except KeyError:
-                    pass
-                else:
-                    if callable(default):
-                        result[key] = default()
-                    else:
-                        result[key] = deepcopy(default)
+        if self.schema is not None:
+            for key in self.schema:
+                if key in result:
                     continue
-            if self.optional is not None and key in self.optional:
-                continue
-            errors.append(exc.MissingKeyError(key))
+                if self.defaults is not None:
+                    try:
+                        default = self.defaults[key]
+                    except KeyError:
+                        pass
+                    else:
+                        if callable(default):
+                            result[key] = default()
+                        else:
+                            result[key] = deepcopy(default)
+                        continue
+                if self.optional is not None and key in self.optional:
+                    continue
+                errors.append(exc.MissingKeyError(key))
 
         if errors:
             errors.sort(key=lambda e: e.context)
@@ -88,6 +104,8 @@ class Mapping(abstract.Validator):
     __slots__ = (
         "schema",
         "nullable",
+        "minlen",
+        "maxlen",
         "extra",
         "defaults",
         "optional",
@@ -95,7 +113,7 @@ class Mapping(abstract.Validator):
         "multikeys",
     )
 
-    def __init__(self, schema, **kw):
+    def __init__(self, schema=None, **kw):
         super(Mapping, self).__init__(schema=schema, **kw)
 
     def __call__(self, value):
@@ -103,6 +121,12 @@ class Mapping(abstract.Validator):
             return value
         if not isinstance(value, abc.Mapping):
             raise exc.InvalidTypeError(expected=abc.Mapping, actual=type(value))
+
+        length = len(value)
+        if self.minlen is not None and length < self.minlen:
+            raise exc.MinLengthError(expected=self.minlen, actual=length)
+        if self.maxlen is not None and length > self.maxlen:
+            raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         result = {}
         errors = []
@@ -126,7 +150,7 @@ class Mapping(abstract.Validator):
             ):
                 val = getall(key)
             try:
-                if key in self.schema:
+                if self.schema is not None and key in self.schema:
                     val = self.schema[key](val)
                 elif self.extra is not None:
                     try:
@@ -155,23 +179,24 @@ class Mapping(abstract.Validator):
                 errors.extend(ne.add_context(key) for ne in e)
             result[key] = val
 
-        for key in self.schema:
-            if key in result:
-                continue
-            if self.defaults is not None:
-                try:
-                    default = self.defaults[key]
-                except KeyError:
-                    pass
-                else:
-                    if callable(default):
-                        result[key] = default()
-                    else:
-                        result[key] = deepcopy(default)
+        if self.schema is not None:
+            for key in self.schema:
+                if key in result:
                     continue
-            if self.optional is not None and key in self.optional:
-                continue
-            errors.append(exc.MissingKeyError(key))
+                if self.defaults is not None:
+                    try:
+                        default = self.defaults[key]
+                    except KeyError:
+                        pass
+                    else:
+                        if callable(default):
+                            result[key] = default()
+                        else:
+                            result[key] = deepcopy(default)
+                        continue
+                if self.optional is not None and key in self.optional:
+                    continue
+                errors.append(exc.MissingKeyError(key))
 
         if errors:
             errors.sort(key=lambda e: e.context)

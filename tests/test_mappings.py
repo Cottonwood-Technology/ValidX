@@ -93,6 +93,35 @@ def test_dict_nullable(class_, nullable):
 
 
 @pytest.mark.parametrize("class_", dict_classes)
+@pytest.mark.parametrize("minlen", [None, 2])
+@pytest.mark.parametrize("maxlen", [None, 3])
+def test_dict_minlen_maxlen(class_, minlen, maxlen):
+    v = class_(extra=(py.Str(), py.Int()), minlen=minlen, maxlen=maxlen)
+    assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
+
+    if minlen is None:
+        assert v({u"x": 1}) == {u"x": 1}
+    else:
+        with pytest.raises(exc.MinLengthError) as info:
+            v({u"x": 1})
+        assert info.value.expected == minlen
+        assert info.value.actual == 1
+
+    if maxlen is None:
+        assert v({u"x": 1, u"y": 2, u"z": 3, u"a": 4}) == {
+            u"x": 1,
+            u"y": 2,
+            u"z": 3,
+            u"a": 4,
+        }
+    else:
+        with pytest.raises(exc.MaxLengthError) as info:
+            v({u"x": 1, u"y": 2, u"z": 3, u"a": 4})
+        assert info.value.expected == maxlen
+        assert info.value.actual == 4
+
+
+@pytest.mark.parametrize("class_", dict_classes)
 @pytest.mark.parametrize("defaults", [None, {u"x": 0}, {u"x": lambda: 0}])
 @pytest.mark.parametrize("optional", [None, [u"x"]])
 def test_dict_defaults_and_optional(class_, defaults, optional):
