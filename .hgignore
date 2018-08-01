@@ -16,4 +16,5 @@ build
 # Compiled files
 *.pyc
 *.c
+*.h
 *.so

@@ -4,13 +4,18 @@ from datetime import date, time, datetime, timedelta
 
 class Validator(ABC):
     __slots__: t.Tuple[str, ...]
-    def __init__(self, **kw) -> None: ...
+    def __init__(self, *, alias: str = None, **kw) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[t.Any]: ...
+    def __repr__(self) -> str: ...
+    def params(self) -> t.Iterator[t.Tuple[str, t.Any]]: ...
     def dump(self) -> t.Dict[str, t.Any]: ...
+    def clone(
+        self, update: t.Dict[str, t.Dict] = None, unset: t.Dict[str, t.Container] = None
+    ) -> Validator: ...
 
 class Any(Validator):
     __slots__: t.Tuple[str, ...]
-    def __init__(self, *, nullable: bool = None) -> None: ...
+    def __init__(self, *, nullable: bool = None, alias: str = None) -> None: ...
 
 class Int(Validator):
     __slots__: t.Tuple[str, ...]
@@ -27,6 +32,7 @@ class Int(Validator):
         min: int = None,
         max: int = None,
         options: t.Container[int] = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[int]: ...
 
@@ -47,6 +53,7 @@ class Float(Validator):
         inf: bool = None,
         min: float = None,
         max: float = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[float]: ...
 
@@ -67,6 +74,7 @@ class Str(Validator):
         maxlen: int = None,
         pattern: str = None,
         options: t.Container[str] = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[str]: ...
 
@@ -76,7 +84,12 @@ class Bytes(Validator):
     minlen: t.Optional[int]
     maxlen: t.Optional[int]
     def __init__(
-        self, *, nullable: bool = None, minlen: int = None, maxlen: int = None
+        self,
+        *,
+        nullable: bool = None,
+        minlen: int = None,
+        maxlen: int = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[bytes]: ...
 
@@ -91,6 +104,7 @@ class Date(Validator):
     relmax: t.Optional[timedelta]
     def __init__(
         self,
+        *,
         nullable: bool = None,
         unixts: bool = None,
         format: str = None,
@@ -98,6 +112,7 @@ class Date(Validator):
         max: date = None,
         relmin: timedelta = None,
         relmax: timedelta = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[date]: ...
 
@@ -109,10 +124,12 @@ class Time(Validator):
     max: t.Optional[time]
     def __init__(
         self,
+        *,
         nullable: bool = None,
         format: str = None,
         min: time = None,
         max: time = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[time]: ...
 
@@ -127,6 +144,7 @@ class Datetime(Validator):
     relmax: t.Optional[timedelta]
     def __init__(
         self,
+        *,
         nullable: bool = None,
         unixts: bool = None,
         format: str = None,
@@ -134,6 +152,7 @@ class Datetime(Validator):
         max: datetime = None,
         relmin: timedelta = None,
         relmax: timedelta = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[datetime]: ...
 
@@ -145,7 +164,12 @@ class Bool(Validator):
     coerce_str: t.Optional[bool]
     coerce_int: t.Optional[bool]
     def __init__(
-        self, *, nullable: bool = None, coerce_str: bool = None, coerce_int: bool = None
+        self,
+        *,
+        nullable: bool = None,
+        coerce_str: bool = None,
+        coerce_int: bool = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[bool]: ...
 
@@ -166,6 +190,7 @@ class List(Validator):
         minlen: int = None,
         maxlen: int = None,
         unique: bool = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[t.List]: ...
 
@@ -184,6 +209,7 @@ class Sequence(Validator):
         minlen: int = None,
         maxlen: int = None,
         unique: bool = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[t.List]: ...
 
@@ -191,7 +217,9 @@ class Tuple(Validator):
     __slots__: t.Tuple[str, ...]
     items: t.List[Validator]
     nullable: t.Optional[bool]
-    def __init__(self, *items: Validator, nullable: bool = None) -> None: ...
+    def __init__(
+        self, *items: Validator, nullable: bool = None, alias: str = None
+    ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[t.Tuple]: ...
 
 class Dict(Validator):
@@ -205,11 +233,13 @@ class Dict(Validator):
     def __init__(
         self,
         schema: t.Dict[t.Any, Validator],
+        *,
         nullable: bool = None,
         extra: Tuple = None,
         defaults: t.Dict = None,
         optional: t.Container = None,
         dispose: t.Container = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[t.Dict]: ...
 
@@ -225,21 +255,23 @@ class Mapping(Validator):
     def __init__(
         self,
         schema: t.Dict[t.Any, Validator],
+        *,
         nullable: bool = None,
         extra: Tuple = None,
         defaults: t.Dict = None,
         optional: t.Container = None,
         dispose: t.Container = None,
         multikeys: t.Container = None,
+        alias: str = None,
     ) -> None: ...
     def __call__(self, value: t.Any) -> t.Optional[t.Dict]: ...
 
 class AllOf(Validator):
     __slots__: t.Tuple[str, ...]
     steps: t.List[Validator]
-    def __init__(self, *steps: Validator, **kw) -> None: ...
+    def __init__(self, *steps: Validator, alias: str = None) -> None: ...
 
 class AnyOf(Validator):
     __slots__: t.Tuple[str, ...]
     steps: t.List[Validator]
-    def __init__(self, *steps: Validator, **kw) -> None: ...
+    def __init__(self, *steps: Validator, alias: str = None) -> None: ...

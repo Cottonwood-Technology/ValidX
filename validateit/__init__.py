@@ -19,6 +19,8 @@ try:
         Mapping,
         AllOf,
         AnyOf,
+        classes,
+        instances,
     )
 except ImportError:  # pragma: no cover
     from .py import (
@@ -39,6 +41,8 @@ except ImportError:  # pragma: no cover
         Mapping,
         AllOf,
         AnyOf,
+        classes,
+        instances,
     )
 
 
@@ -61,4 +65,6 @@ __all__ = [
     "Mapping",
     "AllOf",
     "AnyOf",
+    "classes",
+    "instances",
 ]
