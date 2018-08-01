@@ -4,7 +4,6 @@ from validateit import exc
 
 
 def test_exc():
-    # type: () -> None
     te = exc.InvalidTypeError(expected=int, actual=str)
     assert te.context == []
     assert repr(te) == "<InvalidTypeError(expected=%r, actual=%r)>" % (int, str)
@@ -52,7 +51,6 @@ def test_exc():
 
 
 def test_step_no():
-    # type: () -> None
     step_1 = exc.StepNo(1)
     step_2 = exc.StepNo(2)
     assert step_1 != step_2

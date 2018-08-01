@@ -31,7 +31,7 @@ class AnyOf(abstract.Validator):
         super(AnyOf, self).__init__(steps=list(steps), **kw)
 
     def __call__(self, value):
-        errors = []  # type: t.List[exc.ValidationError]
+        errors = []
         for num, step in enumerate(self.steps):
             try:
                 return step(value)

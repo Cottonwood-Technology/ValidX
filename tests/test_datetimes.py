@@ -2,12 +2,7 @@ import sys
 from time import time as timestamp
 from datetime import date, time, datetime, timedelta
 
-try:
-    import typing as t  # noqa
-except ImportError:
-    pass
-
-import pytest  # type: ignore
+import pytest
 
 from validateit import py, cy
 from validateit import exc
@@ -25,7 +20,6 @@ datetime_classes = [py.Datetime, cy.Datetime]
 
 @pytest.mark.parametrize("class_", date_classes)
 def test_date(class_):
-    # type: (t.Type[py.Date]) -> None
     v = class_()
     today = date.today()
     now = datetime.now()
@@ -36,7 +30,6 @@ def test_date(class_):
 @pytest.mark.parametrize("class_", date_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_date_nullable(class_, nullable):
-    # type: (t.Type[py.Date], t.Optional[bool]) -> None
     v = class_(nullable=nullable)
     today = date.today()
     now = datetime.now()
@@ -49,13 +42,12 @@ def test_date_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == date
-        assert info.value.actual == NoneType  # type: ignore
+        assert info.value.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", date_classes)
 @pytest.mark.parametrize("unixts", [None, False, True])
 def test_date_unixts(class_, unixts):
-    # type: (t.Type[py.Date], t.Optional[bool]) -> None
     v = class_(unixts=unixts)
     today = date.today()
     now = datetime.now()
@@ -74,7 +66,6 @@ def test_date_unixts(class_, unixts):
 @pytest.mark.parametrize("class_", date_classes)
 @pytest.mark.parametrize("format", [None, "%Y-%m-%d"])
 def test_date_format(class_, format):
-    # type: (t.Type[py.Date], t.Optional[str]) -> None
     v = class_(format=format)
     today = date.today()
     now = datetime.now()
@@ -101,7 +92,6 @@ def test_date_format(class_, format):
 @pytest.mark.parametrize("min", [None, date(2018, 1, 1)])
 @pytest.mark.parametrize("max", [None, date(2019, 1, 1)])
 def test_date_min_max(class_, min, max):
-    # type: (t.Type[py.Date], t.Optional[date], t.Optional[date]) -> None
     v = class_(min=min, max=max)
     assert v(date(2018, 7, 3)) == date(2018, 7, 3)
 
@@ -126,7 +116,6 @@ def test_date_min_max(class_, min, max):
 @pytest.mark.parametrize("relmin", [None, timedelta(days=1)])
 @pytest.mark.parametrize("relmax", [None, timedelta(days=7)])
 def test_date_relmin_relmax(class_, relmin, relmax):
-    # type: (t.Type[py.Date], t.Optional[timedelta], t.Optional[timedelta]) -> None
     v = class_(relmin=relmin, relmax=relmax)
     today = date.today()
     assert v(today + timedelta(days=3)) == today + timedelta(days=3)
@@ -153,7 +142,6 @@ def test_date_relmin_relmax(class_, relmin, relmax):
 
 @pytest.mark.parametrize("class_", time_classes)
 def test_time(class_):
-    # type: (t.Type[py.Time]) -> None
     v = class_()
     assert v(time(13, 35)) == time(13, 35)
 
@@ -161,7 +149,6 @@ def test_time(class_):
 @pytest.mark.parametrize("class_", time_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_time_nullable(class_, nullable):
-    # type: (t.Type[py.Time], t.Optional[bool]) -> None
     v = class_(nullable=nullable)
     assert v(time(13, 35)) == time(13, 35)
 
@@ -171,13 +158,12 @@ def test_time_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == time
-        assert info.value.actual == NoneType  # type: ignore
+        assert info.value.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", time_classes)
 @pytest.mark.parametrize("format", [None, "%H:%M"])
 def test_time_format(class_, format):
-    # type: (t.Type[py.Time], t.Optional[str]) -> None
     v = class_(format=format)
     assert v(time(13, 35)) == time(13, 35)
 
@@ -201,7 +187,6 @@ def test_time_format(class_, format):
 @pytest.mark.parametrize("min", [None, time(8, 0)])
 @pytest.mark.parametrize("max", [None, time(18, 0)])
 def test_time_min_max(class_, min, max):
-    # type: (t.Type[py.Time], t.Optional[time], t.Optional[time]) -> None
     v = class_(min=min, max=max)
     assert v(time(13, 35)) == time(13, 35)
 
@@ -227,7 +212,6 @@ def test_time_min_max(class_, min, max):
 
 @pytest.mark.parametrize("class_", datetime_classes)
 def test_datetime(class_):
-    # type: (t.Type[py.Datetime]) -> None
     v = class_()
     today = date.today()
     now = datetime.now()
@@ -238,7 +222,6 @@ def test_datetime(class_):
 @pytest.mark.parametrize("class_", datetime_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_datetime_nullable(class_, nullable):
-    # type: (t.Type[py.Datetime], t.Optional[bool]) -> None
     v = class_(nullable=nullable)
     today = date.today()
     now = datetime.now()
@@ -251,13 +234,12 @@ def test_datetime_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == datetime
-        assert info.value.actual == NoneType  # type: ignore
+        assert info.value.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", datetime_classes)
 @pytest.mark.parametrize("unixts", [None, False, True])
 def test_datetime_unixts(class_, unixts):
-    # type: (t.Type[py.Datetime], t.Optional[bool]) -> None
     v = class_(unixts=unixts)
     today = date.today()
     now = datetime.now()
@@ -277,7 +259,6 @@ def test_datetime_unixts(class_, unixts):
 @pytest.mark.parametrize("class_", datetime_classes)
 @pytest.mark.parametrize("format", [None, "%Y-%m-%dT%H:%M"])
 def test_datetime_format(class_, format):
-    # type: (t.Type[py.Datetime], t.Optional[str]) -> None
     v = class_(format=format)
     today = date.today()
     now = datetime.now()
@@ -304,7 +285,6 @@ def test_datetime_format(class_, format):
 @pytest.mark.parametrize("min", [None, datetime(2018, 1, 1)])
 @pytest.mark.parametrize("max", [None, datetime(2019, 1, 1)])
 def test_datetime_min_max(class_, min, max):
-    # type: (t.Type[py.Datetime], t.Optional[datetime], t.Optional[datetime]) -> None
     v = class_(min=min, max=max)
     assert v(datetime(2018, 7, 3)) == datetime(2018, 7, 3)
 
@@ -329,7 +309,6 @@ def test_datetime_min_max(class_, min, max):
 @pytest.mark.parametrize("relmin", [None, timedelta(hours=1)])
 @pytest.mark.parametrize("relmax", [None, timedelta(hours=7)])
 def test_datetime_relmin_relmax(class_, relmin, relmax):
-    # type: (t.Type[py.Datetime], t.Optional[timedelta], t.Optional[timedelta]) -> None
     v = class_(relmin=relmin, relmax=relmax)
     today = datetime.combine(date.today(), time())
     assert v(today + timedelta(hours=3)) == today + timedelta(hours=3)

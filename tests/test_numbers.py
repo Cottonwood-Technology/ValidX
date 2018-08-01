@@ -1,11 +1,6 @@
 import math
 
-try:
-    import typing as t  # noqa
-except ImportError:
-    pass
-
-import pytest  # type: ignore
+import pytest
 
 from validateit import py, cy
 from validateit import exc
@@ -18,7 +13,6 @@ float_classes = [py.Float, cy.Float]
 
 @pytest.mark.parametrize("class_", int_classes)
 def test_int(class_):
-    # type: (t.Type[py.Int]) -> None
     v = class_()
     assert v(5) == 5
     assert v(5.0) == 5
@@ -27,7 +21,6 @@ def test_int(class_):
 @pytest.mark.parametrize("class_", int_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_int_nullable(class_, nullable):
-    # type: (t.Type[py.Int], t.Optional[bool]) -> None
     v = class_(nullable=nullable)
     assert v(5) == 5
 
@@ -37,13 +30,12 @@ def test_int_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == int
-        assert info.value.actual == NoneType  # type: ignore
+        assert info.value.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", int_classes)
 @pytest.mark.parametrize("coerce", [None, False, True])
 def test_int_coerce(class_, coerce):
-    # type: (t.Type[py.Int], t.Optional[bool]) -> None
     v = class_(coerce=coerce)
     assert v(5) == 5
 
@@ -71,7 +63,6 @@ def test_int_coerce(class_, coerce):
 @pytest.mark.parametrize("min", [None, 0])
 @pytest.mark.parametrize("max", [None, 10])
 def test_int_min_max(class_, min, max):
-    # type: (t.Type[py.Int], t.Optional[int], t.Optional[int]) -> None
     v = class_(min=min, max=max)
     assert v(5) == 5
 
@@ -95,7 +86,6 @@ def test_int_min_max(class_, min, max):
 @pytest.mark.parametrize("class_", int_classes)
 @pytest.mark.parametrize("options", [None, [5, 6]])
 def test_int_options(class_, options):
-    # type: (t.Type[py.Int], t.Optional[t.Container[int]]) -> None
     v = class_(options=options)
     assert v(5) == 5
     assert v(6) == 6
@@ -114,7 +104,6 @@ def test_int_options(class_, options):
 
 @pytest.mark.parametrize("class_", float_classes)
 def test_float(class_):
-    # type: (t.Type[py.Float]) -> None
     v = class_()
     assert v(5.5) == 5.5
     assert v(5) == 5.0
@@ -123,7 +112,6 @@ def test_float(class_):
 @pytest.mark.parametrize("class_", float_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_float_nullable(class_, nullable):
-    # type: (t.Type[py.Float], t.Optional[bool]) -> None
     v = class_(nullable=nullable)
     assert v(5.5) == 5.5
 
@@ -133,13 +121,12 @@ def test_float_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == float
-        assert info.value.actual == NoneType  # type: ignore
+        assert info.value.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", float_classes)
 @pytest.mark.parametrize("coerce", [None, False, True])
 def test_float_coerce(class_, coerce):
-    # type: (t.Type[py.Float], t.Optional[bool]) -> None
     v = class_(coerce=coerce)
     assert v(5.5) == 5.5
 
@@ -160,7 +147,6 @@ def test_float_coerce(class_, coerce):
 @pytest.mark.parametrize("class_", float_classes)
 @pytest.mark.parametrize("nan", [None, False, True])
 def test_float_nan(class_, nan):
-    # type: (t.Type[py.Float], t.Optional[bool]) -> None
     v = class_(nan=nan, coerce=True)
     assert v(5.5) == 5.5
 
@@ -176,7 +162,6 @@ def test_float_nan(class_, nan):
 @pytest.mark.parametrize("class_", float_classes)
 @pytest.mark.parametrize("inf", [None, False, True])
 def test_float_inf(class_, inf):
-    # type: (t.Type[py.Float], t.Optional[bool]) -> None
     v = class_(inf=inf, coerce=True)
     assert v(5.5) == 5.5
 
@@ -193,7 +178,6 @@ def test_float_inf(class_, inf):
 @pytest.mark.parametrize("min", [None, 0])
 @pytest.mark.parametrize("max", [None, 10])
 def test_float_min_max(class_, min, max):
-    # type: (t.Type[py.Float], t.Optional[float], t.Optional[float]) -> None
     v = class_(min=min, max=max)
     assert v(5.5) == 5.5
 

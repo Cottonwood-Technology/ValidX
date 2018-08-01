@@ -23,8 +23,8 @@ class Dict(abstract.Validator):
         if not isinstance(value, dict):
             raise exc.InvalidTypeError(expected=dict, actual=type(value))
 
-        result = {}  # type: t.Dict[t.Any, t.Any]
-        errors = []  # type: t.List[exc.ValidationError]
+        result = {}
+        errors = []
 
         for key, val in value.items():
             if self.dispose is not None and key in self.dispose:
@@ -36,13 +36,13 @@ class Dict(abstract.Validator):
                     try:
                         key = self.extra[0](key)
                     except exc.ValidationError as e:
-                        extra_key_error = e  # type: t.Optional[exc.ValidationError]
+                        extra_key_error = e
                     else:
                         extra_key_error = None
                     try:
                         val = self.extra[1](val)
                     except exc.ValidationError as e:
-                        extra_value_error = e  # type: t.Optional[exc.ValidationError]
+                        extra_value_error = e
                     else:
                         extra_value_error = None
                     if extra_key_error is not None or extra_value_error is not None:
@@ -104,9 +104,9 @@ class Mapping(abstract.Validator):
         if not isinstance(value, abc.Mapping):
             raise exc.InvalidTypeError(expected=abc.Mapping, actual=type(value))
 
-        result = {}  # type: t.Dict[t.Any, t.Any]
-        errors = []  # type: t.List[exc.ValidationError]
-        getall = None  # type: t.Optional[t.Callable[[t.Any], t.List]]
+        result = {}
+        errors = []
+        getall = None
         if self.multikeys is not None:
             # If value is a multidict, specified keys should be treated
             # as sequences, not as scalars.  The following popular multidict
@@ -132,13 +132,13 @@ class Mapping(abstract.Validator):
                     try:
                         key = self.extra[0](key)
                     except exc.ValidationError as e:
-                        extra_key_error = e  # type: t.Optional[exc.ValidationError]
+                        extra_key_error = e
                     else:
                         extra_key_error = None
                     try:
                         val = self.extra[1](val)
                     except exc.ValidationError as e:
-                        extra_value_error = e  # type: t.Optional[exc.ValidationError]
+                        extra_value_error = e
                     else:
                         extra_value_error = None
                     if extra_key_error is not None or extra_value_error is not None:

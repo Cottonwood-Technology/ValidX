@@ -33,19 +33,19 @@ __all__ = [
 ]
 
 
-classes.add(Any)  # type: ignore
-classes.add(Int)  # type: ignore
-classes.add(Float)  # type: ignore
-classes.add(Str)  # type: ignore
-classes.add(Bytes)  # type: ignore
-classes.add(Date)  # type: ignore
-classes.add(Time)  # type: ignore
-classes.add(Datetime)  # type: ignore
-classes.add(Bool)  # type: ignore
-classes.add(List)  # type: ignore
-classes.add(Sequence)  # type: ignore
-classes.add(Tuple)  # type: ignore
-classes.add(Dict)  # type: ignore
-classes.add(Mapping)  # type: ignore
-classes.add(AllOf)  # type: ignore
-classes.add(AnyOf)  # type: ignore
+classes.add(Any)
+classes.add(Int)
+classes.add(Float)
+classes.add(Str)
+classes.add(Bytes)
+classes.add(Date)
+classes.add(Time)
+classes.add(Datetime)
+classes.add(Bool)
+classes.add(List)
+classes.add(Sequence)
+classes.add(Tuple)
+classes.add(Dict)
+classes.add(Mapping)
+classes.add(AllOf)
+classes.add(AnyOf)

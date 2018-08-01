@@ -32,10 +32,10 @@ class List(abstract.Validator):
         if self.maxlen is not None and length > self.maxlen:
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
-        result = []  # type: t.List[t.Any]
-        errors = []  # type: t.List[exc.ValidationError]
+        result = []
+        errors = []
         if self.unique:
-            unique = set()  # type: t.Set[t.Any]
+            unique = set()
 
         for num, val in enumerate(value):
             try:
@@ -73,10 +73,10 @@ class Sequence(abstract.Validator):
         if self.maxlen is not None and length > self.maxlen:
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
-        result = []  # type: t.List[t.Any]
-        errors = []  # type: t.List[exc.ValidationError]
+        result = []
+        errors = []
         if self.unique:
-            unique = set()  # type: t.Set[t.Any]
+            unique = set()
 
         for num, val in enumerate(value):
             try:
@@ -110,8 +110,8 @@ class Tuple(abstract.Validator):
         if len(self.items) != len(value):
             raise exc.TupleLengthError(expected=len(self.items), actual=len(value))
 
-        result = []  # type: t.List[t.Any]
-        errors = []  # type: t.List[exc.ValidationError]
+        result = []
+        errors = []
 
         for num, val in enumerate(value):
             try:

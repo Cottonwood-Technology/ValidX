@@ -1,13 +1,7 @@
 # coding: utf-8
 
 import sys
-
-try:
-    import typing as t  # noqa
-except ImportError:
-    pass
-
-import pytest  # type: ignore
+import pytest
 
 from validateit import py, cy
 from validateit import exc
@@ -24,7 +18,6 @@ bytes_classes = [py.Bytes, cy.Bytes]
 
 @pytest.mark.parametrize("class_", str_classes)
 def test_str(class_):
-    # type: (t.Type[py.Str]) -> None
     v = class_()
     assert v(u"abc") == u"abc"
 
@@ -32,7 +25,6 @@ def test_str(class_):
 @pytest.mark.parametrize("class_", str_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_str_nullable(class_, nullable):
-    # type: (t.Type[py.Str], t.Optional[bool]) -> None
     v = class_(nullable=nullable)
     assert v(u"abc") == u"abc"
 
@@ -42,13 +34,12 @@ def test_str_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == str
-        assert info.value.actual == NoneType  # type: ignore
+        assert info.value.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", str_classes)
 @pytest.mark.parametrize("encoding", [None, "utf-8"])
 def test_str_encoding(class_, encoding):
-    # type: (t.Type[py.Str], t.Optional[str]) -> None
     v = class_(encoding=encoding)
     assert v(u"abc") == u"abc"
 
@@ -71,7 +62,6 @@ def test_str_encoding(class_, encoding):
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 5])
 def test_str_minlen_maxlen(class_, minlen, maxlen):
-    # type: (t.Type[py.Str], t.Optional[int], t.Optional[int]) -> None
     v = class_(minlen=minlen, maxlen=maxlen)
     assert v(u"abc") == u"abc"
 
@@ -95,7 +85,6 @@ def test_str_minlen_maxlen(class_, minlen, maxlen):
 @pytest.mark.parametrize("class_", str_classes)
 @pytest.mark.parametrize("pattern", [None, u"^(?i)[a-z]+$"])
 def test_str_pattern(class_, pattern):
-    # type: (t.Type[py.Str], t.Optional[str]) -> None
     v = class_(pattern=pattern)
     assert v(u"abc") == u"abc"
     assert v(u"ABC") == u"ABC"
@@ -112,7 +101,6 @@ def test_str_pattern(class_, pattern):
 @pytest.mark.parametrize("class_", str_classes)
 @pytest.mark.parametrize("options", [None, [u"abc", u"xyz"]])
 def test_str_options(class_, options):
-    # type: (t.Type[py.Str], t.Optional[t.Container[str]]) -> None
     v = class_(options=options)
     assert v(u"abc") == u"abc"
     assert v(u"xyz") == u"xyz"
@@ -131,7 +119,6 @@ def test_str_options(class_, options):
 
 @pytest.mark.parametrize("class_", bytes_classes)
 def test_bytes(class_):
-    # type: (t.Type[py.Bytes]) -> None
     v = class_()
     assert v(b"abc") == b"abc"
 
@@ -139,7 +126,6 @@ def test_bytes(class_):
 @pytest.mark.parametrize("class_", bytes_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_bytes_nullable(class_, nullable):
-    # type: (t.Type[py.Bytes], t.Optional[bool]) -> None
     v = class_(nullable=nullable)
     assert v(b"abc") == b"abc"
 
@@ -149,14 +135,13 @@ def test_bytes_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == bytes
-        assert info.value.actual == NoneType  # type: ignore
+        assert info.value.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", bytes_classes)
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 5])
 def test_bytes_minlen_maxlen(class_, minlen, maxlen):
-    # type: (t.Type[py.Bytes], t.Optional[int], t.Optional[int]) -> None
     v = class_(minlen=minlen, maxlen=maxlen)
     assert v(b"abc") == b"abc"
 

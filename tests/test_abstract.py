@@ -1,9 +1,4 @@
-try:
-    import typing as t  # noqa
-except ImportError:
-    pass
-
-import pytest  # type: ignore
+import pytest
 
 from validateit import py, cy
 

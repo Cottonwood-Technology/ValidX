@@ -1,12 +1,7 @@
 import collections
 import sys
 
-try:
-    import typing as t  # noqa
-except ImportError:
-    pass
-
-import pytest  # type: ignore
+import pytest
 
 from validateit import py, cy
 from validateit import exc
@@ -34,7 +29,6 @@ class CustomSequence(collections.Sequence):
 
 @pytest.mark.parametrize("class_", list_classes)
 def test_list(class_):
-    # type: (t.Type[py.List]) -> None
     v = class_(py.Int())
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
@@ -66,13 +60,12 @@ def test_list(class_):
     assert isinstance(ne_2, exc.InvalidTypeError)
     assert ne_2.context == [3]
     assert ne_2.expected == int
-    assert ne_2.actual == NoneType  # type: ignore
+    assert ne_2.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", list_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_list_nullable(class_, nullable):
-    # type: (t.Type[py.List], t.Optional[bool]) -> None
     v = class_(py.Int(), nullable=nullable)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
@@ -83,14 +76,13 @@ def test_list_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected in ((list, tuple), collections.Sequence)
-        assert info.value.actual == NoneType  # type: ignore
+        assert info.value.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", list_classes)
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 5])
 def test_list_minlen_maxlen(class_, minlen, maxlen):
-    # type: (t.Type[py.List], t.Optional[int], t.Optional[int]) -> None
     v = class_(py.Int(), minlen=minlen, maxlen=maxlen)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
@@ -115,7 +107,6 @@ def test_list_minlen_maxlen(class_, minlen, maxlen):
 @pytest.mark.parametrize("class_", list_classes)
 @pytest.mark.parametrize("unique", [None, False, True])
 def test_list_unique(class_, unique):
-    # type: (t.Type[py.List], t.Optional[bool]) -> None
     v = class_(py.Int(), unique=unique)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
@@ -131,7 +122,6 @@ def test_list_unique(class_, unique):
 
 @pytest.mark.parametrize("class_", tuple_classes)
 def test_tuple(class_):
-    # type: (t.Type[py.Tuple]) -> None
     v = class_(py.Int(), py.Int())
     assert v([1, 2]) == (1, 2)
     assert v((1, 2)) == (1, 2)
@@ -160,13 +150,12 @@ def test_tuple(class_):
     assert isinstance(ne_2, exc.InvalidTypeError)
     assert ne_2.context == [1]
     assert ne_2.expected == int
-    assert ne_2.actual == NoneType  # type: ignore
+    assert ne_2.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", tuple_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_tuple_nullable(class_, nullable):
-    # type: (t.Type[py.Tuple], t.Optional[bool]) -> None
     v = class_(py.Int(), py.Int(), nullable=nullable)
     assert v([1, 2]) == (1, 2)
     assert v((1, 2)) == (1, 2)
@@ -177,4 +166,4 @@ def test_tuple_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected == (list, tuple)
-        assert info.value.actual == NoneType  # type: ignore
+        assert info.value.actual == NoneType

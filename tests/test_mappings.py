@@ -1,13 +1,8 @@
 import collections
 import sys
 
-try:
-    import typing as t  # noqa
-except ImportError:
-    pass
-
-import pytest  # type: ignore
-from webob.multidict import MultiDict as WebObMultiDict  # type: ignore
+import pytest
+from webob.multidict import MultiDict as WebObMultiDict
 from werkzeug.datastructures import MultiDict as WerkzeugMultiDict
 
 from validateit import py, cy
@@ -47,7 +42,6 @@ class CustomMapping(collections.Mapping):
 
 @pytest.mark.parametrize("class_", dict_classes)
 def test_dict(class_):
-    # type: (t.Type[py.Dict]) -> None
     v = class_({u"x": py.Int(), u"y": py.Int()})
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
     assert v(collections.OrderedDict({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
@@ -80,13 +74,12 @@ def test_dict(class_):
     assert isinstance(ne_2, exc.InvalidTypeError)
     assert ne_2.context == [u"y"]
     assert ne_2.expected == int
-    assert ne_2.actual == NoneType  # type: ignore
+    assert ne_2.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", dict_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_dict_nullable(class_, nullable):
-    # type: (t.Type[py.Dict], t.Optional[bool]) -> None
     v = class_({u"x": py.Int(), u"y": py.Int()}, nullable=nullable)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
@@ -96,14 +89,13 @@ def test_dict_nullable(class_, nullable):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
         assert info.value.expected in (dict, collections.Mapping)
-        assert info.value.actual == NoneType  # type: ignore
+        assert info.value.actual == NoneType
 
 
 @pytest.mark.parametrize("class_", dict_classes)
 @pytest.mark.parametrize("defaults", [None, {u"x": 0}, {u"x": lambda: 0}])
 @pytest.mark.parametrize("optional", [None, [u"x"]])
 def test_dict_defaults_and_optional(class_, defaults, optional):
-    # type: (t.Type[py.Dict], t.Optional[t.Dict], t.Optional[t.List]) -> None
     v = class_({u"x": py.Int(), u"y": py.Int()}, defaults=defaults, optional=optional)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
@@ -130,7 +122,6 @@ def test_dict_defaults_and_optional(class_, defaults, optional):
 @pytest.mark.parametrize("class_", dict_classes)
 @pytest.mark.parametrize("extra", [None, (py.Str(), py.Int())])
 def test_dict_extra(class_, extra):
-    # type: (t.Type[py.Dict], t.Optional[t.Tuple[py.Str, py.Int]]) -> None
     v = class_({u"x": py.Int(), u"y": py.Int()}, extra=extra)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
@@ -152,7 +143,7 @@ def test_dict_extra(class_, extra):
 
         assert isinstance(ne.value_error, exc.InvalidTypeError)
         assert ne.value_error.expected == int
-        assert ne.value_error.actual == NoneType  # type: ignore
+        assert ne.value_error.actual == NoneType
     else:
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, u"z": 3})
@@ -165,7 +156,6 @@ def test_dict_extra(class_, extra):
 @pytest.mark.parametrize("class_", dict_classes)
 @pytest.mark.parametrize("dispose", [None, [u"z"]])
 def test_dict_dispose(class_, dispose):
-    # type: (t.Type[py.Dict], t.Optional[t.List]) -> None
     v = class_({u"x": py.Int(), u"y": py.Int()}, dispose=dispose)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
@@ -183,7 +173,6 @@ def test_dict_dispose(class_, dispose):
 @pytest.mark.parametrize("class_", mapping_classes)
 @pytest.mark.parametrize("multidict", multidict_classes)
 def test_mapping_multikeys(class_, multidict):
-    # type: (t.Type[py.Dict], t.Type[MultiDict]) -> None
     v1 = class_({u"x": py.Int(), u"y": py.Int()})
     v2 = class_({u"x": py.Int(), u"y": py.List(py.Int())}, multikeys=[u"y"])
     data = multidict([(u"x", 1), (u"y", 2), (u"y", 3)])
