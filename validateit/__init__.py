@@ -19,6 +19,7 @@ try:
         Mapping,
         AllOf,
         AnyOf,
+        LazyRef,
         classes,
         instances,
     )
@@ -41,6 +42,7 @@ except ImportError:  # pragma: no cover
         Mapping,
         AllOf,
         AnyOf,
+        LazyRef,
         classes,
         instances,
     )
@@ -65,6 +67,7 @@ __all__ = [
     "Mapping",
     "AllOf",
     "AnyOf",
+    "LazyRef",
     "classes",
     "instances",
 ]

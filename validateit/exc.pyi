@@ -51,6 +51,9 @@ class PatternMatchError(ConditionError):
 class DatetimeParseError(ConditionError):
     __slots__: t.Tuple[str, ...]
 
+class RecursionMaxDepthError(ConditionError):
+    __slots__: t.Tuple[str, ...]
+
 class MappingKeyError(ValidationError):
     __slots__: t.Tuple[str, ...]
     def __init__(self, key: t.Any, **kw) -> None: ...
