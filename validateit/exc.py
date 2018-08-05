@@ -12,12 +12,12 @@ class ValidationError(ValueError):
     Each validation error has its context,
     that indicates which member of validating structure is failed.
 
-    ..  testsetup:: exc
+    ..  testsetup:: validation_error
 
         from validateit import Dict, List, Int
         from validateit.exc import ValidationError
 
-    ..  doctest:: exc
+    ..  doctest:: validation_error
 
         >>> schema = Dict({"foo": List(Int(max=100))})
         >>> try:
@@ -39,9 +39,10 @@ class ValidationError(ValueError):
 
 
     Each validation error is iterable.
-    It unifies handling of single and composite errors:
+    It unifies handling of single and composite errors
+    (see :class:`SchemaError`):
 
-    ..  doctest:: exc
+    ..  doctest:: validation_error
 
         >>> for e in error:
         ...     print(e)
@@ -96,16 +97,6 @@ class ValidationError(ValueError):
             >>> e.context
             ['foo']
 
-            >>> e.add_context("x.y")
-            <[x.y].foo: ValidationError()>
-            >>> e.context
-            ['x.y', 'foo']
-
-            >>> e.add_context(1)
-            <1.[x.y].foo: ValidationError()>
-            >>> e.context
-            [1, 'x.y', 'foo']
-
         """
         self.context.insert(0, node)
         return self
@@ -141,7 +132,15 @@ class ValidationError(ValueError):
 
 
 class ConditionError(ValidationError):
-    """Base Class for Condition Errors"""
+    """
+    Base Class for Condition Errors
+
+    It has a couple of attributes ``expected`` and ``actual``,
+    that gives info of what happens and why the error is raised.
+
+    See derived classes for details.
+
+    """
 
     __slots__ = ValidationError.__slots__ + ("expected", "actual")
 
@@ -151,11 +150,11 @@ class InvalidTypeError(ConditionError):
     Invalid Type Error
 
     :param type expected:
-        expected type or types.
+        expected type (types).
     :type expected: type or tuple
 
     :param type actual:
-        actual type.
+        actual type of value.
 
     """
 
@@ -213,8 +212,8 @@ class FloatValueError(ConditionError):
     Float Value Error
 
     :param str expected:
-        * ``number`` on test for ``Not-a-Number``;
-        * ``finite`` on test for ``Infinity``.
+        * ``"number"`` on test for ``Not-a-Number``;
+        * ``"finite"`` on test for ``Infinity``.
 
     :param float actual:
         actual value.
@@ -232,7 +231,7 @@ class StrDecodeError(ConditionError):
         encoding name.
 
     :param bytes actual:
-        actual value.
+        actual byte-string value.
 
     """
 
@@ -289,7 +288,7 @@ class PatternMatchError(ConditionError):
     Pattern Match Error
 
     :param str expected:
-        pattern.
+        pattern, i.e. regular expression.
 
     :param str actual:
         actual value.
@@ -330,7 +329,24 @@ class RecursionMaxDepthError(ConditionError):
 
 
 class MappingKeyError(ValidationError):
-    """Base Class for Mapping Key Errors"""
+    """
+    Base Class for Mapping Key Errors
+
+    :param key:
+        failed key,
+        that goes into error context.
+
+    ..  testsetup:: mapping_key_error
+
+        from validateit.exc import MappingKeyError
+
+    ..  doctest:: mapping_key_error
+
+        >>> e = MappingKeyError("foo")
+        >>> e
+        <foo: MappingKeyError()>
+
+    """
 
     __slots__ = ValidationError.__slots__
 
@@ -352,7 +368,7 @@ class MissingKeyError(MappingKeyError):
 
 class ExtraKeyError(MappingKeyError):
     """
-    Extra Mapping Key Error
+    Mapping Extra Key Error
 
     :param ValidationError key_error:
         error occurred during extra key validation.
@@ -368,6 +384,9 @@ class ExtraKeyError(MappingKeyError):
 class SchemaError(ValidationError):
     """
     Schema Error
+
+    It is an error class,
+    that wraps multiple errors occurred during complex structure validation.
 
     :param list errors:
         list of all errors occurred during complex structure validation.
