@@ -3,7 +3,6 @@
 import sys
 import pytest
 
-from validateit import py, cy
 from validateit import exc
 
 
@@ -12,20 +11,16 @@ if sys.version_info[0] < 3:
 
 
 NoneType = type(None)
-str_classes = [py.Str, cy.Str]
-bytes_classes = [py.Bytes, cy.Bytes]
 
 
-@pytest.mark.parametrize("class_", str_classes)
-def test_str(class_):
-    v = class_()
+def test_str(module):
+    v = module.Str()
     assert v(u"abc") == u"abc"
 
 
-@pytest.mark.parametrize("class_", str_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_str_nullable(class_, nullable):
-    v = class_(nullable=nullable)
+def test_str_nullable(module, nullable):
+    v = module.Str(nullable=nullable)
     assert v(u"abc") == u"abc"
 
     if nullable:
@@ -37,10 +32,9 @@ def test_str_nullable(class_, nullable):
         assert info.value.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", str_classes)
 @pytest.mark.parametrize("encoding", [None, "utf-8"])
-def test_str_encoding(class_, encoding):
-    v = class_(encoding=encoding)
+def test_str_encoding(module, encoding):
+    v = module.Str(encoding=encoding)
     assert v(u"abc") == u"abc"
 
     if encoding:
@@ -58,11 +52,10 @@ def test_str_encoding(class_, encoding):
         assert info.value.actual == bytes
 
 
-@pytest.mark.parametrize("class_", str_classes)
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 5])
-def test_str_minlen_maxlen(class_, minlen, maxlen):
-    v = class_(minlen=minlen, maxlen=maxlen)
+def test_str_minlen_maxlen(module, minlen, maxlen):
+    v = module.Str(minlen=minlen, maxlen=maxlen)
     assert v(u"abc") == u"abc"
 
     if minlen is None:
@@ -82,10 +75,9 @@ def test_str_minlen_maxlen(class_, minlen, maxlen):
         assert info.value.actual == 6
 
 
-@pytest.mark.parametrize("class_", str_classes)
 @pytest.mark.parametrize("pattern", [None, u"^(?i)[a-z]+$"])
-def test_str_pattern(class_, pattern):
-    v = class_(pattern=pattern)
+def test_str_pattern(module, pattern):
+    v = module.Str(pattern=pattern)
     assert v(u"abc") == u"abc"
     assert v(u"ABC") == u"ABC"
 
@@ -98,10 +90,9 @@ def test_str_pattern(class_, pattern):
         assert info.value.actual == u"123"
 
 
-@pytest.mark.parametrize("class_", str_classes)
 @pytest.mark.parametrize("options", [None, [u"abc", u"xyz"]])
-def test_str_options(class_, options):
-    v = class_(options=options)
+def test_str_options(module, options):
+    v = module.Str(options=options)
     assert v(u"abc") == u"abc"
     assert v(u"xyz") == u"xyz"
 
@@ -117,16 +108,14 @@ def test_str_options(class_, options):
 # =============================================================================
 
 
-@pytest.mark.parametrize("class_", bytes_classes)
-def test_bytes(class_):
-    v = class_()
+def test_bytes(module):
+    v = module.Bytes()
     assert v(b"abc") == b"abc"
 
 
-@pytest.mark.parametrize("class_", bytes_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_bytes_nullable(class_, nullable):
-    v = class_(nullable=nullable)
+def test_bytes_nullable(module, nullable):
+    v = module.Bytes(nullable=nullable)
     assert v(b"abc") == b"abc"
 
     if nullable:
@@ -138,11 +127,10 @@ def test_bytes_nullable(class_, nullable):
         assert info.value.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", bytes_classes)
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 5])
-def test_bytes_minlen_maxlen(class_, minlen, maxlen):
-    v = class_(minlen=minlen, maxlen=maxlen)
+def test_bytes_minlen_maxlen(module, minlen, maxlen):
+    v = module.Bytes(minlen=minlen, maxlen=maxlen)
     assert v(b"abc") == b"abc"
 
     if minlen is None:

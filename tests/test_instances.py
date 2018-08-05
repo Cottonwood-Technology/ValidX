@@ -1,15 +1,7 @@
 import pytest
 
-from validateit import py, cy
 
-
-@pytest.fixture(params=[py, cy])
-def module(request):
-    yield request.param
-    request.param.instances.clear()
-
-
-def test_add_get(module):
+def test_instances(module):
     v = module.instances.add("foo", module.Int())
     assert isinstance(v, module.Int)
     assert v is module.instances.get("foo")

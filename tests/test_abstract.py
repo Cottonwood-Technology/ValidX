@@ -1,13 +1,5 @@
 import pytest
 
-from validateit import py, cy
-
-
-@pytest.fixture(params=[py, cy])
-def module(request):
-    yield request.param
-    request.param.instances.clear()
-
 
 def test_repr(module):
     v = module.Dict({"x": module.Int(min=0, max=100)}, nullable=True)

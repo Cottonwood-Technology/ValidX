@@ -5,7 +5,6 @@ import pytest
 from webob.multidict import MultiDict as WebObMultiDict
 from werkzeug.datastructures import MultiDict as WerkzeugMultiDict
 
-from validateit import py, cy
 from validateit import exc
 
 
@@ -14,10 +13,14 @@ if sys.version_info[0] < 3:
 
 
 NoneType = type(None)
-dict_classes = [py.Dict, py.Mapping, cy.Dict, cy.Mapping]
-mapping_classes = [py.Mapping, cy.Mapping]
-multidict_classes = [WebObMultiDict, WerkzeugMultiDict]
 
+
+@pytest.fixture(params=["Dict", "Mapping"])
+def dict_classes(module, request):
+    yield module, getattr(module, request.param)
+
+
+multidict_classes = [WebObMultiDict, WerkzeugMultiDict]
 try:
     from multidict import MultiDict
 
@@ -40,9 +43,9 @@ class CustomMapping(collections.Mapping):
         return len(self.content)
 
 
-@pytest.mark.parametrize("class_", dict_classes)
-def test_dict(class_):
-    v = class_({u"x": py.Int(), u"y": py.Int()})
+def test_dict(dict_classes):
+    module, class_ = dict_classes
+    v = class_({u"x": module.Int(), u"y": module.Int()})
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
     assert v(collections.OrderedDict({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v(collections.defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
@@ -77,10 +80,10 @@ def test_dict(class_):
     assert ne_2.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", dict_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_dict_nullable(class_, nullable):
-    v = class_({u"x": py.Int(), u"y": py.Int()}, nullable=nullable)
+def test_dict_nullable(dict_classes, nullable):
+    module, class_ = dict_classes
+    v = class_({u"x": module.Int(), u"y": module.Int()}, nullable=nullable)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
     if nullable:
@@ -92,11 +95,11 @@ def test_dict_nullable(class_, nullable):
         assert info.value.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", dict_classes)
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 3])
-def test_dict_minlen_maxlen(class_, minlen, maxlen):
-    v = class_(extra=(py.Str(), py.Int()), minlen=minlen, maxlen=maxlen)
+def test_dict_minlen_maxlen(dict_classes, minlen, maxlen):
+    module, class_ = dict_classes
+    v = class_(extra=(module.Str(), module.Int()), minlen=minlen, maxlen=maxlen)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
     if minlen is None:
@@ -121,11 +124,13 @@ def test_dict_minlen_maxlen(class_, minlen, maxlen):
         assert info.value.actual == 4
 
 
-@pytest.mark.parametrize("class_", dict_classes)
 @pytest.mark.parametrize("defaults", [None, {u"x": 0}, {u"x": lambda: 0}])
 @pytest.mark.parametrize("optional", [None, [u"x"]])
-def test_dict_defaults_and_optional(class_, defaults, optional):
-    v = class_({u"x": py.Int(), u"y": py.Int()}, defaults=defaults, optional=optional)
+def test_dict_defaults_and_optional(dict_classes, defaults, optional):
+    module, class_ = dict_classes
+    v = class_(
+        {u"x": module.Int(), u"y": module.Int()}, defaults=defaults, optional=optional
+    )
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
     with pytest.raises(exc.SchemaError) as info:
@@ -148,10 +153,12 @@ def test_dict_defaults_and_optional(class_, defaults, optional):
         assert ne.context == [u"x"]
 
 
-@pytest.mark.parametrize("class_", dict_classes)
-@pytest.mark.parametrize("extra", [None, (py.Str(), py.Int())])
-def test_dict_extra(class_, extra):
-    v = class_({u"x": py.Int(), u"y": py.Int()}, extra=extra)
+@pytest.mark.parametrize("extra", [None, True])
+def test_dict_extra(dict_classes, extra):
+    module, class_ = dict_classes
+    if extra:
+        extra = (module.Str(), module.Int())
+    v = class_({u"x": module.Int(), u"y": module.Int()}, extra=extra)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
     if extra:
@@ -182,10 +189,10 @@ def test_dict_extra(class_, extra):
         assert ne.context == [u"z"]
 
 
-@pytest.mark.parametrize("class_", dict_classes)
 @pytest.mark.parametrize("dispose", [None, [u"z"]])
-def test_dict_dispose(class_, dispose):
-    v = class_({u"x": py.Int(), u"y": py.Int()}, dispose=dispose)
+def test_dict_dispose(dict_classes, dispose):
+    module, class_ = dict_classes
+    v = class_({u"x": module.Int(), u"y": module.Int()}, dispose=dispose)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
     if dispose:
@@ -199,11 +206,12 @@ def test_dict_dispose(class_, dispose):
         assert ne.context == [u"z"]
 
 
-@pytest.mark.parametrize("class_", mapping_classes)
 @pytest.mark.parametrize("multidict", multidict_classes)
-def test_mapping_multikeys(class_, multidict):
-    v1 = class_({u"x": py.Int(), u"y": py.Int()})
-    v2 = class_({u"x": py.Int(), u"y": py.List(py.Int())}, multikeys=[u"y"])
+def test_mapping_multikeys(module, multidict):
+    v1 = module.Mapping({u"x": module.Int(), u"y": module.Int()})
+    v2 = module.Mapping(
+        {u"x": module.Int(), u"y": module.List(module.Int())}, multikeys=[u"y"]
+    )
     data = multidict([(u"x", 1), (u"y", 2), (u"y", 3)])
 
     assert v1(data) == {u"x": 1, u"y": 3} or v1(data) == {u"x": 1, u"y": 2}

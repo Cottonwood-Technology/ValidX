@@ -1,17 +1,9 @@
 import pytest
 
-from validateit import py, cy
 from validateit import exc
 
 
 NoneType = type(None)
-any_classes = [py.Any, cy.Any]
-
-
-@pytest.fixture(params=[py, cy])
-def module(request):
-    yield request.param
-    request.param.instances.clear()
 
 
 def test_lazyref(module):
@@ -42,10 +34,9 @@ def test_lazyref(module):
     assert ne.actual == 3
 
 
-@pytest.mark.parametrize("class_", any_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_any(class_, nullable):
-    v = class_(nullable=nullable)
+def test_any(module, nullable):
+    v = module.Any(nullable=nullable)
     assert v(True) is True
     assert v(1) == 1
     assert v("x") == "x"

@@ -4,7 +4,6 @@ from datetime import date, time, datetime, timedelta
 
 import pytest
 
-from validateit import py, cy
 from validateit import exc
 
 
@@ -13,24 +12,19 @@ if sys.version_info[0] < 3:
 
 
 NoneType = type(None)
-date_classes = [py.Date, cy.Date]
-time_classes = [py.Time, cy.Time]
-datetime_classes = [py.Datetime, cy.Datetime]
 
 
-@pytest.mark.parametrize("class_", date_classes)
-def test_date(class_):
-    v = class_()
+def test_date(module):
+    v = module.Date()
     today = date.today()
     now = datetime.now()
     assert v(today) == today
     assert v(now) == today
 
 
-@pytest.mark.parametrize("class_", date_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_date_nullable(class_, nullable):
-    v = class_(nullable=nullable)
+def test_date_nullable(module, nullable):
+    v = module.Date(nullable=nullable)
     today = date.today()
     now = datetime.now()
     assert v(today) == today
@@ -45,10 +39,9 @@ def test_date_nullable(class_, nullable):
         assert info.value.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", date_classes)
 @pytest.mark.parametrize("unixts", [None, False, True])
-def test_date_unixts(class_, unixts):
-    v = class_(unixts=unixts)
+def test_date_unixts(module, unixts):
+    v = module.Date(unixts=unixts)
     today = date.today()
     now = datetime.now()
     assert v(today) == today
@@ -63,10 +56,9 @@ def test_date_unixts(class_, unixts):
         assert info.value.actual == float
 
 
-@pytest.mark.parametrize("class_", date_classes)
 @pytest.mark.parametrize("format", [None, "%Y-%m-%d"])
-def test_date_format(class_, format):
-    v = class_(format=format)
+def test_date_format(module, format):
+    v = module.Date(format=format)
     today = date.today()
     now = datetime.now()
     assert v(today) == today
@@ -88,11 +80,10 @@ def test_date_format(class_, format):
         assert info.value.actual == str
 
 
-@pytest.mark.parametrize("class_", date_classes)
 @pytest.mark.parametrize("min", [None, date(2018, 1, 1)])
 @pytest.mark.parametrize("max", [None, date(2019, 1, 1)])
-def test_date_min_max(class_, min, max):
-    v = class_(min=min, max=max)
+def test_date_min_max(module, min, max):
+    v = module.Date(min=min, max=max)
     assert v(date(2018, 7, 3)) == date(2018, 7, 3)
 
     if min is None:
@@ -112,11 +103,10 @@ def test_date_min_max(class_, min, max):
         assert info.value.actual == date(2019, 7, 3)
 
 
-@pytest.mark.parametrize("class_", date_classes)
 @pytest.mark.parametrize("relmin", [None, timedelta(days=1)])
 @pytest.mark.parametrize("relmax", [None, timedelta(days=7)])
-def test_date_relmin_relmax(class_, relmin, relmax):
-    v = class_(relmin=relmin, relmax=relmax)
+def test_date_relmin_relmax(module, relmin, relmax):
+    v = module.Date(relmin=relmin, relmax=relmax)
     today = date.today()
     assert v(today + timedelta(days=3)) == today + timedelta(days=3)
 
@@ -140,16 +130,14 @@ def test_date_relmin_relmax(class_, relmin, relmax):
 # =============================================================================
 
 
-@pytest.mark.parametrize("class_", time_classes)
-def test_time(class_):
-    v = class_()
+def test_time(module):
+    v = module.Time()
     assert v(time(13, 35)) == time(13, 35)
 
 
-@pytest.mark.parametrize("class_", time_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_time_nullable(class_, nullable):
-    v = class_(nullable=nullable)
+def test_time_nullable(module, nullable):
+    v = module.Time(nullable=nullable)
     assert v(time(13, 35)) == time(13, 35)
 
     if nullable:
@@ -161,10 +149,9 @@ def test_time_nullable(class_, nullable):
         assert info.value.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", time_classes)
 @pytest.mark.parametrize("format", [None, "%H:%M"])
-def test_time_format(class_, format):
-    v = class_(format=format)
+def test_time_format(module, format):
+    v = module.Time(format=format)
     assert v(time(13, 35)) == time(13, 35)
 
     if format:
@@ -183,11 +170,10 @@ def test_time_format(class_, format):
         assert info.value.actual == str
 
 
-@pytest.mark.parametrize("class_", time_classes)
 @pytest.mark.parametrize("min", [None, time(8, 0)])
 @pytest.mark.parametrize("max", [None, time(18, 0)])
-def test_time_min_max(class_, min, max):
-    v = class_(min=min, max=max)
+def test_time_min_max(module, min, max):
+    v = module.Time(min=min, max=max)
     assert v(time(13, 35)) == time(13, 35)
 
     if min is None:
@@ -210,19 +196,17 @@ def test_time_min_max(class_, min, max):
 # =============================================================================
 
 
-@pytest.mark.parametrize("class_", datetime_classes)
-def test_datetime(class_):
-    v = class_()
+def test_datetime(module):
+    v = module.Datetime()
     today = date.today()
     now = datetime.now()
     assert v(today) == datetime.combine(today, time())
     assert v(now) == now
 
 
-@pytest.mark.parametrize("class_", datetime_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_datetime_nullable(class_, nullable):
-    v = class_(nullable=nullable)
+def test_datetime_nullable(module, nullable):
+    v = module.Datetime(nullable=nullable)
     today = date.today()
     now = datetime.now()
     assert v(today) == datetime.combine(today, time())
@@ -237,10 +221,9 @@ def test_datetime_nullable(class_, nullable):
         assert info.value.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", datetime_classes)
 @pytest.mark.parametrize("unixts", [None, False, True])
-def test_datetime_unixts(class_, unixts):
-    v = class_(unixts=unixts)
+def test_datetime_unixts(module, unixts):
+    v = module.Datetime(unixts=unixts)
     today = date.today()
     now = datetime.now()
     assert v(today) == datetime.combine(today, time())
@@ -256,10 +239,9 @@ def test_datetime_unixts(class_, unixts):
         assert info.value.actual == float
 
 
-@pytest.mark.parametrize("class_", datetime_classes)
 @pytest.mark.parametrize("format", [None, "%Y-%m-%dT%H:%M"])
-def test_datetime_format(class_, format):
-    v = class_(format=format)
+def test_datetime_format(module, format):
+    v = module.Datetime(format=format)
     today = date.today()
     now = datetime.now()
     assert v(today) == datetime.combine(today, time())
@@ -281,11 +263,10 @@ def test_datetime_format(class_, format):
         assert info.value.actual == str
 
 
-@pytest.mark.parametrize("class_", datetime_classes)
 @pytest.mark.parametrize("min", [None, datetime(2018, 1, 1)])
 @pytest.mark.parametrize("max", [None, datetime(2019, 1, 1)])
-def test_datetime_min_max(class_, min, max):
-    v = class_(min=min, max=max)
+def test_datetime_min_max(module, min, max):
+    v = module.Datetime(min=min, max=max)
     assert v(datetime(2018, 7, 3)) == datetime(2018, 7, 3)
 
     if min is None:
@@ -305,11 +286,10 @@ def test_datetime_min_max(class_, min, max):
         assert info.value.actual == datetime(2019, 7, 3)
 
 
-@pytest.mark.parametrize("class_", datetime_classes)
 @pytest.mark.parametrize("relmin", [None, timedelta(hours=1)])
 @pytest.mark.parametrize("relmax", [None, timedelta(hours=7)])
-def test_datetime_relmin_relmax(class_, relmin, relmax):
-    v = class_(relmin=relmin, relmax=relmax)
+def test_datetime_relmin_relmax(module, relmin, relmax):
+    v = module.Datetime(relmin=relmin, relmax=relmax)
     today = datetime.combine(date.today(), time())
     assert v(today + timedelta(hours=3)) == today + timedelta(hours=3)
 

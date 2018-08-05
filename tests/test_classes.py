@@ -1,10 +1,7 @@
 import pytest
 
-from validateit import py, cy
 
-
-@pytest.mark.parametrize("module", [py, cy])
-def test_add_get(module):
+def test_classes(module):
     assert module.classes.get("Int") is module.Int
 
     with pytest.raises(AssertionError) as info:

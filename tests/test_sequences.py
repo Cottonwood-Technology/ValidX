@@ -3,7 +3,6 @@ import sys
 
 import pytest
 
-from validateit import py, cy
 from validateit import exc
 
 
@@ -12,8 +11,11 @@ if sys.version_info[0] < 3:
 
 
 NoneType = type(None)
-list_classes = [py.List, py.Sequence, cy.List, cy.Sequence]
-tuple_classes = [py.Tuple, cy.Tuple]
+
+
+@pytest.fixture(params=["List", "Sequence"])
+def list_classes(module, request):
+    yield module, getattr(module, request.param)
 
 
 class CustomSequence(collections.Sequence):
@@ -27,9 +29,9 @@ class CustomSequence(collections.Sequence):
         return len(self.items)
 
 
-@pytest.mark.parametrize("class_", list_classes)
-def test_list(class_):
-    v = class_(py.Int())
+def test_list(list_classes):
+    module, class_ = list_classes
+    v = class_(module.Int())
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
 
@@ -63,10 +65,10 @@ def test_list(class_):
     assert ne_2.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", list_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_list_nullable(class_, nullable):
-    v = class_(py.Int(), nullable=nullable)
+def test_list_nullable(list_classes, nullable):
+    module, class_ = list_classes
+    v = class_(module.Int(), nullable=nullable)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
 
@@ -79,11 +81,11 @@ def test_list_nullable(class_, nullable):
         assert info.value.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", list_classes)
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 5])
-def test_list_minlen_maxlen(class_, minlen, maxlen):
-    v = class_(py.Int(), minlen=minlen, maxlen=maxlen)
+def test_list_minlen_maxlen(list_classes, minlen, maxlen):
+    module, class_ = list_classes
+    v = class_(module.Int(), minlen=minlen, maxlen=maxlen)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
 
@@ -104,10 +106,10 @@ def test_list_minlen_maxlen(class_, minlen, maxlen):
         assert info.value.actual == 6
 
 
-@pytest.mark.parametrize("class_", list_classes)
 @pytest.mark.parametrize("unique", [None, False, True])
-def test_list_unique(class_, unique):
-    v = class_(py.Int(), unique=unique)
+def test_list_unique(list_classes, unique):
+    module, class_ = list_classes
+    v = class_(module.Int(), unique=unique)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
 
@@ -120,9 +122,8 @@ def test_list_unique(class_, unique):
 # =============================================================================
 
 
-@pytest.mark.parametrize("class_", tuple_classes)
-def test_tuple(class_):
-    v = class_(py.Int(), py.Int())
+def test_tuple(module):
+    v = module.Tuple(module.Int(), module.Int())
     assert v([1, 2]) == (1, 2)
     assert v((1, 2)) == (1, 2)
 
@@ -153,10 +154,9 @@ def test_tuple(class_):
     assert ne_2.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", tuple_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_tuple_nullable(class_, nullable):
-    v = class_(py.Int(), py.Int(), nullable=nullable)
+def test_tuple_nullable(module, nullable):
+    v = module.Tuple(module.Int(), module.Int(), nullable=nullable)
     assert v([1, 2]) == (1, 2)
     assert v((1, 2)) == (1, 2)
 

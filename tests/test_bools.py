@@ -1,24 +1,20 @@
 import pytest
 
-from validateit import py, cy
 from validateit import exc
 
 
 NoneType = type(None)
-bool_classes = [py.Bool, cy.Bool]
 
 
-@pytest.mark.parametrize("class_", bool_classes)
-def test_bool(class_):
-    v = class_()
+def test_bool(module):
+    v = module.Bool()
     assert v(True) is True
     assert v(False) is False
 
 
-@pytest.mark.parametrize("class_", bool_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_bool_nullable(class_, nullable):
-    v = class_(nullable=nullable)
+def test_bool_nullable(module, nullable):
+    v = module.Bool(nullable=nullable)
     assert v(True) is True
     assert v(False) is False
 
@@ -31,10 +27,9 @@ def test_bool_nullable(class_, nullable):
         assert info.value.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", bool_classes)
 @pytest.mark.parametrize("coerce_str", [None, False, True])
-def test_bool_coerce_str(class_, coerce_str):
-    v = class_(coerce_str=coerce_str)
+def test_bool_coerce_str(module, coerce_str):
+    v = module.Bool(coerce_str=coerce_str)
     assert v(True) is True
     assert v(False) is False
 
@@ -57,7 +52,7 @@ def test_bool_coerce_str(class_, coerce_str):
 
         with pytest.raises(exc.OptionsError) as info:
             v("abc")
-        assert info.value.expected == class_.TRUE + class_.FALSE
+        assert info.value.expected == module.Bool.TRUE + module.Bool.FALSE
         assert info.value.actual == "abc"
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
@@ -66,10 +61,9 @@ def test_bool_coerce_str(class_, coerce_str):
         assert info.value.actual == str
 
 
-@pytest.mark.parametrize("class_", bool_classes)
 @pytest.mark.parametrize("coerce_int", [None, False, True])
-def test_bool_coerce_int(class_, coerce_int):
-    v = class_(coerce_int=coerce_int)
+def test_bool_coerce_int(module, coerce_int):
+    v = module.Bool(coerce_int=coerce_int)
     assert v(True) is True
     assert v(False) is False
 
