@@ -8,6 +8,26 @@ from . import abstract
 
 
 class AllOf(abstract.Validator):
+    """
+    AND-style Pipeline Validator
+
+    All steps must be succeeded.
+    The last step returns result.
+
+
+    :param Validator \*steps:
+        nested validators.
+
+
+    :raises ValidationError:
+        raised by the first failed step.
+
+
+    :warning:
+        If there are no steps,
+        value **will not be validated** and **no error will be raised**.
+
+    """
 
     __slots__ = ("steps",)
 
@@ -24,6 +44,26 @@ class AllOf(abstract.Validator):
 
 
 class AnyOf(abstract.Validator):
+    """
+    OR-style Pipeline Validator
+
+    The first succeeded step returns result.
+
+
+    :param Validator \*steps:
+        nested validators.
+
+    :raises SchemaError:
+        if all steps are failed,
+        so it contains all errors,
+        raised by each step.
+
+
+    :warning:
+        If there are no steps,
+        value **will not be validated** and **no error will be raised**.
+
+    """
 
     __slots__ = ("steps",)
 

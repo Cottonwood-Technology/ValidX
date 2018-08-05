@@ -3,6 +3,31 @@ from . import abstract
 
 
 class Bool(abstract.Validator):
+    """
+    Boolean Validator
+
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param bool coerce_str:
+        * accept values ``["1", "true", "yes", "on"]`` as ``True``;
+        * accept values ``["0", "false", "no", "off"]`` as ``False``.
+
+    :param bool coerce_int:
+        accept ``int`` as valid value.
+
+
+    :raises InvalidTypeError:
+        * if ``value is None`` and ``not self.nullable``;
+        * if ``isinstance(value, str)`` and ``not self.coerce_str``;
+        * if ``isinstance(value, int)`` and ``not self.coerce_int``;
+        * if ``not isinstance(value, bool)``.
+
+    :raises OptionsError:
+        when string value is not valid name, see ``coerce_str``.
+
+    """
 
     TRUE = ("1", "true", "yes", "on")
     FALSE = ("0", "false", "no", "off")

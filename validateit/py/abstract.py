@@ -12,6 +12,24 @@ else:  # pragma: no cover
 
 
 class Validator(ABC):
+    """
+    Abstract Base Validator
+
+    :param str alias:
+        if it specified,
+        the instance will be added into registry,
+        see :func:`validateit.py.instances.add`.
+
+    :param bool replace:
+        if it is ``True`` and ``alias`` specified,
+        the instance will be added into registry,
+        replacing any existent validator with the same alias,
+        see :func:`validateit.py.instances.put`.
+
+    :param \**kw:
+        concrete validator attributes.
+
+    """
 
     __slots__ = ()
 
@@ -27,8 +45,14 @@ class Validator(ABC):
                 instances.add(alias, self)
 
     @abstractmethod
-    def __call__(self, value):  # pragma: no cover
-        pass
+    def __call__(self, value):
+        """
+        Validate value.
+
+        This is an abstract method,
+        and it should be implemented by descendant class.
+
+        """
 
     def __repr__(self):
         params = ", ".join("%s=%r" % (slot, value) for slot, value in self.params())
@@ -43,6 +67,24 @@ class Validator(ABC):
                 yield slot, value
 
     def dump(self):
+        """
+        Dump validator.
+
+        ..  testsetup:: dump
+
+            from validateit import Int
+
+        ..  doctest:: dump
+
+            >>> Int(min=0, max=100).dump() == {
+            ...     "__class__": "Int",
+            ...     "min": 0,
+            ...     "max": 100,
+            ... }
+            True
+
+        """
+
         def _dump(value):
             if isinstance(value, Validator):
                 return value.dump()
@@ -60,6 +102,51 @@ class Validator(ABC):
 
     @staticmethod
     def load(params, update=None, unset=None):
+        """
+        Load validator.
+
+        ..  testsetup:: load
+
+            from validateit import Validator, Int, instances
+
+        ..  testcleanup:: load
+
+            instances.clear()
+
+        ..  doctest:: load
+
+            >>> Validator.load({
+            ...     "__class__": "Int",
+            ...     "min": 0,
+            ...     "max": 100,
+            ... })
+            <Int(min=0, max=100)>
+
+            >>> # Add into registry
+            >>> some_int = Validator.load({
+            ...     "__class__": "Int",
+            ...     "min": 0,
+            ...     "max": 100,
+            ...     "alias": "some_int",
+            ... })
+            >>> some_int
+            <Int(min=0, max=100)>
+
+            >>> # Load from registry by alias
+            >>> Validator.load({"__use__": "some_int"}) is some_int
+            True
+
+            >>> # Clone from registry by alias
+            >>> Validator.load({
+            ...     "__clone__": "some_int",
+            ...     "update": {
+            ...         "/": {"min": -100},
+            ...     },
+            ... })
+            <Int(min=-100, max=100)>
+
+        """
+
         assert isinstance(params, dict), "Expected %r, got %r" % (dict, type(params))
         assert "__class__" in params or "__use__" in params or "__clone__" in params, (
             "One of keys ['__class__', '__use__', '__clone__'] must be specified in: %r"
@@ -68,6 +155,38 @@ class Validator(ABC):
         return _load_recurcive(params, update, unset)
 
     def clone(self, update=None, unset=None):
+        """
+        Clone validator.
+
+        ..  testsetup:: clone
+
+            from validateit import Int
+
+        ..  doctest:: clone
+
+            >>> some_enum = Int(options=(1, 2, 3, 4, 5))
+            >>> some_enum
+            <Int(options=(1, 2, 3, 4, 5))>
+
+            >>> some_enum.clone(
+            ...     update={
+            ...         "/": {"nullable": True},
+            ...         "/options": {0: 10, 2: 30},
+            ...     },
+            ...     unset={
+            ...         "/options": (1, 3),
+            ...     }
+            ... )
+            <Int(nullable=True, options=(10, 30, 5))>
+
+
+        In fact, the method is a shortcut for:
+
+        ..  code-block:: python
+
+            self.load(self.dump(), update, unset)
+
+        """
         return self.load(self.dump(), update, unset)
 
 

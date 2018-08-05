@@ -11,6 +11,63 @@ from . import abstract
 
 
 class Dict(abstract.Validator):
+    """
+    Dictionary Validator
+
+
+    :param dict schema:
+        schema validator in format ``{<key>: <validator>}``.
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param int minlen:
+        lower length limit.
+
+    :param int maxlen:
+        upper length limit.
+
+    :param tuple extra:
+        validators for extra keys and values in format
+        ``(<key_validator>, <value_validator>)``,
+        it is used for keys are not presented in ``schema``.
+
+    :param dict defaults:
+        default values for missing keys.
+
+    :param optional:
+        list of optional keys.
+    :type optional: list or tuple
+
+    :param dispose:
+        list of keys that have to be silently removed.
+    :type dispose: list or tuple
+
+
+    :raises InvalidTypeError:
+        if ``not isinstance(value, dict)``.
+
+    :raises MinLengthError:
+        if ``len(value) < self.minlen``.
+
+    :raises MaxLengthError:
+        if ``len(value) > self.maxlen``.
+
+    :raises SchemaError:
+        with all errors,
+        raised by schema validators,
+        extra validators,
+        and missing required and forbidden extra keys.
+
+
+    :note:
+        Dictionary validator is a twin of :class:`Mapping`,
+        but it accepts only ``dict`` as a valid input value.
+        Because of this,
+        it is **less flexible**,
+        but works **faster** than :class:`Mapping`.
+
+    """
 
     __slots__ = (
         "schema",
@@ -100,6 +157,72 @@ class Dict(abstract.Validator):
 
 
 class Mapping(abstract.Validator):
+    """
+    Arbitrary Mapping Validator
+
+
+    :param dict schema:
+        schema validator in format ``{<key>: <validator>}``.
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param int minlen:
+        lower length limit.
+
+    :param int maxlen:
+        upper length limit.
+
+    :param tuple extra:
+        validators for extra keys and values in format
+        ``(<key_validator>, <value_validator>)``,
+        it is used for keys are not presented in ``schema``.
+
+    :param dict defaults:
+        default values for missing keys.
+
+    :param optional:
+        list of optional keys.
+    :type optional: list or tuple
+
+    :param dispose:
+        list of keys that have to be silently removed.
+    :type dispose: list or tuple
+
+    :param multikeys:
+        list of keys that have to be treated as lists of values,
+        if input value is a ``MultiDict`` (see notes below),
+        i.e. value of these keys will be extracted using
+        ``val = value.getall(key)`` or ``val = value.getlist(key)``.
+    :type multikeys: list or tuple
+
+
+    :raises InvalidTypeError:
+        if ``not isinstance(value, collections.Mapping)``.
+
+    :raises MinLengthError:
+        if ``len(value) < self.minlen``.
+
+    :raises MaxLengthError:
+        if ``len(value) > self.maxlen``.
+
+    :raises SchemaError:
+        with all errors,
+        raised by schema validators,
+        extra validators,
+        and missing required and forbidden extra keys.
+
+
+    :note:
+        Mapping validator is a twin of :class:`Dict`,
+        but it accepts arbitrary mapping type as a valid input value.
+        Because of this,
+        it is **more flexible**,
+        but works **slower** than :class:`Dict`.
+
+    :note: TODO: MultiDict notes
+
+    """
 
     __slots__ = (
         "schema",

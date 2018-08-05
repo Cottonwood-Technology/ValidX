@@ -15,6 +15,48 @@ if sys.version_info[0] < 3:  # pragma: no cover
 
 
 class List(abstract.Validator):
+    """
+    List Validator
+
+
+    :param Validator item:
+        validator for list items.
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param int minlen:
+        lower length limit.
+
+    :param int maxlen:
+        upper length limit.
+
+    :param bool unique:
+        drop duplicate items.
+
+
+    :raises InvalidTypeError:
+        if ``not isinstance(value, (list, tuple))``.
+
+    :raises MinLengthError:
+        if ``len(value) < self.minlen``.
+
+    :raises MaxLengthError:
+        if ``len(value) > self.maxlen``.
+
+    :raises SchemaError:
+        with all errors,
+        raised by item validator.
+
+
+    :note:
+        List validator is a twin of :class:`Sequence`,
+        but it accepts only ``list`` and ``tuple`` as a valid input value.
+        Because of this,
+        it is **less flexible**,
+        but works **faster** than :class:`Sequence`.
+
+    """
 
     __slots__ = ("item", "nullable", "minlen", "maxlen", "unique")
 
@@ -55,6 +97,48 @@ class List(abstract.Validator):
 
 
 class Sequence(abstract.Validator):
+    """
+    Arbitrary Sequence Validator
+
+
+    :param Validator item:
+        validator for list items.
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param int minlen:
+        lower length limit.
+
+    :param int maxlen:
+        upper length limit.
+
+    :param bool unique:
+        drop duplicate items.
+
+
+    :raises InvalidTypeError:
+        if ``not isinstance(value, collections.Sequence)``.
+
+    :raises MinLengthError:
+        if ``len(value) < self.minlen``.
+
+    :raises MaxLengthError:
+        if ``len(value) > self.maxlen``.
+
+    :raises SchemaError:
+        with all errors,
+        raised by item validator.
+
+
+    :note:
+        Sequence validator is a twin of :class:`List`,
+        but it accepts arbitrary sequence type as a valid input value.
+        Because of this,
+        it is **more flexible**,
+        but works **slower** than :class:`List`.
+
+    """
 
     __slots__ = ("item", "nullable", "minlen", "maxlen", "unique")
 
@@ -96,6 +180,28 @@ class Sequence(abstract.Validator):
 
 
 class Tuple(abstract.Validator):
+    """
+    Tuple Validator
+
+
+    :param Validator \*items:
+        validators for tuple members.
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+
+    :raises InvalidTypeError:
+        if ``not isinstance(value, (list, tuple))``.
+
+    :raises TupleLengthError:
+        if ``len(value) != len(self.items)``.
+
+    :raises SchemaError:
+        with all errors,
+        raised by member validators.
+
+    """
 
     __slots__ = ("items", "nullable")
 
