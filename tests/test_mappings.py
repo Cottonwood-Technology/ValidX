@@ -1,5 +1,6 @@
-import collections
 import sys
+import collections
+from collections import deque
 
 import pytest
 from webob.multidict import MultiDict as WebObMultiDict
@@ -70,12 +71,12 @@ def test_dict(dict_classes):
     ne_1, ne_2 = info.value.errors
 
     assert isinstance(ne_1, exc.InvalidTypeError)
-    assert ne_1.context == [u"x"]
+    assert ne_1.context == deque([u"x"])
     assert ne_1.expected == int
     assert ne_1.actual == str
 
     assert isinstance(ne_2, exc.InvalidTypeError)
-    assert ne_2.context == [u"y"]
+    assert ne_2.context == deque([u"y"])
     assert ne_2.expected == int
     assert ne_2.actual == NoneType
 
@@ -138,7 +139,7 @@ def test_dict_defaults_and_optional(dict_classes, defaults, optional):
     assert len(info.value.errors) == 1
     ne = info.value.errors[0]
     assert isinstance(ne, exc.MissingKeyError)
-    assert ne.context == [u"y"]
+    assert ne.context == deque([u"y"])
 
     if defaults:
         assert v({u"y": 2}) == {u"x": 0, u"y": 2}
@@ -150,7 +151,7 @@ def test_dict_defaults_and_optional(dict_classes, defaults, optional):
         assert len(info.value.errors) == 1
         ne = info.value.errors[0]
         assert isinstance(ne, exc.MissingKeyError)
-        assert ne.context == [u"x"]
+        assert ne.context == deque([u"x"])
 
 
 @pytest.mark.parametrize("extra", [None, True])
@@ -171,7 +172,7 @@ def test_dict_extra(dict_classes, extra):
         ne = info.value.errors[0]
 
         assert isinstance(ne, exc.ExtraKeyError)
-        assert ne.context == [3]
+        assert ne.context == deque([3])
 
         assert isinstance(ne.key_error, exc.InvalidTypeError)
         assert ne.key_error.expected == str
@@ -186,7 +187,7 @@ def test_dict_extra(dict_classes, extra):
         assert len(info.value.errors) == 1
         ne = info.value.errors[0]
         assert isinstance(ne, exc.ForbiddenKeyError)
-        assert ne.context == [u"z"]
+        assert ne.context == deque([u"z"])
 
 
 @pytest.mark.parametrize("dispose", [None, [u"z"]])
@@ -203,7 +204,7 @@ def test_dict_dispose(dict_classes, dispose):
         assert len(info.value.errors) == 1
         ne = info.value.errors[0]
         assert isinstance(ne, exc.ForbiddenKeyError)
-        assert ne.context == [u"z"]
+        assert ne.context == deque([u"z"])
 
 
 @pytest.mark.parametrize("multidict", multidict_classes)

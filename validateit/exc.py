@@ -1,10 +1,13 @@
+from collections import deque
+
+
 class ValidationError(ValueError):
     """
     Validation Error Base Class
 
-    :param list context:
+    :param deque context:
         error context,
-        empty list by default.
+        empty deque by default.
 
     :param \**kw:
         concrete error attributes.
@@ -32,10 +35,10 @@ class ValidationError(ValueError):
         ])>
 
         >>> error.errors[0].context
-        ['foo', 2]
+        deque(['foo', 2])
 
         >>> error.errors[1].context
-        ['foo', 3]
+        deque(['foo', 3])
 
 
     Each validation error is iterable.
@@ -58,8 +61,8 @@ class ValidationError(ValueError):
 
     __slots__ = ("context",)
 
-    def __init__(self, **kw):
-        kw.setdefault("context", [])
+    def __init__(self, context=None, **kw):
+        self.context = context or deque()
         for slot, value in kw.items():
             setattr(self, slot, value)
         super(ValidationError, self).__init__(
@@ -90,15 +93,15 @@ class ValidationError(ValueError):
             >>> e
             <ValidationError()>
             >>> e.context
-            []
+            deque([])
 
             >>> e.add_context("foo")
             <foo: ValidationError()>
             >>> e.context
-            ['foo']
+            deque(['foo'])
 
         """
-        self.context.insert(0, node)
+        self.context.appendleft(node)
         return self
 
     def __iter__(self):
@@ -351,7 +354,7 @@ class MappingKeyError(ValidationError):
     __slots__ = ValidationError.__slots__
 
     def __init__(self, key, **kw):
-        super(MappingKeyError, self).__init__(context=[key], **kw)
+        super(MappingKeyError, self).__init__(context=deque([key]), **kw)
 
 
 class ForbiddenKeyError(MappingKeyError):

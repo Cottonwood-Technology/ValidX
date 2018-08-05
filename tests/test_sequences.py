@@ -1,5 +1,6 @@
-import collections
 import sys
+import collections
+from collections import deque
 
 import pytest
 
@@ -55,12 +56,12 @@ def test_list(list_classes):
     ne_1, ne_2 = info.value.errors
 
     assert isinstance(ne_1, exc.InvalidTypeError)
-    assert ne_1.context == [1]
+    assert ne_1.context == deque([1])
     assert ne_1.expected == int
     assert ne_1.actual == str
 
     assert isinstance(ne_2, exc.InvalidTypeError)
-    assert ne_2.context == [3]
+    assert ne_2.context == deque([3])
     assert ne_2.expected == int
     assert ne_2.actual == NoneType
 
@@ -144,12 +145,12 @@ def test_tuple(module):
     ne_1, ne_2 = info.value.errors
 
     assert isinstance(ne_1, exc.InvalidTypeError)
-    assert ne_1.context == [0]
+    assert ne_1.context == deque([0])
     assert ne_1.expected == int
     assert ne_1.actual == str
 
     assert isinstance(ne_2, exc.InvalidTypeError)
-    assert ne_2.context == [1]
+    assert ne_2.context == deque([1])
     assert ne_2.expected == int
     assert ne_2.actual == NoneType
 

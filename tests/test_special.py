@@ -1,3 +1,5 @@
+from collections import deque
+
 import pytest
 
 from validateit import exc
@@ -29,7 +31,7 @@ def test_lazyref(module):
     ne = info.value.errors[0]
 
     assert isinstance(ne, exc.RecursionMaxDepthError)
-    assert ne.context == ["y", "y", "y"]
+    assert ne.context == deque(["y", "y", "y"])
     assert ne.expected == 2
     assert ne.actual == 3
 

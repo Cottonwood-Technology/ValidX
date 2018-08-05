@@ -3,8 +3,8 @@ import typing as t
 class ValidationError(ValueError):
     __slots__: t.Tuple[str, ...]
     args: t.Tuple[t.Any, t.Any]
-    context: t.List[t.Any]
-    def __init__(self, **kw) -> None: ...
+    context: t.Deque
+    def __init__(self, *, context: t.Deque = None, **kw) -> None: ...
     def add_context(self, node: t.Any) -> ValidationError: ...
     def __iter__(self) -> t.Iterator[ValidationError]: ...
     def __repr__(self) -> str: ...
@@ -16,7 +16,9 @@ class ConditionError(ValidationError):
     __slots__: t.Tuple[str, ...]
     expected: t.Any
     actual: t.Any
-    def __init__(self, *, expected: t.Any, actual: t.Any) -> None: ...
+    def __init__(
+        self, *, context: t.Deque = None, expected: t.Any, actual: t.Any
+    ) -> None: ...
 
 class InvalidTypeError(ConditionError):
     __slots__: t.Tuple[str, ...]
@@ -68,6 +70,13 @@ class ExtraKeyError(MappingKeyError):
     __slots__: t.Tuple[str, ...]
     key_error: t.Optional[ValidationError]
     value_error: t.Optional[ValidationError]
+    def __init__(
+        self,
+        key: t.Any,
+        *,
+        key_error: ValidationError = None,
+        value_error: ValidationError = None,
+    ) -> None: ...
 
 class SchemaError(ValidationError):
     __slots__: t.Tuple[str, ...]
