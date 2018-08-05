@@ -72,6 +72,33 @@ class LazyRef(abstract.Validator):
             self._depth -= 1
 
 
+class Const(abstract.Validator):
+    """
+    Constant Validator
+
+    It only accepts single predefined value.
+
+
+    :param value:
+        expected valid value.
+
+
+    :raises OptionsError:
+        if ``value != self.value``.
+
+    """
+
+    __slots__ = ("value",)
+
+    def __init__(self, value, **kw):
+        super(Const, self).__init__(value=value, **kw)
+
+    def __call__(self, value):
+        if value != self.value:
+            raise exc.OptionsError(expected=[self.value], actual=value)
+        return value
+
+
 class Any(abstract.Validator):
     """
     Pass-Any Validator

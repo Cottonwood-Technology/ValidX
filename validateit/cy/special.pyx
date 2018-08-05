@@ -33,6 +33,21 @@ cdef class LazyRef(abstract.Validator):
             self._depth -= 1
 
 
+cdef class Const(abstract.Validator):
+
+    __slots__ = ("value",)
+
+    cdef public value
+
+    def __init__(self, value, **kw):
+        super(Const, self).__init__(value=value, **kw)
+
+    def __call__(self, value):
+        if value != self.value:
+            raise exc.OptionsError(expected=[self.value], actual=value)
+        return value
+
+
 cdef class Any(abstract.Validator):
 
     __slots__ = ("nullable",)
@@ -45,3 +60,4 @@ cdef class Any(abstract.Validator):
             # Should there be some special handcrafted abstract base class?
             raise exc.InvalidTypeError(expected=object, actual=type(value))
         return value
+

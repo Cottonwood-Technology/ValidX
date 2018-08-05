@@ -34,6 +34,16 @@ def test_lazyref(module):
     assert ne.actual == 3
 
 
+def test_const(module):
+    v = module.Const(1)
+    assert v(1) == 1
+
+    with pytest.raises(exc.OptionsError) as info:
+        v(2)
+    assert info.value.expected == [1]
+    assert info.value.actual == 2
+
+
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_any(module, nullable):
     v = module.Any(nullable=nullable)

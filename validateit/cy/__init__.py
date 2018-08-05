@@ -5,8 +5,8 @@ from .datetimes import Date, Time, Datetime
 from .bools import Bool
 from .sequences import List, Sequence, Tuple
 from .mappings import Dict, Mapping
-from .pipelines import AllOf, AnyOf
-from .special import LazyRef, Any
+from .pipelines import AllOf, OneOf
+from .special import LazyRef, Const, Any
 from . import classes, instances
 
 
@@ -26,15 +26,15 @@ __all__ = [
     "Dict",
     "Mapping",
     "AllOf",
-    "AnyOf",
+    "OneOf",
     "LazyRef",
+    "Const",
     "Any",
     "classes",
     "instances",
 ]
 
 
-classes.add(Any)
 classes.add(Int)
 classes.add(Float)
 classes.add(Str)
@@ -49,5 +49,7 @@ classes.add(Tuple)
 classes.add(Dict)
 classes.add(Mapping)
 classes.add(AllOf)
-classes.add(AnyOf)
+classes.add(OneOf)
 classes.add(LazyRef)
+classes.add(Const)
+classes.add(Any)
