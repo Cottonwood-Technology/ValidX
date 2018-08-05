@@ -56,7 +56,10 @@ def test_docstrings():
                 continue
 
             cy_attr = getattr(cy_obj, name)
-            assert py_attr.__doc__ == cy_attr.__doc__
+            assert py_attr.__doc__ == cy_attr.__doc__, "%r.__doc__ != %r.__doc__" % (
+                py_attr,
+                cy_attr,
+            )
 
             if inspect.ismodule(py_attr) or inspect.isclass(py_attr):
                 walk(py_attr, cy_attr)
