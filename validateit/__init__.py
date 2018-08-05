@@ -3,7 +3,6 @@ from . import exc
 try:
     from .cy import (
         Validator,
-        Any,
         Int,
         Float,
         Str,
@@ -20,13 +19,13 @@ try:
         AllOf,
         AnyOf,
         LazyRef,
+        Any,
         classes,
         instances,
     )
 except ImportError:  # pragma: no cover
     from .py import (
         Validator,
-        Any,
         Int,
         Float,
         Str,
@@ -43,6 +42,7 @@ except ImportError:  # pragma: no cover
         AllOf,
         AnyOf,
         LazyRef,
+        Any,
         classes,
         instances,
     )
@@ -51,7 +51,6 @@ except ImportError:  # pragma: no cover
 __all__ = [
     "exc",
     "Validator",
-    "Any",
     "Int",
     "Float",
     "Str",
@@ -68,6 +67,7 @@ __all__ = [
     "AllOf",
     "AnyOf",
     "LazyRef",
+    "Any",
     "classes",
     "instances",
 ]
