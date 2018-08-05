@@ -6,6 +6,52 @@ from . cimport abstract
 
 
 cdef class Str(abstract.Validator):
+    """
+    Unicode String Validator
+
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param str encoding:
+        try to decode byte-string to ``str/unicode``,
+        using specified encoding.
+
+    :param int minlen:
+        lower length limit.
+
+    :param int maxlen:
+        upper length limit.
+
+    :param str pattern:
+        validate string using regular expression.
+
+    :param options:
+        explicit enumeration of valid values.
+    :type options: list or tuple
+
+
+    :raises InvalidTypeError:
+        * if ``value is None`` and ``not self.nullable``;
+        * if ``not isinstance(value, str)`` (Python 3.x)
+          or ``not isinstance(value, unicode)`` (Python 2.x).
+
+    :raises StrDecodeError:
+        if ``value.decode(self.encoding)`` raises ``UnicodeDecodeError``.
+
+    :raises MinLengthError:
+        if ``len(value) < self.minlen``.
+
+    :raises MaxLengthError:
+        if ``len(value) > self.maxlen``.
+
+    :raises PatternMatchError:
+        if ``value`` does not match ``self.pattern``.
+
+    :raises OptionsError:
+        if ``value not in self.options``.
+
+    """
 
     __slots__ = ("nullable", "encoding", "minlen", "maxlen", "pattern", "options")
 
@@ -56,6 +102,31 @@ cdef class Str(abstract.Validator):
 
 
 cdef class Bytes(abstract.Validator):
+    """
+    Byte String Validator
+
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param int minlen:
+        lower length limit.
+
+    :param int maxlen:
+        upper length limit.
+
+
+    :raises InvalidTypeError:
+        * if ``value is None`` and ``not self.nullable``;
+        * if ``not isinstance(value, bytes)``.
+
+    :raises MinLengthError:
+        if ``len(value) < self.minlen``.
+
+    :raises MaxLengthError:
+        if ``len(value) > self.maxlen``.
+
+    """
 
     __slots__ = ("nullable", "minlen", "maxlen")
 

@@ -146,7 +146,6 @@ class Validator(ABC):
             <Int(min=-100, max=100)>
 
         """
-
         assert isinstance(params, dict), "Expected %r, got %r" % (dict, type(params))
         assert "__class__" in params or "__use__" in params or "__clone__" in params, (
             "One of keys ['__class__', '__use__', '__clone__'] must be specified in: %r"

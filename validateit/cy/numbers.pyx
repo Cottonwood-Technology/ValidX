@@ -6,6 +6,47 @@ from . cimport abstract
 
 
 cdef class Int(abstract.Validator):
+    """
+    Integer Number Validator
+
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param bool coerce:
+        try to convert non-integer value to ``int``.
+
+    :param int min:
+        lower limit.
+
+    :param int max:
+        upper limit.
+
+    :param options:
+        explicit enumeration of valid values.
+    :type options: list or tuple
+
+
+    :raises InvalidTypeError:
+        * if ``value is None`` and ``not self.nullable``;
+        * if ``not isinstance(value, int)`` and ``not self.coerce``;
+        * if ``int(value)`` raises ``ValueError`` or ``TypeError``.
+
+    :raises MinValueError:
+        if ``value < self.min``.
+
+    :raises MaxValueError:
+        if ``value > self.max``.
+
+    :raises OptionsError:
+        if ``value not in self.options``.
+
+
+    :note:
+        It implicitly converts ``float`` to ``int``,
+        if ``value.is_integer() is True``.
+
+    """
 
     __slots__ = ("nullable", "coerce", "min", "max", "options")
 
@@ -57,6 +98,48 @@ cdef class Int(abstract.Validator):
 
 
 cdef class Float(abstract.Validator):
+    """
+    Floating Point Number Validator
+
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param bool coerce:
+        try to convert non-float value to ``float``.
+
+    :param bool nan:
+        accept ``Not-a-Number`` as a valid value.
+
+    :param bool inf:
+        accept ``Infinity`` as a valid value.
+
+    :param float min:
+        lower limit.
+
+    :param float max:
+        upper limit.
+
+
+    :raises InvalidTypeError:
+        * if ``value is None`` and ``not self.nullable``;
+        * if ``not isinstance(value, float)`` and ``not self.coerce``;
+        * if ``float(value)`` raises ``ValueError`` or ``TypeError``.
+
+    :raises FloatValueError:
+        * if ``math.isnan(value)`` and ``not self.nan``;
+        * if ``math.isinf(value)`` and ``not self.inf``.
+
+    :raises MinValueError:
+        if ``value < self.min``.
+
+    :raises MaxValueError:
+        if ``value > self.max``.
+
+
+    :note: It always converts ``int`` to ``float``.
+
+    """
 
     __slots__ = ("nullable", "coerce", "nan", "inf", "min", "max")
 

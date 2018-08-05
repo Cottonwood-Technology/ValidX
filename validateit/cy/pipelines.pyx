@@ -3,6 +3,21 @@ from . cimport abstract
 
 
 cdef class AllOf(abstract.Validator):
+    """
+    AND-style Pipeline Validator
+
+    All steps must be succeeded.
+    The last step returns result.
+
+
+    :param Validator \*steps:
+        nested validators.
+
+
+    :raises ValidationError:
+        raised by the first failed step.
+
+    """
 
     __slots__ = ("steps",)
 
@@ -25,6 +40,21 @@ cdef class AllOf(abstract.Validator):
 
 
 cdef class OneOf(abstract.Validator):
+    """
+    OR-style Pipeline Validator
+
+    The first succeeded step returns result.
+
+
+    :param Validator \*steps:
+        nested validators.
+
+    :raises SchemaError:
+        if all steps are failed,
+        so it contains all errors,
+        raised by each step.
+
+    """
 
     __slots__ = ("steps",)
 

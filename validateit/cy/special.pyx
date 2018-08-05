@@ -3,6 +3,57 @@ from . cimport abstract, instances
 
 
 cdef class LazyRef(abstract.Validator):
+    """
+    Lazy Referenced Validator
+
+    It is useful to build validators for recursive structures.
+
+    ..  testsetup:: lazyref
+
+        from validateit import Dict, Int, LazyRef, instances
+
+    ..  testcleanup:: lazyref
+
+        instances.clear()
+
+    ..  doctest:: lazyref
+        :options: +ELLIPSIS, -IGNORE_EXCEPTION_DETAIL
+
+        >>> schema = Dict(
+        ...     {
+        ...         "foo": Int(),
+        ...         "bar": LazyRef("schema", maxdepth=1),
+        ...     },
+        ...     optional=("foo", "bar"),
+        ...     minlen=1,
+        ...     alias="schema",
+        ... )
+
+        >>> schema({"foo": 1})
+        {'foo': 1}
+
+        >>> schema({"bar": {"foo": 1}})
+        {'bar': {'foo': 1}}
+
+        >>> schema({"bar": {"bar": {"foo": 1}}})
+        Traceback (most recent call last):
+            ...
+        validateit.exc.SchemaError: <SchemaError(errors=[
+            <bar.bar: RecursionMaxDepthError(expected=1, actual=2)>
+        ])>
+
+    :param str use:
+        alias of referenced validator.
+
+    :param int maxdepth:
+        maximum recursion depth.
+
+
+    :raises RecursionMaxDepthError:
+        if ``self.maxdepth is not None``
+        and current recursion depth exceeds the limit.
+
+    """
 
     __slots__ = ("use", "maxdepth", "_depth")
 
@@ -34,6 +85,20 @@ cdef class LazyRef(abstract.Validator):
 
 
 cdef class Const(abstract.Validator):
+    """
+    Constant Validator
+
+    It only accepts single predefined value.
+
+
+    :param value:
+        expected valid value.
+
+
+    :raises OptionsError:
+        if ``value != self.value``.
+
+    """
 
     __slots__ = ("value",)
 
@@ -49,6 +114,21 @@ cdef class Const(abstract.Validator):
 
 
 cdef class Any(abstract.Validator):
+    """
+    Pass-Any Validator
+
+    It literally accepts any value.
+    The only optional check is for ``None`` values.
+
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+
+    :raises InvalidTypeError:
+        if ``value is None`` and ``not self.nullable``.
+
+    """
 
     __slots__ = ("nullable",)
 
