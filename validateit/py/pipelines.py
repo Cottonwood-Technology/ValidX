@@ -22,24 +22,23 @@ class AllOf(abstract.Validator):
     :raises ValidationError:
         raised by the first failed step.
 
-
-    :warning:
-        If there are no steps,
-        value **will not be validated** and **no error will be raised**.
-
     """
 
     __slots__ = ("steps",)
 
     def __init__(self, *steps, **kw):
+        assert steps, "At least one validation step has to be provided"
         super(AllOf, self).__init__(steps=list(steps), **kw)
 
     def __call__(self, value):
+        validated = False
         for num, step in enumerate(self.steps):
+            validated = True
             try:
                 value = step(value)
             except exc.ValidationError as e:
                 raise e.add_context(exc.StepNo(num))
+        assert validated, "At least one validation step has to be passed"
         return value
 
 
@@ -58,16 +57,12 @@ class AnyOf(abstract.Validator):
         so it contains all errors,
         raised by each step.
 
-
-    :warning:
-        If there are no steps,
-        value **will not be validated** and **no error will be raised**.
-
     """
 
     __slots__ = ("steps",)
 
     def __init__(self, *steps, **kw):
+        assert steps, "At least one validation step has to be provided"
         super(AnyOf, self).__init__(steps=list(steps), **kw)
 
     def __call__(self, value):
@@ -79,5 +74,4 @@ class AnyOf(abstract.Validator):
                 errors.extend(ne.add_context(exc.StepNo(num)) for ne in e)
         if errors:
             raise exc.SchemaError(errors)
-        # If there are no steps, return value as it is.
-        return value  # pragma: no cover
+        assert False, "At least one validation step has to be passed"

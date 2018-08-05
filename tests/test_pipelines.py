@@ -19,6 +19,16 @@ def test_all_of(module):
     assert info.value.expected == 10
     assert info.value.actual == 11
 
+    with pytest.raises(AssertionError) as info:
+        module.AllOf()
+    assert info.value.args == ("At least one validation step has to be provided",)
+
+    v = module.AllOf(module.Int())
+    v.steps = []
+    with pytest.raises(AssertionError) as info:
+        v(1)
+    assert info.value.args == ("At least one validation step has to be passed",)
+
 
 def test_any_of(module):
     v = module.AnyOf(module.Int(options=[1, 2, 3]), module.Int(min=10))
@@ -42,3 +52,13 @@ def test_any_of(module):
     assert ne_2.context == [exc.StepNo(1)]
     assert ne_2.expected == 10
     assert ne_2.actual == 9
+
+    with pytest.raises(AssertionError) as info:
+        module.AnyOf()
+    assert info.value.args == ("At least one validation step has to be provided",)
+
+    v = module.AnyOf(module.Int())
+    v.steps = []
+    with pytest.raises(AssertionError) as info:
+        v(1)
+    assert info.value.args == ("At least one validation step has to be passed",)

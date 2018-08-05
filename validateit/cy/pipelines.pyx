@@ -9,14 +9,18 @@ cdef class AllOf(abstract.Validator):
     cdef public steps
 
     def __init__(self, *steps, **kw):
+        assert steps, "At least one validation step has to be provided"
         super(AllOf, self).__init__(steps=list(steps), **kw)
 
     def __call__(self, value):
+        cdef bint validated = False
         for num, step in enumerate(self.steps):
+            validated = True
             try:
                 value = step(value)
             except exc.ValidationError as e:
                 raise e.add_context(exc.StepNo(num))
+        assert validated, "At least one validation step has to be passed"
         return value
 
 
@@ -27,6 +31,7 @@ cdef class AnyOf(abstract.Validator):
     cdef public steps
 
     def __init__(self, *steps, **kw):
+        assert steps, "At least one validation step has to be provided"
         super(AnyOf, self).__init__(steps=list(steps), **kw)
 
     def __call__(self, value):
@@ -38,5 +43,4 @@ cdef class AnyOf(abstract.Validator):
                 errors.extend(ne.add_context(exc.StepNo(num)) for ne in e)
         if errors:
             raise exc.SchemaError(errors)
-        # If there are no steps, return value as it is.
-        return value
+        assert False, "At least one validation step has to be passed"
