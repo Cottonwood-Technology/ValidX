@@ -39,6 +39,7 @@ def test_bool_coerce_str(module, coerce_str):
         assert v("false") is False
         assert v("No") is False
         assert v("no") is False
+        assert v("n") is False
         assert v("Off") is False
         assert v("off") is False
 
@@ -47,6 +48,7 @@ def test_bool_coerce_str(module, coerce_str):
         assert v("true") is True
         assert v("Yes") is True
         assert v("yes") is True
+        assert v("y") is True
         assert v("On") is True
         assert v("on") is True
 

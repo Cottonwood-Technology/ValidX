@@ -11,8 +11,8 @@ class Bool(abstract.Validator):
         accept ``None`` as a valid value.
 
     :param bool coerce_str:
-        * accept values ``["1", "true", "yes", "on"]`` as ``True``;
-        * accept values ``["0", "false", "no", "off"]`` as ``False``.
+        * accept values ``["1", "true", "yes", "y", "on"]`` as ``True``;
+        * accept values ``["0", "false", "no", "n", "off"]`` as ``False``.
 
     :param bool coerce_int:
         accept ``int`` as valid value.
@@ -29,8 +29,8 @@ class Bool(abstract.Validator):
 
     """
 
-    TRUE = ("1", "true", "yes", "on")
-    FALSE = ("0", "false", "no", "off")
+    TRUE = ("1", "true", "yes", "y", "on")
+    FALSE = ("0", "false", "no", "n", "off")
 
     __slots__ = ("nullable", "coerce_str", "coerce_int")
 

@@ -4,8 +4,8 @@ from . cimport abstract
 
 cdef class Bool(abstract.Validator):
 
-    TRUE = ("1", "true", "yes", "on")
-    FALSE = ("0", "false", "no", "off")
+    TRUE = ("1", "true", "yes", "y", "on")
+    FALSE = ("0", "false", "no", "n", "off")
 
     __slots__ = ("nullable", "coerce_str", "coerce_int")
 
