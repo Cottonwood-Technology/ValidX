@@ -392,23 +392,25 @@ class SchemaError(ValidationError):
         return self
 
 
-class StepNo(object):
+class Step(object):
     """
-    Step Number Context Marker
+    Step Number
 
     It is a special context marker,
     that is used by pipeline validators to indicate,
     which validation step is failed.
+    It has special representation,
+    to be easily distinguished from sequence indexes.
 
-    :param int no:
-        number of step.
+    :param int num:
+        number of failed step.
 
-    ..  testsetup:: stepno
+    ..  testsetup:: step
 
         from validateit import OneOf, Int
         from validateit.exc import ValidationError
 
-    ..  doctest:: stepno
+    ..  doctest:: step
 
         >>> schema = OneOf(Int(min=0, max=10), Int(min=90, max=100))
         >>> try:
@@ -418,25 +420,25 @@ class StepNo(object):
 
         >>> error
         <SchemaError(errors=[
-            <<StepNo(0)>: MaxValueError(expected=10, actual=50)>,
-            <<StepNo(1)>: MinValueError(expected=90, actual=50)>
+            <#0: MaxValueError(expected=10, actual=50)>,
+            <#1: MinValueError(expected=90, actual=50)>
         ])>
 
-        >>> error.errors[0].context[0]
-        <StepNo(0)>
+        >>> repr(error.errors[0].context[0])
+        '#0'
 
-        >>> error.errors[0].context[0].no
+        >>> error.errors[0].context[0].num
         0
 
     """
 
-    __slots__ = ("no",)
+    __slots__ = ("num",)
 
-    def __init__(self, no):
-        self.no = no
+    def __init__(self, num):
+        self.num = num
 
     def __repr__(self):
-        return "<%s(%s)>" % (self.__class__.__name__, self.no)
+        return "#%s" % self.num
 
     def __eq__(self, other):
-        return self.__class__ is type(other) and self.no == other.no
+        return self.__class__ is type(other) and self.num == other.num

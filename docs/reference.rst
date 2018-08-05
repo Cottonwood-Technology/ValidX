@@ -140,4 +140,4 @@ The class hierarchy for exceptions is::
 ..  autoclass:: validateit.exc.MissingKeyError
 ..  autoclass:: validateit.exc.ExtraKeyError
 ..  autoclass:: validateit.exc.SchemaError
-..  autoclass:: validateit.exc.StepNo
+..  autoclass:: validateit.exc.Step

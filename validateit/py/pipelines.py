@@ -18,9 +18,12 @@ class AllOf(abstract.Validator):
     :param Validator \*steps:
         nested validators.
 
-
     :raises ValidationError:
         raised by the first failed step.
+
+    :note:
+        it uses :class:`validateit.exc.Step` marker to indicate,
+        which step is failed.
 
     """
 
@@ -37,7 +40,7 @@ class AllOf(abstract.Validator):
             try:
                 value = step(value)
             except exc.ValidationError as e:
-                raise e.add_context(exc.StepNo(num))
+                raise e.add_context(exc.Step(num))
         assert validated, "At least one validation step has to be passed"
         return value
 
@@ -57,6 +60,10 @@ class OneOf(abstract.Validator):
         so it contains all errors,
         raised by each step.
 
+    :note:
+        it uses :class:`validateit.exc.Step` marker to indicate,
+        which step is failed.
+
     """
 
     __slots__ = ("steps",)
@@ -71,7 +78,7 @@ class OneOf(abstract.Validator):
             try:
                 return step(value)
             except exc.ValidationError as e:
-                errors.extend(ne.add_context(exc.StepNo(num)) for ne in e)
+                errors.extend(ne.add_context(exc.Step(num)) for ne in e)
         if errors:
             raise exc.SchemaError(errors)
         assert False, "At least one validation step has to be passed"
