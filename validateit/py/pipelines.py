@@ -42,7 +42,7 @@ class AllOf(abstract.Validator):
         return value
 
 
-class AnyOf(abstract.Validator):
+class OneOf(abstract.Validator):
     """
     OR-style Pipeline Validator
 
@@ -63,7 +63,7 @@ class AnyOf(abstract.Validator):
 
     def __init__(self, *steps, **kw):
         assert steps, "At least one validation step has to be provided"
-        super(AnyOf, self).__init__(steps=list(steps), **kw)
+        super(OneOf, self).__init__(steps=list(steps), **kw)
 
     def __call__(self, value):
         errors = []

@@ -8,7 +8,7 @@ class AllOf(abstract.Validator):
         self, *steps: abstract.Validator, alias: str = None, replace: bool = False
     ) -> None: ...
 
-class AnyOf(abstract.Validator):
+class OneOf(abstract.Validator):
     __slots__: t.Tuple[str, ...]
     steps: t.List[abstract.Validator]
     def __init__(

@@ -405,12 +405,12 @@ class StepNo(object):
 
     ..  testsetup:: stepno
 
-        from validateit import AnyOf, Int
+        from validateit import OneOf, Int
         from validateit.exc import ValidationError
 
     ..  doctest:: stepno
 
-        >>> schema = AnyOf(Int(min=0, max=10), Int(min=90, max=100))
+        >>> schema = OneOf(Int(min=0, max=10), Int(min=90, max=100))
         >>> try:
         ...     schema(50)
         ... except ValidationError as e:

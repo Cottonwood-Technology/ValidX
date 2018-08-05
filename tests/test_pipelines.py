@@ -31,7 +31,7 @@ def test_all_of(module):
 
 
 def test_any_of(module):
-    v = module.AnyOf(module.Int(options=[1, 2, 3]), module.Int(min=10))
+    v = module.OneOf(module.Int(options=[1, 2, 3]), module.Int(min=10))
     assert v(1) == 1
     assert v(2) == 2
     assert v(3) == 3
@@ -54,10 +54,10 @@ def test_any_of(module):
     assert ne_2.actual == 9
 
     with pytest.raises(AssertionError) as info:
-        module.AnyOf()
+        module.OneOf()
     assert info.value.args == ("At least one validation step has to be provided",)
 
-    v = module.AnyOf(module.Int())
+    v = module.OneOf(module.Int())
     v.steps = []
     with pytest.raises(AssertionError) as info:
         v(1)
