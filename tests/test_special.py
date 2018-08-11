@@ -26,14 +26,12 @@ def test_lazyref(module):
 
     with pytest.raises(exc.SchemaError) as info:
         v({"y": {"y": {"y": {"x": 1}}}})
-    assert len(info.value.errors) == 1
+    assert len(info.value) == 1
 
-    ne = info.value.errors[0]
-
-    assert isinstance(ne, exc.RecursionMaxDepthError)
-    assert ne.context == deque(["y", "y", "y"])
-    assert ne.expected == 2
-    assert ne.actual == 3
+    assert isinstance(info.value[0], exc.RecursionMaxDepthError)
+    assert info.value[0].context == deque(["y", "y", "y"])
+    assert info.value[0].expected == 2
+    assert info.value[0].actual == 3
 
 
 def test_const(module):

@@ -41,19 +41,17 @@ def test_any_of(module):
 
     with pytest.raises(exc.SchemaError) as info:
         v(9)
-    assert len(info.value.errors) == 2
+    assert len(info.value) == 2
 
-    ne_1, ne_2 = info.value.errors
+    assert isinstance(info.value[0], exc.OptionsError)
+    assert info.value[0].context == deque([exc.Step(0)])
+    assert info.value[0].expected == [1, 2, 3]
+    assert info.value[0].actual == 9
 
-    assert isinstance(ne_1, exc.OptionsError)
-    assert ne_1.context == deque([exc.Step(0)])
-    assert ne_1.expected == [1, 2, 3]
-    assert ne_1.actual == 9
-
-    assert isinstance(ne_2, exc.MinValueError)
-    assert ne_2.context == deque([exc.Step(1)])
-    assert ne_2.expected == 10
-    assert ne_2.actual == 9
+    assert isinstance(info.value[1], exc.MinValueError)
+    assert info.value[1].context == deque([exc.Step(1)])
+    assert info.value[1].expected == 10
+    assert info.value[1].actual == 9
 
     with pytest.raises(AssertionError) as info:
         module.OneOf()

@@ -51,19 +51,17 @@ def test_list(list_classes):
 
     with pytest.raises(exc.SchemaError) as info:
         v([1, u"2", 3, None])
-    assert len(info.value.errors) == 2
+    assert len(info.value) == 2
 
-    ne_1, ne_2 = info.value.errors
+    assert isinstance(info.value[0], exc.InvalidTypeError)
+    assert info.value[0].context == deque([1])
+    assert info.value[0].expected == int
+    assert info.value[0].actual == str
 
-    assert isinstance(ne_1, exc.InvalidTypeError)
-    assert ne_1.context == deque([1])
-    assert ne_1.expected == int
-    assert ne_1.actual == str
-
-    assert isinstance(ne_2, exc.InvalidTypeError)
-    assert ne_2.context == deque([3])
-    assert ne_2.expected == int
-    assert ne_2.actual == NoneType
+    assert isinstance(info.value[1], exc.InvalidTypeError)
+    assert info.value[1].context == deque([3])
+    assert info.value[1].expected == int
+    assert info.value[1].actual == NoneType
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -140,19 +138,17 @@ def test_tuple(module):
 
     with pytest.raises(exc.SchemaError) as info:
         v([u"1", None])
-    assert len(info.value.errors) == 2
+    assert len(info.value) == 2
 
-    ne_1, ne_2 = info.value.errors
+    assert isinstance(info.value[0], exc.InvalidTypeError)
+    assert info.value[0].context == deque([0])
+    assert info.value[0].expected == int
+    assert info.value[0].actual == str
 
-    assert isinstance(ne_1, exc.InvalidTypeError)
-    assert ne_1.context == deque([0])
-    assert ne_1.expected == int
-    assert ne_1.actual == str
-
-    assert isinstance(ne_2, exc.InvalidTypeError)
-    assert ne_2.context == deque([1])
-    assert ne_2.expected == int
-    assert ne_2.actual == NoneType
+    assert isinstance(info.value[1], exc.InvalidTypeError)
+    assert info.value[1].context == deque([1])
+    assert info.value[1].expected == int
+    assert info.value[1].actual == NoneType
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])

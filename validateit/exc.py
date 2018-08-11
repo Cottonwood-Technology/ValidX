@@ -1,61 +1,72 @@
-from collections import deque
+from collections import deque, Sequence
 
 
-class ValidationError(ValueError):
+class ValidationError(ValueError, Sequence):
     """
     Validation Error Base Class
 
     :param deque context:
         error context,
-        empty deque by default.
+        empty ``deque`` by default.
 
     :param \**kw:
         concrete error attributes.
 
-    Each validation error has its context,
-    that indicates which member of validating structure is failed.
+    Since validators try to process as much as possible,
+    they can raise multiple errors
+    (wrapped by :class:`validateit.exc.SchemaError`).
+    To unify handling of such errors,
+    each validation error provides ``Sequence`` interface.
+    It means,
+    you can iterate them,
+    get their length,
+    get nested errors by index,
+    and sort nested errors by context.
 
-    ..  testsetup:: validation_error
-
-        from validateit import Dict, List, Int
-        from validateit.exc import ValidationError
+    Error context is a full path,
+    that indicates where the error occurred.
+    It contains mapping keys,
+    sequence indexes,
+    and special markers
+    (see :class:`validateit.exc.Extra` and :class:`validateit.exc.Step`).
 
     ..  doctest:: validation_error
 
+        >>> from validateit import exc, Dict, List, Int
+
         >>> schema = Dict({"foo": List(Int(max=100))})
         >>> try:
-        ...     schema({"foo": [1, 2, 200, 250]})
-        ... except ValidationError as e:
+        ...     schema({"foo": [1, 2, 200, 250], "bar": None})
+        ... except exc.ValidationError as e:
         ...     error = e
 
+        >>> error.sort()
         >>> error
         <SchemaError(errors=[
+            <bar: ForbiddenKeyError()>,
             <foo.2: MaxValueError(expected=100, actual=200)>,
             <foo.3: MaxValueError(expected=100, actual=250)>
         ])>
 
-        >>> error.errors[0].context
+        >>> len(error)
+        3
+
+        >>> error[1]
+        <foo.2: MaxValueError(expected=100, actual=200)>
+        >>> error[1].context
         deque(['foo', 2])
+        >>> error[1].format_context()
+        'foo.2'
+        >>> error[1].format_error()
+        'MaxValueError(expected=100, actual=200)'
 
-        >>> error.errors[1].context
-        deque(['foo', 3])
-
-
-    Each validation error is iterable.
-    It unifies handling of single and composite errors
-    (see :class:`SchemaError`):
-
-    ..  doctest:: validation_error
-
-        >>> for e in error:
-        ...     print(e)
-        <foo.2: MaxValueError(expected=100, actual=200)>
-        <foo.3: MaxValueError(expected=100, actual=250)>
-
-        >>> for e in error.errors[0]:
-        ...     print(e)
-        <foo.2: MaxValueError(expected=100, actual=200)>
-
+        >>> error.sort(reverse=True)
+        >>> error
+        <SchemaError(errors=[
+            <foo.3: MaxValueError(expected=100, actual=250)>,
+            <foo.2: MaxValueError(expected=100, actual=200)>,
+            <bar: ForbiddenKeyError()>
+        ])>
 
     """
 
@@ -83,11 +94,9 @@ class ValidationError(ValueError):
 
         Example:
 
-        ..  testsetup:: add_context
-
-            from validateit.exc import ValidationError
-
         ..  doctest:: add_context
+
+            >>> from validateit.exc import ValidationError
 
             >>> e = ValidationError()
             >>> e
@@ -104,13 +113,19 @@ class ValidationError(ValueError):
         self.context.appendleft(node)
         return self
 
+    def __getitem__(self, index):
+        if index != 0:
+            raise IndexError(index)
+        return self
+
+    def __len__(self):
+        return 1
+
     def __iter__(self):
         yield self
 
-    def sorted(self, reverse=False):
-        return sorted(
-            self, key=lambda e: [repr(node) for node in e.context], reverse=reverse
-        )
+    def sort(self, key=None, reverse=False):
+        pass
 
     def __repr__(self):
         if self.context:
@@ -391,8 +406,20 @@ class SchemaError(ValidationError):
     def __init__(self, errors):
         super(SchemaError, self).__init__(errors=errors)
 
+    def __getitem__(self, index):
+        return self.errors[index]
+
+    def __len__(self):
+        return len(self.errors)
+
     def __iter__(self):
-        return (e for e in self.errors)
+        for error in self.errors:
+            yield error
+
+    def sort(self, key=None, reverse=False):
+        if key is None:
+            key = lambda error: tuple(repr(node) for node in error.context)
+        self.errors.sort(key=key, reverse=reverse)
 
     def __repr__(self):
         errors = ",\n".join("    %r" % e for e in self.errors)

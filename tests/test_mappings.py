@@ -66,19 +66,19 @@ def test_dict(dict_classes):
 
     with pytest.raises(exc.SchemaError) as info:
         v({u"x": u"1", u"y": None})
-    assert len(info.value.errors) == 2
+    assert len(info.value) == 2
 
-    ne_1, ne_2 = info.value.sorted()
+    info.value.sort()
 
-    assert isinstance(ne_1, exc.InvalidTypeError)
-    assert ne_1.context == deque([u"x"])
-    assert ne_1.expected == int
-    assert ne_1.actual == str
+    assert isinstance(info.value[0], exc.InvalidTypeError)
+    assert info.value[0].context == deque([u"x"])
+    assert info.value[0].expected == int
+    assert info.value[0].actual == str
 
-    assert isinstance(ne_2, exc.InvalidTypeError)
-    assert ne_2.context == deque([u"y"])
-    assert ne_2.expected == int
-    assert ne_2.actual == NoneType
+    assert isinstance(info.value[1], exc.InvalidTypeError)
+    assert info.value[1].context == deque([u"y"])
+    assert info.value[1].expected == int
+    assert info.value[1].actual == NoneType
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -136,10 +136,9 @@ def test_dict_defaults_and_optional(dict_classes, defaults, optional):
 
     with pytest.raises(exc.SchemaError) as info:
         v({u"x": 1})
-    assert len(info.value.errors) == 1
-    ne = info.value.errors[0]
-    assert isinstance(ne, exc.MissingKeyError)
-    assert ne.context == deque([u"y"])
+    assert len(info.value) == 1
+    assert isinstance(info.value[0], exc.MissingKeyError)
+    assert info.value[0].context == deque([u"y"])
 
     if defaults:
         assert v({u"y": 2}) == {u"x": 0, u"y": 2}
@@ -148,10 +147,9 @@ def test_dict_defaults_and_optional(dict_classes, defaults, optional):
     else:
         with pytest.raises(exc.SchemaError) as info:
             v({u"y": 2})
-        assert len(info.value.errors) == 1
-        ne = info.value.errors[0]
-        assert isinstance(ne, exc.MissingKeyError)
-        assert ne.context == deque([u"x"])
+        assert len(info.value) == 1
+        assert isinstance(info.value[0], exc.MissingKeyError)
+        assert info.value[0].context == deque([u"x"])
 
 
 @pytest.mark.parametrize("extra", [None, True])
@@ -167,26 +165,25 @@ def test_dict_extra(dict_classes, extra):
 
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, 3: None})
-        assert len(info.value.errors) == 2
+        assert len(info.value) == 2
 
-        ne_1, ne_2 = info.value.sorted()
+        info.value.sort()
 
-        assert isinstance(ne_1, exc.InvalidTypeError)
-        assert ne_1.context == deque([3, exc.EXTRA_KEY])
-        assert ne_1.expected == str
-        assert ne_1.actual == int
+        assert isinstance(info.value[0], exc.InvalidTypeError)
+        assert info.value[0].context == deque([3, exc.EXTRA_KEY])
+        assert info.value[0].expected == str
+        assert info.value[0].actual == int
 
-        assert isinstance(ne_2, exc.InvalidTypeError)
-        assert ne_2.context == deque([3, exc.EXTRA_VALUE])
-        assert ne_2.expected == int
-        assert ne_2.actual == NoneType
+        assert isinstance(info.value[1], exc.InvalidTypeError)
+        assert info.value[1].context == deque([3, exc.EXTRA_VALUE])
+        assert info.value[1].expected == int
+        assert info.value[1].actual == NoneType
     else:
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, u"z": 3})
-        assert len(info.value.errors) == 1
-        ne = info.value.errors[0]
-        assert isinstance(ne, exc.ForbiddenKeyError)
-        assert ne.context == deque([u"z"])
+        assert len(info.value) == 1
+        assert isinstance(info.value[0], exc.ForbiddenKeyError)
+        assert info.value[0].context == deque([u"z"])
 
 
 @pytest.mark.parametrize("dispose", [None, [u"z"]])
@@ -200,10 +197,9 @@ def test_dict_dispose(dict_classes, dispose):
     else:
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, u"z": 3})
-        assert len(info.value.errors) == 1
-        ne = info.value.errors[0]
-        assert isinstance(ne, exc.ForbiddenKeyError)
-        assert ne.context == deque([u"z"])
+        assert len(info.value) == 1
+        assert isinstance(info.value[0], exc.ForbiddenKeyError)
+        assert info.value[0].context == deque([u"z"])
 
 
 @pytest.mark.parametrize("multidict", multidict_classes)
