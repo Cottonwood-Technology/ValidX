@@ -68,7 +68,7 @@ def test_dict(dict_classes):
         v({u"x": u"1", u"y": None})
     assert len(info.value.errors) == 2
 
-    ne_1, ne_2 = info.value.errors
+    ne_1, ne_2 = info.value.sorted()
 
     assert isinstance(ne_1, exc.InvalidTypeError)
     assert ne_1.context == deque([u"x"])
@@ -167,20 +167,19 @@ def test_dict_extra(dict_classes, extra):
 
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, 3: None})
-        assert len(info.value.errors) == 1
+        assert len(info.value.errors) == 2
 
-        ne = info.value.errors[0]
+        ne_1, ne_2 = info.value.sorted()
 
-        assert isinstance(ne, exc.ExtraKeyError)
-        assert ne.context == deque([3])
+        assert isinstance(ne_1, exc.InvalidTypeError)
+        assert ne_1.context == deque([3, exc.EXTRA_KEY])
+        assert ne_1.expected == str
+        assert ne_1.actual == int
 
-        assert isinstance(ne.key_error, exc.InvalidTypeError)
-        assert ne.key_error.expected == str
-        assert ne.key_error.actual == int
-
-        assert isinstance(ne.value_error, exc.InvalidTypeError)
-        assert ne.value_error.expected == int
-        assert ne.value_error.actual == NoneType
+        assert isinstance(ne_2, exc.InvalidTypeError)
+        assert ne_2.context == deque([3, exc.EXTRA_VALUE])
+        assert ne_2.expected == int
+        assert ne_2.actual == NoneType
     else:
         with pytest.raises(exc.SchemaError) as info:
             v({u"x": 1, u"y": 2, u"z": 3})

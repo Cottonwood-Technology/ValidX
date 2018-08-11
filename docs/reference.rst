@@ -1,3 +1,5 @@
+.. _reference:
+
 Reference
 =========
 
@@ -112,7 +114,6 @@ The class hierarchy for exceptions is::
           +-- MappingKeyError
           |    +-- ForbiddenKeyError
           |    +-- MissingKeyError
-          |    +-- ExtraKeyError
           +-- SchemaError
 
 ..  highlight:: default
@@ -138,6 +139,6 @@ The class hierarchy for exceptions is::
 ..  autoclass:: validateit.exc.MappingKeyError
 ..  autoclass:: validateit.exc.ForbiddenKeyError
 ..  autoclass:: validateit.exc.MissingKeyError
-..  autoclass:: validateit.exc.ExtraKeyError
 ..  autoclass:: validateit.exc.SchemaError
+..  autoclass:: validateit.exc.Extra
 ..  autoclass:: validateit.exc.Step

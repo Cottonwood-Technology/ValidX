@@ -49,6 +49,17 @@ def test_exc():
     assert list(te) == [te]
     assert list(me) == [me]
     assert list(se) == [te, me]
+    assert se.sorted() == [te, me]
+    assert se.sorted(reverse=True) == [me, te]
+
+
+def test_extra():
+    assert exc.EXTRA_KEY == exc.Extra("KEY")
+    assert exc.EXTRA_VALUE == exc.Extra("VALUE")
+    assert exc.EXTRA_KEY != exc.EXTRA_VALUE
+    assert repr(exc.EXTRA_KEY) == "@KEY"
+    assert repr(exc.EXTRA_VALUE) == "@VALUE"
+    assert str(exc.EXTRA_KEY) == repr(exc.EXTRA_KEY)
 
 
 def test_step():

@@ -107,16 +107,21 @@ class ValidationError(ValueError):
     def __iter__(self):
         yield self
 
+    def sorted(self, reverse=False):
+        return sorted(
+            self, key=lambda e: [repr(node) for node in e.context], reverse=reverse
+        )
+
     def __repr__(self):
         if self.context:
-            return "<%s: %s>" % (self._repr_context(), self._repr_error())
+            return "<%s: %s>" % (self.format_context(), self.format_error())
         else:
-            return "<%s>" % self._repr_error()
+            return "<%s>" % self.format_error()
 
     def __str__(self):
         return repr(self)
 
-    def _repr_context(self):
+    def format_context(self):
         def context():
             for node in self.context:
                 if isinstance(node, str) and "." in node:
@@ -126,7 +131,7 @@ class ValidationError(ValueError):
 
         return ".".join(context())
 
-    def _repr_error(self):
+    def format_error(self):
         def params():
             for slot in self.__slots__[1:]:  # Exclude ``context``
                 yield "%s=%r" % (slot, getattr(self, slot))
@@ -369,21 +374,6 @@ class MissingKeyError(MappingKeyError):
     __slots__ = MappingKeyError.__slots__
 
 
-class ExtraKeyError(MappingKeyError):
-    """
-    Mapping Extra Key Error
-
-    :param ValidationError key_error:
-        error occurred during extra key validation.
-
-    :param ValidationError value_error:
-        error occurred during extra value validation.
-
-    """
-
-    __slots__ = MappingKeyError.__slots__ + ("key_error", "value_error")
-
-
 class SchemaError(ValidationError):
     """
     Schema Error
@@ -414,9 +404,73 @@ class SchemaError(ValidationError):
         return self
 
 
+class Extra(object):
+    """
+    Extra Key Context Marker
+
+    It is a special context marker,
+    that is used by mapping validators to indicate,
+    which part of extra key/value pair is failed.
+
+    There are two constants in the module:
+
+    *   ``EXTRA_KEY`` indicates that key validation is failed;
+    *   ``EXTRA_VALUE`` indicates that value validation is failed.
+
+    It has special representation,
+    to be easily distinguished from other string keys.
+
+    :param str name:
+        name of pair part,
+        i.e. ``KEY`` or ``VALUE``.
+
+    ..  doctest:: extra
+
+        >>> from validateit import exc, Dict, Str
+
+        >>> schema = Dict(extra=(Str(maxlen=2), Str(maxlen=4)))
+        >>> try:
+        ...     schema({"xy": "abc", "xyz": "abcde"})
+        ... except exc.ValidationError as e:
+        ...     error = e
+
+        >>> error
+        <SchemaError(errors=[
+            <xyz.@KEY: MaxLengthError(expected=2, actual=3)>,
+            <xyz.@VALUE: MaxLengthError(expected=4, actual=5)>
+        ])>
+
+        >>> repr(error.errors[0].context[1])
+        '@KEY'
+        >>> error.errors[0].context[1].name
+        'KEY'
+
+        >>> error.errors[0].context[1] is exc.EXTRA_KEY
+        True
+        >>> error.errors[1].context[1] is exc.EXTRA_VALUE
+        True
+
+    """
+
+    __slots__ = ("name",)
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return "@%s" % self.name
+
+    def __eq__(self, other):
+        return self.__class__ is type(other) and self.name == other.name
+
+
+EXTRA_KEY = Extra("KEY")
+EXTRA_VALUE = Extra("VALUE")
+
+
 class Step(object):
     """
-    Step Number
+    Step Number Context Marker
 
     It is a special context marker,
     that is used by pipeline validators to indicate,
@@ -427,17 +481,14 @@ class Step(object):
     :param int num:
         number of failed step.
 
-    ..  testsetup:: step
-
-        from validateit import OneOf, Int
-        from validateit.exc import ValidationError
-
     ..  doctest:: step
+
+        >>> from validateit import exc, OneOf, Int
 
         >>> schema = OneOf(Int(min=0, max=10), Int(min=90, max=100))
         >>> try:
         ...     schema(50)
-        ... except ValidationError as e:
+        ... except exc.ValidationError as e:
         ...     error = e
 
         >>> error
@@ -448,9 +499,10 @@ class Step(object):
 
         >>> repr(error.errors[0].context[0])
         '#0'
-
         >>> error.errors[0].context[0].num
         0
+        >>> isinstance(error.errors[0].context[0], exc.Step)
+        True
 
     """
 

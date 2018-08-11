@@ -101,34 +101,26 @@ class Dict(abstract.Validator):
         for key, val in value.items():
             if self.dispose is not None and key in self.dispose:
                 continue
-            try:
-                if self.schema is not None and key in self.schema:
+            if self.schema is not None and key in self.schema:
+                try:
                     val = self.schema[key](val)
-                elif self.extra is not None:
-                    try:
-                        key = self.extra[0](key)
-                    except exc.ValidationError as e:
-                        extra_key_error = e
-                    else:
-                        extra_key_error = None
-                    try:
-                        val = self.extra[1](val)
-                    except exc.ValidationError as e:
-                        extra_value_error = e
-                    else:
-                        extra_value_error = None
-                    if extra_key_error is not None or extra_value_error is not None:
-                        errors.append(
-                            exc.ExtraKeyError(
-                                key,
-                                key_error=extra_key_error,
-                                value_error=extra_value_error,
-                            )
-                        )
-                else:
-                    errors.append(exc.ForbiddenKeyError(key))
-            except exc.ValidationError as e:
-                errors.extend(ne.add_context(key) for ne in e)
+                except exc.ValidationError as e:
+                    errors.extend(ne.add_context(key) for ne in e)
+            elif self.extra is not None:
+                try:
+                    key = self.extra[0](key)
+                except exc.ValidationError as e:
+                    errors.extend(
+                        ne.add_context(exc.EXTRA_KEY).add_context(key) for ne in e
+                    )
+                try:
+                    val = self.extra[1](val)
+                except exc.ValidationError as e:
+                    errors.extend(
+                        ne.add_context(exc.EXTRA_VALUE).add_context(key) for ne in e
+                    )
+            else:
+                errors.append(exc.ForbiddenKeyError(key))
             result[key] = val
 
         if self.schema is not None:
@@ -151,7 +143,6 @@ class Dict(abstract.Validator):
                 errors.append(exc.MissingKeyError(key))
 
         if errors:
-            errors.sort(key=lambda e: e.context)
             raise exc.SchemaError(errors)
         return result
 
@@ -266,40 +257,28 @@ class Mapping(abstract.Validator):
         for key, val in value.items():
             if self.dispose is not None and key in self.dispose:
                 continue
-            if (
-                self.multikeys is not None
-                and getall is not None
-                and key in self.multikeys
-            ):
+            if getall is not None and key in self.multikeys:
                 val = getall(key)
-            try:
-                if self.schema is not None and key in self.schema:
+            if self.schema is not None and key in self.schema:
+                try:
                     val = self.schema[key](val)
-                elif self.extra is not None:
-                    try:
-                        key = self.extra[0](key)
-                    except exc.ValidationError as e:
-                        extra_key_error = e
-                    else:
-                        extra_key_error = None
-                    try:
-                        val = self.extra[1](val)
-                    except exc.ValidationError as e:
-                        extra_value_error = e
-                    else:
-                        extra_value_error = None
-                    if extra_key_error is not None or extra_value_error is not None:
-                        errors.append(
-                            exc.ExtraKeyError(
-                                key,
-                                key_error=extra_key_error,
-                                value_error=extra_value_error,
-                            )
-                        )
-                else:
-                    errors.append(exc.ForbiddenKeyError(key))
-            except exc.ValidationError as e:
-                errors.extend(ne.add_context(key) for ne in e)
+                except exc.ValidationError as e:
+                    errors.extend(ne.add_context(key) for ne in e)
+            elif self.extra is not None:
+                try:
+                    key = self.extra[0](key)
+                except exc.ValidationError as e:
+                    errors.extend(
+                        ne.add_context(exc.EXTRA_KEY).add_context(key) for ne in e
+                    )
+                try:
+                    val = self.extra[1](val)
+                except exc.ValidationError as e:
+                    errors.extend(
+                        ne.add_context(exc.EXTRA_VALUE).add_context(key) for ne in e
+                    )
+            else:
+                errors.append(exc.ForbiddenKeyError(key))
             result[key] = val
 
         if self.schema is not None:
@@ -322,6 +301,5 @@ class Mapping(abstract.Validator):
                 errors.append(exc.MissingKeyError(key))
 
         if errors:
-            errors.sort(key=lambda e: e.context)
             raise exc.SchemaError(errors)
         return result
