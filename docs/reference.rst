@@ -92,31 +92,35 @@ Registries
 Errors
 ------
 
-..  highlight:: none
+..  py:currentmodule:: validateit.exc
 
-The class hierarchy for exceptions is::
+The class hierarchy for exceptions is:
 
-    ValueError (built-in)
-     +-- ValidationError
-          +-- ConditionError
-          |    +-- InvalidTypeError
-          |    +-- OptionsError
-          |    +-- MinValueError
-          |    +-- MaxValueError
-          |    +-- FloatValueError
-          |    +-- StrDecodeError
-          |    +-- MinLengthError
-          |    +-- MaxLengthError
-          |    +-- TupleLengthError
-          |    +-- PatternMatchError
-          |    +-- DatetimeParseError
-          |    +-- RecursionMaxDepthError
-          +-- MappingKeyError
-          |    +-- ForbiddenKeyError
-          |    +-- MissingKeyError
-          +-- SchemaError
+*   ``ValueError`` (built-in)
 
-..  highlight:: default
+    *   :class:`ValidationError`
+
+        *   :class:`ConditionError`
+
+            *   :class:`InvalidTypeError`
+            *   :class:`OptionsError`
+            *   :class:`MinValueError`
+            *   :class:`MaxValueError`
+            *   :class:`FloatValueError`
+            *   :class:`StrDecodeError`
+            *   :class:`MinLengthError`
+            *   :class:`MaxLengthError`
+            *   :class:`TupleLengthError`
+            *   :class:`PatternMatchError`
+            *   :class:`DatetimeParseError`
+            *   :class:`RecursionMaxDepthError`
+
+        *   :class:`MappingKeyError`
+
+            *   :class:`ForbiddenKeyError`
+            *   :class:`MissingKeyError`
+
+        *   :class:`SchemaError`
 
 
 ..  autoclass:: validateit.exc.ValidationError
@@ -147,3 +151,11 @@ Context Markers
 
 ..  autoclass:: validateit.exc.Extra
 ..  autoclass:: validateit.exc.Step
+
+
+Error Formatter
+---------------
+
+..  autoclass:: validateit.exc.Formatter
+
+    ..  automethod:: __call__

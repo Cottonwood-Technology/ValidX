@@ -38,7 +38,7 @@ class LazyRef(abstract.Validator):
         >>> schema({"bar": {"bar": {"foo": 1}}})
         Traceback (most recent call last):
             ...
-        validateit.exc.SchemaError: <SchemaError(errors=[
+        validateit.exc.errors.SchemaError: <SchemaError(errors=[
             <bar.bar: RecursionMaxDepthError(expected=1, actual=2)>
         ])>
 

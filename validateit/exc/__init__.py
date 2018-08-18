@@ -19,6 +19,7 @@ from .errors import (
     SchemaError,
 )
 from .markers import Extra, EXTRA_KEY, EXTRA_VALUE, Step
+from .formatter import Formatter, format_error
 
 
 __all__ = [
@@ -44,4 +45,6 @@ __all__ = [
     "EXTRA_KEY",
     "EXTRA_VALUE",
     "Step",
+    "Formatter",
+    "format_error",
 ]

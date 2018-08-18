@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from collections import deque
 from textwrap import dedent
 
@@ -114,3 +116,73 @@ def test_step():
     assert repr(step_1) == "#1"
     assert repr(step_2) == "#2"
     assert str(step_1) == repr(step_1)
+
+
+def test_format_error():
+    assert exc.format_error(exc.InvalidTypeError(expected=int, actual=type(None))) == [
+        ("", u"Value should not be null.")
+    ]
+    assert exc.format_error(exc.InvalidTypeError(expected=int, actual=str)) == [
+        ("", u"Expected type “int”, got “str”.")
+    ]
+    assert exc.format_error(exc.OptionsError(expected=[1], actual=2)) == [
+        ("", u"Expected 1, got 2.")
+    ]
+    assert exc.format_error(exc.OptionsError(expected=[1, 2, 3], actual=4)) == [
+        ("", u"Expected one of [1, 2, 3], got 4.")
+    ]
+    assert exc.format_error(exc.MinValueError(expected=10, actual=5)) == [
+        ("", u"Expected value ≥ 10, got 5.")
+    ]
+    assert exc.format_error(exc.MaxValueError(expected=10, actual=15)) == [
+        ("", u"Expected value ≤ 10, got 15.")
+    ]
+    assert exc.format_error(
+        exc.FloatValueError(expected="finite", actual=float("-inf"))
+    ) == [("", u"Expected finite number, got -∞.")]
+    assert exc.format_error(
+        exc.FloatValueError(expected="finite", actual=float("+inf"))
+    ) == [("", u"Expected finite number, got +∞.")]
+    assert exc.format_error(
+        exc.FloatValueError(expected="number", actual=float("nan"))
+    ) == [("", u"Expected number, got NaN.")]
+    assert exc.format_error(exc.StrDecodeError(expected="utf-8", actual=b"\xFF")) == [
+        ("", u"Cannot decode value using “utf-8” encoding.")
+    ]
+    assert exc.format_error(exc.MinLengthError(expected=10, actual=5)) == [
+        ("", u"Expected value length ≥ 10, got 5.")
+    ]
+    assert exc.format_error(exc.MaxLengthError(expected=10, actual=15)) == [
+        ("", u"Expected value length ≤ 10, got 15.")
+    ]
+    assert exc.format_error(exc.TupleLengthError(expected=1, actual=2)) == [
+        ("", u"Expected exactly 1 element, got 2.")
+    ]
+    assert exc.format_error(exc.TupleLengthError(expected=3, actual=2)) == [
+        ("", u"Expected exactly 3 elements, got 2.")
+    ]
+    assert exc.format_error(
+        exc.PatternMatchError(expected="^[0-9]+$", actual="xyz")
+    ) == [("", u"Cannot match “xyz” using “^[0-9]+$”.")]
+    assert exc.format_error(
+        exc.DatetimeParseError(expected="%Y-%m-%d", actual="08/18/2018")
+    ) == [
+        ("", u"Cannot parse date/time value from “08/18/2018” using “%Y-%m-%d” format.")
+    ]
+    assert exc.format_error(exc.RecursionMaxDepthError(expected=2, actual=3)) == [
+        ("", u"Too many nested structures, limit is 2.")
+    ]
+    assert exc.format_error(exc.ForbiddenKeyError("x")) == [
+        ("x", u"Key is not allowed.")
+    ]
+    assert exc.format_error(exc.MissingKeyError("x")) == [
+        ("x", u"Required key is not provided.")
+    ]
+
+    # Test fallback
+    assert exc.format_error(exc.ConditionError(expected=1, actual=2)) == [
+        ("", "ConditionError(expected=1, actual=2)")
+    ]
+    assert exc.format_error(exc.FloatValueError(expected="something", actual=0.0)) == [
+        ("", "FloatValueError(expected='something', actual=0.0)")
+    ]
