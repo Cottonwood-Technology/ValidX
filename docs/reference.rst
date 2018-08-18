@@ -72,21 +72,20 @@ Special
 ..  autoclass:: validateit.py.Any
 
 
-Registries
-----------
+Class Registry
+--------------
 
-..  automodule:: validateit.py.classes
-
-    ..  autofunction:: add
-    ..  autofunction:: get
+..  autofunction:: validateit.py.classes.add
+..  autofunction:: validateit.py.classes.get
 
 
-..  automodule:: validateit.py.instances
+Instance Registry
+-----------------
 
-    ..  autofunction:: add
-    ..  autofunction:: put
-    ..  autofunction:: get
-    ..  autofunction:: clear
+..  autofunction:: validateit.py.instances.add
+..  autofunction:: validateit.py.instances.put
+..  autofunction:: validateit.py.instances.get
+..  autofunction:: validateit.py.instances.clear
 
 
 Errors
