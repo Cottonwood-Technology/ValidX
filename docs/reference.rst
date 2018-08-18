@@ -140,5 +140,10 @@ The class hierarchy for exceptions is::
 ..  autoclass:: validateit.exc.ForbiddenKeyError
 ..  autoclass:: validateit.exc.MissingKeyError
 ..  autoclass:: validateit.exc.SchemaError
+
+
+Context Markers
+---------------
+
 ..  autoclass:: validateit.exc.Extra
 ..  autoclass:: validateit.exc.Step
