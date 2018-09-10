@@ -6,7 +6,7 @@ from .bools import Bool
 from .sequences import List, Sequence, Tuple
 from .mappings import Dict, Mapping
 from .pipelines import AllOf, OneOf
-from .special import LazyRef, Const, Any
+from .special import LazyRef, LazyRefTS, Const, Any
 from . import classes, instances
 
 
@@ -28,6 +28,7 @@ __all__ = [
     "AllOf",
     "OneOf",
     "LazyRef",
+    "LazyRefTS",
     "Const",
     "Any",
     "classes",
@@ -51,5 +52,6 @@ classes.add(Mapping)
 classes.add(AllOf)
 classes.add(OneOf)
 classes.add(LazyRef)
+classes.add(LazyRefTS)
 classes.add(Const)
 classes.add(Any)

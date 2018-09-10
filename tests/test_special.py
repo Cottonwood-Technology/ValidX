@@ -8,9 +8,10 @@ from validateit import exc
 NoneType = type(None)
 
 
-def test_lazyref(module):
+@pytest.mark.parametrize("classname", ["LazyRef", "LazyRefTS"])
+def test_lazyref(module, classname):
     v = module.Dict(
-        {"x": module.Int(), "y": module.LazyRef("foo", maxdepth=2)},
+        {"x": module.Int(), "y": getattr(module, classname)("foo", maxdepth=2)},
         alias="foo",
         optional=["x", "y"],
     )
