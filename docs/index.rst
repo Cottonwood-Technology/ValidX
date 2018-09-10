@@ -6,58 +6,27 @@
 ValidateIt
 ==========
 
-ValidateIt is a fast, powerful, and flexible validator with sane syntax.
+ValidateIt is fast, powerful, and flexible validator with sane syntax.
 
-..  testcode::
+..  testcode:: demo
 
-    import validateit as v
+    from validateit import Dict, Str
 
-    jsonrpc = v.Dict(
-        {
-            "jsonrpc": v.Const("2.0"),
-            "id": v.OneOf(
-                v.Int(nullable=True),
-                v.Str(),
-            ),
-            "method": v.Str(),
-            "params": v.OneOf(
-                v.Dict(extra=(v.Str(), v.Any())),
-                v.List(v.Any()),
-            ),
-        },
-        optional=("id", "params"),
-    )
+    schema = Dict({"message": Str()})
+    data = {"message": "ValidateIt is cool!"}
 
-    request = {
-        "jsonrpc": "2.0",
-        "method": "ping",
-    }
-    assert jsonrpc(request) == request
+    print(schema(data))
 
-    request = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "login",
-        "params": {
-            "username": "jdoe",
-            "password": "qwerty"
-        },
-    }
-    assert jsonrpc(request) == request
+..  testoutput:: demo
 
-    request = {
-        "jsonrpc": "2.0",
-        "id": "48f5ebd0b9cff570162a61bed842ba2b",
-        "method": "login",
-        "params": ["jdoe", "qwerty"],
-    }
-    assert jsonrpc(request) == request
+    {'message': 'ValidateIt is cool!'}
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   usage
    reference
 
 
@@ -66,5 +35,4 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
