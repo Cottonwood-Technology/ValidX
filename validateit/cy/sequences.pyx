@@ -245,7 +245,8 @@ cdef class Tuple(abstract.Validator):
     cdef public bint nullable
 
     def __init__(self, *items, **kw):
-        super(Tuple, self).__init__(items=list(items), **kw)
+        kw.setdefault("items", list(items))
+        super(Tuple, self).__init__(**kw)
 
     def __call__(self, value):
         if value is None and self.nullable:
