@@ -16,7 +16,7 @@ cdef class LazyRef(abstract.Validator):
     ..  warning::
 
         It is not thread safe,
-        use :class:`LazyRefTS` for multithreading applications.
+        use :class:`LazyRefTS` in multithreading applications.
 
     ..  testsetup:: lazyref
 
