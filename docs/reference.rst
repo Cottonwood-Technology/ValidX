@@ -68,6 +68,7 @@ Special
 -------
 
 ..  autoclass:: validateit.py.LazyRef
+..  autoclass:: validateit.py.LazyRefTS
 ..  autoclass:: validateit.py.Const
 ..  autoclass:: validateit.py.Any
 
@@ -78,6 +79,8 @@ Class Registry
 ..  autofunction:: validateit.py.classes.add
 ..  autofunction:: validateit.py.classes.get
 
+
+.. _reference-instance-registry:
 
 Instance Registry
 -----------------
@@ -145,12 +148,16 @@ The class hierarchy for exceptions is:
 ..  autoclass:: validateit.exc.SchemaError
 
 
+.. _reference-context-markers:
+
 Context Markers
 ---------------
 
 ..  autoclass:: validateit.exc.Extra
 ..  autoclass:: validateit.exc.Step
 
+
+.. _reference-error-formatter:
 
 Error Formatter
 ---------------
