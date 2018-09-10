@@ -30,6 +30,24 @@ ValidateIt is fast, powerful, and flexible validator with sane syntax.
    reference
 
 
+Contribution And Bug Reports
+----------------------------
+
+The project sources are hosted by BitBucket_ as well,
+as its bug tracker.
+Pull requests,
+bug reports,
+and feedback are welcome.
+
+.. _BitBucket: https://bitbucket.org/cottonwood-tech/validateit/
+
+
+License
+-------
+
+The code is licensed under the terms of BSD 2-Clause license.
+The full text of the license can be found at the root of the sources.
+
 
 Indices and tables
 ==================
