@@ -2,26 +2,21 @@ import math
 
 import pytest
 
-from validateit import py, cy
 from validateit import exc
 
 
 NoneType = type(None)
-int_classes = [py.Int, cy.Int]
-float_classes = [py.Float, cy.Float]
 
 
-@pytest.mark.parametrize("class_", int_classes)
-def test_int(class_):
-    v = class_()
+def test_int(module):
+    v = module.Int()
     assert v(5) == 5
     assert v(5.0) == 5
 
 
-@pytest.mark.parametrize("class_", int_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_int_nullable(class_, nullable):
-    v = class_(nullable=nullable)
+def test_int_nullable(module, nullable):
+    v = module.Int(nullable=nullable)
     assert v(5) == 5
 
     if nullable:
@@ -33,10 +28,9 @@ def test_int_nullable(class_, nullable):
         assert info.value.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", int_classes)
 @pytest.mark.parametrize("coerce", [None, False, True])
-def test_int_coerce(class_, coerce):
-    v = class_(coerce=coerce)
+def test_int_coerce(module, coerce):
+    v = module.Int(coerce=coerce)
     assert v(5) == 5
 
     with pytest.raises(exc.InvalidTypeError) as info:
@@ -59,11 +53,10 @@ def test_int_coerce(class_, coerce):
         assert info.value.actual == str
 
 
-@pytest.mark.parametrize("class_", int_classes)
 @pytest.mark.parametrize("min", [None, 0])
 @pytest.mark.parametrize("max", [None, 10])
-def test_int_min_max(class_, min, max):
-    v = class_(min=min, max=max)
+def test_int_min_max(module, min, max):
+    v = module.Int(min=min, max=max)
     assert v(5) == 5
 
     if min is None:
@@ -83,10 +76,9 @@ def test_int_min_max(class_, min, max):
         assert info.value.actual == 11
 
 
-@pytest.mark.parametrize("class_", int_classes)
 @pytest.mark.parametrize("options", [None, [5, 6]])
-def test_int_options(class_, options):
-    v = class_(options=options)
+def test_int_options(module, options):
+    v = module.Int(options=options)
     assert v(5) == 5
     assert v(6) == 6
 
@@ -102,17 +94,15 @@ def test_int_options(class_, options):
 # =============================================================================
 
 
-@pytest.mark.parametrize("class_", float_classes)
-def test_float(class_):
-    v = class_()
+def test_float(module):
+    v = module.Float()
     assert v(5.5) == 5.5
     assert v(5) == 5.0
 
 
-@pytest.mark.parametrize("class_", float_classes)
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_float_nullable(class_, nullable):
-    v = class_(nullable=nullable)
+def test_float_nullable(module, nullable):
+    v = module.Float(nullable=nullable)
     assert v(5.5) == 5.5
 
     if nullable:
@@ -124,10 +114,9 @@ def test_float_nullable(class_, nullable):
         assert info.value.actual == NoneType
 
 
-@pytest.mark.parametrize("class_", float_classes)
 @pytest.mark.parametrize("coerce", [None, False, True])
-def test_float_coerce(class_, coerce):
-    v = class_(coerce=coerce)
+def test_float_coerce(module, coerce):
+    v = module.Float(coerce=coerce)
     assert v(5.5) == 5.5
 
     with pytest.raises(exc.InvalidTypeError) as info:
@@ -144,10 +133,9 @@ def test_float_coerce(class_, coerce):
         assert info.value.actual == str
 
 
-@pytest.mark.parametrize("class_", float_classes)
 @pytest.mark.parametrize("nan", [None, False, True])
-def test_float_nan(class_, nan):
-    v = class_(nan=nan, coerce=True)
+def test_float_nan(module, nan):
+    v = module.Float(nan=nan, coerce=True)
     assert v(5.5) == 5.5
 
     if nan:
@@ -159,10 +147,9 @@ def test_float_nan(class_, nan):
         assert math.isnan(info.value.actual)
 
 
-@pytest.mark.parametrize("class_", float_classes)
 @pytest.mark.parametrize("inf", [None, False, True])
-def test_float_inf(class_, inf):
-    v = class_(inf=inf, coerce=True)
+def test_float_inf(module, inf):
+    v = module.Float(inf=inf, coerce=True)
     assert v(5.5) == 5.5
 
     if inf:
@@ -174,11 +161,10 @@ def test_float_inf(class_, inf):
         assert info.value.actual == float("inf")
 
 
-@pytest.mark.parametrize("class_", float_classes)
 @pytest.mark.parametrize("min", [None, 0])
 @pytest.mark.parametrize("max", [None, 10])
-def test_float_min_max(class_, min, max):
-    v = class_(min=min, max=max)
+def test_float_min_max(module, min, max):
+    v = module.Float(min=min, max=max)
     assert v(5.5) == 5.5
 
     if min is None:

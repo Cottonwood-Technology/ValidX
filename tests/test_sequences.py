@@ -15,8 +15,8 @@ NoneType = type(None)
 
 
 @pytest.fixture(params=["List", "Sequence"])
-def list_classes(module, request):
-    yield module, getattr(module, request.param)
+def list_class(module, request):
+    return module, getattr(module, request.param)
 
 
 class CustomSequence(collections.Sequence):
@@ -30,8 +30,8 @@ class CustomSequence(collections.Sequence):
         return len(self.items)
 
 
-def test_list(list_classes):
-    module, class_ = list_classes
+def test_list(list_class):
+    module, class_ = list_class
     v = class_(module.Int())
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
@@ -65,8 +65,8 @@ def test_list(list_classes):
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_list_nullable(list_classes, nullable):
-    module, class_ = list_classes
+def test_list_nullable(list_class, nullable):
+    module, class_ = list_class
     v = class_(module.Int(), nullable=nullable)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
@@ -82,8 +82,8 @@ def test_list_nullable(list_classes, nullable):
 
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 5])
-def test_list_minlen_maxlen(list_classes, minlen, maxlen):
-    module, class_ = list_classes
+def test_list_minlen_maxlen(list_class, minlen, maxlen):
+    module, class_ = list_class
     v = class_(module.Int(), minlen=minlen, maxlen=maxlen)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
@@ -106,8 +106,8 @@ def test_list_minlen_maxlen(list_classes, minlen, maxlen):
 
 
 @pytest.mark.parametrize("unique", [None, False, True])
-def test_list_unique(list_classes, unique):
-    module, class_ = list_classes
+def test_list_unique(list_class, unique):
+    module, class_ = list_class
     v = class_(module.Int(), unique=unique)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]

@@ -75,7 +75,7 @@ def test_str_minlen_maxlen(module, minlen, maxlen):
         assert info.value.actual == 6
 
 
-@pytest.mark.parametrize("pattern", [None, u"^(?i)[a-z]+$"])
+@pytest.mark.parametrize("pattern", [None, u"(?i)^[a-z]+$"])
 def test_str_pattern(module, pattern):
     v = module.Str(pattern=pattern)
     assert v(u"abc") == u"abc"

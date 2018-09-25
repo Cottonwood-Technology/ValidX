@@ -3,8 +3,13 @@ import collections
 from collections import deque
 
 import pytest
-from webob.multidict import MultiDict as WebObMultiDict
-from werkzeug.datastructures import MultiDict as WerkzeugMultiDict
+from webob.multidict import MultiDict as WebObMultiDict  # noqa
+from werkzeug.datastructures import MultiDict as WerkzeugMultiDict  # noqa
+
+try:
+    from multidict import MultiDict  # noqa
+except ImportError:
+    pass
 
 from validateit import exc
 
@@ -17,17 +22,19 @@ NoneType = type(None)
 
 
 @pytest.fixture(params=["Dict", "Mapping"])
-def dict_classes(module, request):
-    yield module, getattr(module, request.param)
+def dict_class(module, request):
+    return module, getattr(module, request.param)
 
 
-multidict_classes = [WebObMultiDict, WerkzeugMultiDict]
-try:
-    from multidict import MultiDict
-
-    multidict_classes.append(MultiDict)
-except ImportError:
-    pass
+@pytest.fixture(
+    params=[
+        classname
+        for classname in ("WebObMultiDict", "WerkzeugMultiDict", "MultiDict")
+        if classname in globals()
+    ]
+)
+def multidict_class(request):
+    return globals()[request.param]
 
 
 class CustomMapping(collections.Mapping):
@@ -44,8 +51,8 @@ class CustomMapping(collections.Mapping):
         return len(self.content)
 
 
-def test_dict(dict_classes):
-    module, class_ = dict_classes
+def test_dict(dict_class):
+    module, class_ = dict_class
     v = class_({u"x": module.Int(), u"y": module.Int()})
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
     assert v(collections.OrderedDict({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
@@ -82,8 +89,8 @@ def test_dict(dict_classes):
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_dict_nullable(dict_classes, nullable):
-    module, class_ = dict_classes
+def test_dict_nullable(dict_class, nullable):
+    module, class_ = dict_class
     v = class_({u"x": module.Int(), u"y": module.Int()}, nullable=nullable)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
@@ -98,8 +105,8 @@ def test_dict_nullable(dict_classes, nullable):
 
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 3])
-def test_dict_minlen_maxlen(dict_classes, minlen, maxlen):
-    module, class_ = dict_classes
+def test_dict_minlen_maxlen(dict_class, minlen, maxlen):
+    module, class_ = dict_class
     v = class_(extra=(module.Str(), module.Int()), minlen=minlen, maxlen=maxlen)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
@@ -127,8 +134,8 @@ def test_dict_minlen_maxlen(dict_classes, minlen, maxlen):
 
 @pytest.mark.parametrize("defaults", [None, {u"x": 0}, {u"x": lambda: 0}])
 @pytest.mark.parametrize("optional", [None, [u"x"]])
-def test_dict_defaults_and_optional(dict_classes, defaults, optional):
-    module, class_ = dict_classes
+def test_dict_defaults_and_optional(dict_class, defaults, optional):
+    module, class_ = dict_class
     v = class_(
         {u"x": module.Int(), u"y": module.Int()}, defaults=defaults, optional=optional
     )
@@ -153,8 +160,8 @@ def test_dict_defaults_and_optional(dict_classes, defaults, optional):
 
 
 @pytest.mark.parametrize("extra", [None, True])
-def test_dict_extra(dict_classes, extra):
-    module, class_ = dict_classes
+def test_dict_extra(dict_class, extra):
+    module, class_ = dict_class
     if extra:
         extra = (module.Str(), module.Int())
     v = class_({u"x": module.Int(), u"y": module.Int()}, extra=extra)
@@ -187,8 +194,8 @@ def test_dict_extra(dict_classes, extra):
 
 
 @pytest.mark.parametrize("dispose", [None, [u"z"]])
-def test_dict_dispose(dict_classes, dispose):
-    module, class_ = dict_classes
+def test_dict_dispose(dict_class, dispose):
+    module, class_ = dict_class
     v = class_({u"x": module.Int(), u"y": module.Int()}, dispose=dispose)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
 
@@ -202,13 +209,15 @@ def test_dict_dispose(dict_classes, dispose):
         assert info.value[0].context == deque([u"z"])
 
 
-@pytest.mark.parametrize("multidict", multidict_classes)
-def test_mapping_multikeys(module, multidict):
+# =============================================================================
+
+
+def test_mapping_multikeys(module, multidict_class):
     v1 = module.Mapping({u"x": module.Int(), u"y": module.Int()})
     v2 = module.Mapping(
         {u"x": module.Int(), u"y": module.List(module.Int())}, multikeys=[u"y"]
     )
-    data = multidict([(u"x", 1), (u"y", 2), (u"y", 3)])
+    data = multidict_class([(u"x", 1), (u"y", 2), (u"y", 3)])
 
     assert v1(data) == {u"x": 1, u"y": 3} or v1(data) == {u"x": 1, u"y": 2}
     assert v2(data) == {u"x": 1, u"y": [2, 3]}

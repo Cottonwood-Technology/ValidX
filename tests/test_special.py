@@ -8,10 +8,15 @@ from validateit import exc
 NoneType = type(None)
 
 
-@pytest.mark.parametrize("classname", ["LazyRef", "LazyRefTS"])
-def test_lazyref(module, classname):
+@pytest.fixture(params=["LazyRef", "LazyRefTS"])
+def lazyref_class(module, request):
+    return module, getattr(module, request.param)
+
+
+def test_lazyref(lazyref_class):
+    module, class_ = lazyref_class
     v = module.Dict(
-        {"x": module.Int(), "y": getattr(module, classname)("foo", maxdepth=2)},
+        {"x": module.Int(), "y": class_("foo", maxdepth=2)},
         alias="foo",
         optional=["x", "y"],
     )
@@ -35,6 +40,9 @@ def test_lazyref(module, classname):
     assert info.value[0].actual == 3
 
 
+# =============================================================================
+
+
 def test_const(module):
     v = module.Const(1)
     assert v(1) == 1
@@ -43,6 +51,9 @@ def test_const(module):
         v(2)
     assert info.value.expected == [1]
     assert info.value.actual == 2
+
+
+# =============================================================================
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])

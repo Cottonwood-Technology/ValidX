@@ -1,9 +1,10 @@
 import pytest
 
-from validateit import py, cy
+from validateit import py, cy  # noqa
 
 
-@pytest.fixture(params=[py, cy])
+@pytest.fixture(params=["py", "cy"])
 def module(request):
-    yield request.param
-    request.param.instances.clear()
+    result = globals()[request.param]
+    yield result
+    result.instances.clear()

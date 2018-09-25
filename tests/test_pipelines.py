@@ -32,6 +32,9 @@ def test_all_of(module):
     assert info.value.args == ("At least one validation step has to be passed",)
 
 
+# =============================================================================
+
+
 def test_any_of(module):
     v = module.OneOf(module.Int(options=[1, 2, 3]), module.Int(min=10))
     assert v(1) == 1
