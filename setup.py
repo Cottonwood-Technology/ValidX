@@ -1,16 +1,19 @@
+import platform
+
 from setuptools import setup, find_packages
 
 
 ext_modules = []
 requirements = []
 
-try:
-    from Cython.Build import cythonize
-except ImportError:
-    pass
-else:
-    directives = {}
-    ext_modules = cythonize("validateit/cy/*.pyx", compiler_directives=directives)
+if platform.python_implementation() == "CPython":
+    try:
+        from Cython.Build import cythonize
+    except ImportError:
+        print("Unable to import Cython. Pure Python version will be used.")
+    else:
+        directives = {}
+        ext_modules = cythonize("validateit/cy/*.pyx", compiler_directives=directives)
 
 with open("README.rst") as f:
     readme = f.read()
@@ -38,7 +41,8 @@ setup(
     author="Cottonwood Technology",
     author_email="info@cottonwood.tech",
     license="BSD",
-    packages=find_packages(exclude=["tests", "tests.*"]),
+    packages=find_packages(exclude=["tests", "tests.*", "benchmarks", "benchmarks.*"]),
+    package_data={"": ["*.pyi"]},
     zip_safe=False,
     ext_modules=ext_modules,
     install_requires=requirements,
