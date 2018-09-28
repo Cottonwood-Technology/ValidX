@@ -4,7 +4,6 @@ import os
 import pytest
 
 import validateit
-from validateit import py, cy
 
 
 DEV_MODE = os.environ.get("VALIDATEIT_DEV", False)
@@ -24,6 +23,8 @@ def test_public_names(module):
 
 @pytest.mark.skipif(not DEV_MODE, reason="Development mode test")
 def test_interfaces():
+    from validateit import py, cy
+
     assert py.__all__ == cy.__all__
 
     py_root = os.path.dirname(os.path.abspath(py.__file__))
@@ -41,6 +42,8 @@ def test_interfaces():
 
 @pytest.mark.skipif(not DEV_MODE, reason="Development mode test")
 def test_docstrings():
+    from validateit import py, cy
+
     def walk(py_obj, cy_obj):
         for name in getattr(py_obj, "__all__", dir(py_obj)):
             if name.startswith("_"):
