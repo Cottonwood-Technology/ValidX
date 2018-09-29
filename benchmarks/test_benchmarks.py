@@ -23,7 +23,7 @@ data = {
 
 
 def test_validateit_py(benchmark):
-    from validateit.py import Dict, List, Tuple, Str, Float, Int
+    from validateit.py import Dict, List, Str, Float, Int
 
     schema = Dict(
         {
@@ -39,7 +39,7 @@ def test_validateit_py(benchmark):
 
 
 def test_validateit_cy(benchmark):
-    from validateit.cy import Dict, List, Tuple, Str, Float, Int
+    from validateit.cy import Dict, List, Str, Float, Int
 
     schema = Dict(
         {
