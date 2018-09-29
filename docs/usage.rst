@@ -493,38 +493,6 @@ and use them or clone them later during loading process.
     instances.clear()
 
 
-Custom Sequences and Mappings Validation
-----------------------------------------
-
-There are two pairs of twin validators:
-
-*   :class:`validateit.py.Dict` and :class:`validateit.py.Mapping`;
-*   :class:`validateit.py.List` and :class:`validateit.py.Sequence`.
-
-They have almost identical code and features,
-but the former ones check type in a strict way,
-i.e. ``isinstance(value, dict)`` and ``isinstance(value, (list, tuple))``.
-And the latter in a tolerant way,
-i.e. ``isinstance(value, collections.Mapping)``
-and ``isinstance(value, collections.Sequence)``.
-Because of this,
-the former ones more faster and the latter ones more flexible.
-
-[TODO: add benchmark results]
-
-If you are going to validate something,
-that comes from JSON,
-you should not care about it.
-Just use :class:`validateit.py.Dict` and :class:`validateit.py.List`.
-
-But if you use,
-for example MultiDict_,
-consider to use :class:`validateit.py.Mapping`
-(see the next section).
-
-.. _MultiDict: https://multidict.readthedocs.io/en/stable/
-
-
 MultiDict Validation
 --------------------
 
@@ -545,9 +513,9 @@ Let's rewrite the validator to handle such query:
 
 ..  code-block:: python
 
-    from validateit import Mapping, List, Str, Int
+    from validateit import Dict, List, Str, Int
 
-    search_params = Mapping(
+    search_params = Dict(
         {
             "query": Str(minlen=3, maxlen=500),
             "tags": List(Str(pattern=r"^[\w]+$")),
@@ -579,12 +547,12 @@ And it can be used like this:
 
 ValidateIt has been tested against the following implementations of ``MultiDict``:
 
-*   `WebOb MultiDict`_
-*   `Werkzeug MultiDict`_
+*   `WebOb MultiDict`_;
+*   `Werkzeug MultiDict`_;
 *   `MultiDict`_ (that has been extracted from AIOHTTP_).
 
-.. _Werkzeug MultiDict: http://werkzeug.pocoo.org/docs/0.14/datastructures/#werkzeug.datastructures.MultiDict
 .. _WebOb MultiDict: https://docs.pylonsproject.org/projects/webob/en/stable/api/multidict.html#webob.multidict.MultiDict
+.. _Werkzeug MultiDict: http://werkzeug.pocoo.org/docs/0.14/datastructures/#werkzeug.datastructures.MultiDict
 .. _MultiDict: https://multidict.readthedocs.io/en/stable/
 .. _AIOHTTP: https://aiohttp.readthedocs.io/en/stable/
 

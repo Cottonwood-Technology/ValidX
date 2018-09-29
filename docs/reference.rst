@@ -46,7 +46,6 @@ Sequences
 ---------
 
 ..  autoclass:: validateit.py.List
-..  autoclass:: validateit.py.Sequence
 ..  autoclass:: validateit.py.Tuple
 
 
@@ -54,7 +53,6 @@ Mappings
 --------
 
 ..  autoclass:: validateit.py.Dict
-..  autoclass:: validateit.py.Mapping
 
 
 Pipelines

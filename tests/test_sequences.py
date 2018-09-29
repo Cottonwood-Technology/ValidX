@@ -1,6 +1,5 @@
 import sys
-import collections
-from collections import deque
+from collections import Sequence, deque
 
 import pytest
 
@@ -14,12 +13,7 @@ if sys.version_info[0] < 3:
 NoneType = type(None)
 
 
-@pytest.fixture(params=["List", "Sequence"])
-def list_class(module, request):
-    return module, getattr(module, request.param)
-
-
-class CustomSequence(collections.Sequence):
+class CustomSequence(Sequence):
     def __init__(self, *items):
         self.items = items
 
@@ -30,23 +24,15 @@ class CustomSequence(collections.Sequence):
         return len(self.items)
 
 
-def test_list(list_class):
-    module, class_ = list_class
-    v = class_(module.Int())
+def test_list(module):
+    v = module.List(module.Int())
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
-
-    if class_.__name__ == "Sequence":
-        assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
-    else:
-        with pytest.raises(exc.InvalidTypeError) as info:
-            v(CustomSequence(1, 2, 3))
-        assert info.value.expected == (list, tuple)
-        assert info.value.actual == CustomSequence
+    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v(u"1, 2, 3")
-    assert info.value.expected in ((list, tuple), collections.Sequence)
+    assert info.value.expected == Sequence
     assert info.value.actual == str
 
     with pytest.raises(exc.SchemaError) as info:
@@ -65,28 +51,28 @@ def test_list(list_class):
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
-def test_list_nullable(list_class, nullable):
-    module, class_ = list_class
-    v = class_(module.Int(), nullable=nullable)
+def test_list_nullable(module, nullable):
+    v = module.List(module.Int(), nullable=nullable)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
+    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
 
     if nullable:
         assert v(None) is None
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
-        assert info.value.expected in ((list, tuple), collections.Sequence)
+        assert info.value.expected == Sequence
         assert info.value.actual == NoneType
 
 
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 5])
-def test_list_minlen_maxlen(list_class, minlen, maxlen):
-    module, class_ = list_class
-    v = class_(module.Int(), minlen=minlen, maxlen=maxlen)
+def test_list_minlen_maxlen(module, minlen, maxlen):
+    v = module.List(module.Int(), minlen=minlen, maxlen=maxlen)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
+    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
 
     if minlen is None:
         assert v([1]) == [1]
@@ -106,11 +92,11 @@ def test_list_minlen_maxlen(list_class, minlen, maxlen):
 
 
 @pytest.mark.parametrize("unique", [None, False, True])
-def test_list_unique(list_class, unique):
-    module, class_ = list_class
-    v = class_(module.Int(), unique=unique)
+def test_list_unique(module, unique):
+    v = module.List(module.Int(), unique=unique)
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
+    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
 
     if unique:
         assert v([1, 2, 3, 3, 2, 1]) == [1, 2, 3]
@@ -125,10 +111,11 @@ def test_tuple(module):
     v = module.Tuple(module.Int(), module.Int())
     assert v([1, 2]) == (1, 2)
     assert v((1, 2)) == (1, 2)
+    assert v(CustomSequence(1, 2)) == (1, 2)
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v(u"1, 2")
-    assert info.value.expected == (list, tuple)
+    assert info.value.expected == Sequence
     assert info.value.actual == str
 
     with pytest.raises(exc.TupleLengthError) as info:
@@ -156,11 +143,12 @@ def test_tuple_nullable(module, nullable):
     v = module.Tuple(module.Int(), module.Int(), nullable=nullable)
     assert v([1, 2]) == (1, 2)
     assert v((1, 2)) == (1, 2)
+    assert v(CustomSequence(1, 2)) == (1, 2)
 
     if nullable:
         assert v(None) is None
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
-        assert info.value.expected == (list, tuple)
+        assert info.value.expected == Sequence
         assert info.value.actual == NoneType
