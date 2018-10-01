@@ -74,7 +74,7 @@ cdef class List(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+            if not isinstance(value, Sequence) or isinstance(value, (unicode, bytes)):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
         cdef long length = len(value)
         if length < self._minlen:
@@ -141,7 +141,7 @@ cdef class Tuple(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+            if not isinstance(value, Sequence) or isinstance(value, (unicode, bytes)):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
         if len(self.items) != len(value):
             raise exc.TupleLengthError(expected=len(self.items), actual=len(value))
