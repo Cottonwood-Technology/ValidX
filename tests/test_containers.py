@@ -1,7 +1,8 @@
 import sys
-from collections import Mapping, OrderedDict, defaultdict, deque
+from collections import Sequence, Mapping, OrderedDict, defaultdict, deque
 
 import pytest
+
 from webob.multidict import MultiDict as WebObMultiDict  # noqa
 from werkzeug.datastructures import MultiDict as WerkzeugMultiDict  # noqa
 
@@ -31,6 +32,17 @@ def multidict_class(request):
     return globals()[request.param]
 
 
+class CustomSequence(Sequence):
+    def __init__(self, *items):
+        self.items = items
+
+    def __getitem__(self, index):
+        return self.items[index]
+
+    def __len__(self):
+        return len(self.items)
+
+
 class CustomMapping(Mapping):
     def __init__(self, content):
         self.content = content
@@ -43,6 +55,139 @@ class CustomMapping(Mapping):
 
     def __len__(self):
         return len(self.content)
+
+
+def test_list(module):
+    v = module.List(module.Int())
+    assert v([1, 2, 3]) == [1, 2, 3]
+    assert v((1, 2, 3)) == [1, 2, 3]
+    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
+
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v(u"1, 2, 3")
+    assert info.value.expected == Sequence
+    assert info.value.actual == str
+
+    with pytest.raises(exc.SchemaError) as info:
+        v([1, u"2", 3, None])
+    assert len(info.value) == 2
+
+    assert isinstance(info.value[0], exc.InvalidTypeError)
+    assert info.value[0].context == deque([1])
+    assert info.value[0].expected == int
+    assert info.value[0].actual == str
+
+    assert isinstance(info.value[1], exc.InvalidTypeError)
+    assert info.value[1].context == deque([3])
+    assert info.value[1].expected == int
+    assert info.value[1].actual == NoneType
+
+
+@pytest.mark.parametrize("nullable", [None, False, True])
+def test_list_nullable(module, nullable):
+    v = module.List(module.Int(), nullable=nullable)
+    assert v([1, 2, 3]) == [1, 2, 3]
+    assert v((1, 2, 3)) == [1, 2, 3]
+    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
+
+    if nullable:
+        assert v(None) is None
+    else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(None)
+        assert info.value.expected == Sequence
+        assert info.value.actual == NoneType
+
+
+@pytest.mark.parametrize("minlen", [None, 2])
+@pytest.mark.parametrize("maxlen", [None, 5])
+def test_list_minlen_maxlen(module, minlen, maxlen):
+    v = module.List(module.Int(), minlen=minlen, maxlen=maxlen)
+    assert v([1, 2, 3]) == [1, 2, 3]
+    assert v((1, 2, 3)) == [1, 2, 3]
+    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
+
+    if minlen is None:
+        assert v([1]) == [1]
+    else:
+        with pytest.raises(exc.MinLengthError) as info:
+            v([1])
+        assert info.value.expected == minlen
+        assert info.value.actual == 1
+
+    if maxlen is None:
+        assert v([1, 2, 3, 4, 5, 6]) == [1, 2, 3, 4, 5, 6]
+    else:
+        with pytest.raises(exc.MaxLengthError) as info:
+            v([1, 2, 3, 4, 5, 6])
+        assert info.value.expected == maxlen
+        assert info.value.actual == 6
+
+
+@pytest.mark.parametrize("unique", [None, False, True])
+def test_list_unique(module, unique):
+    v = module.List(module.Int(), unique=unique)
+    assert v([1, 2, 3]) == [1, 2, 3]
+    assert v((1, 2, 3)) == [1, 2, 3]
+    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
+
+    if unique:
+        assert v([1, 2, 3, 3, 2, 1]) == [1, 2, 3]
+    else:
+        assert v([1, 2, 3, 3, 2, 1]) == [1, 2, 3, 3, 2, 1]
+
+
+# =============================================================================
+
+
+def test_tuple(module):
+    v = module.Tuple(module.Int(), module.Int())
+    assert v([1, 2]) == (1, 2)
+    assert v((1, 2)) == (1, 2)
+    assert v(CustomSequence(1, 2)) == (1, 2)
+
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v(u"1, 2")
+    assert info.value.expected == Sequence
+    assert info.value.actual == str
+
+    with pytest.raises(exc.TupleLengthError) as info:
+        v([1, 2, 3])
+    assert info.value.expected == 2
+    assert info.value.actual == 3
+
+    with pytest.raises(exc.SchemaError) as info:
+        v([u"1", None])
+    assert len(info.value) == 2
+
+    assert isinstance(info.value[0], exc.InvalidTypeError)
+    assert info.value[0].context == deque([0])
+    assert info.value[0].expected == int
+    assert info.value[0].actual == str
+
+    assert isinstance(info.value[1], exc.InvalidTypeError)
+    assert info.value[1].context == deque([1])
+    assert info.value[1].expected == int
+    assert info.value[1].actual == NoneType
+
+
+@pytest.mark.parametrize("nullable", [None, False, True])
+def test_tuple_nullable(module, nullable):
+    v = module.Tuple(module.Int(), module.Int(), nullable=nullable)
+    assert v([1, 2]) == (1, 2)
+    assert v((1, 2)) == (1, 2)
+    assert v(CustomSequence(1, 2)) == (1, 2)
+
+    if nullable:
+        assert v(None) is None
+    else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(None)
+        assert info.value.expected == Sequence
+        assert info.value.actual == NoneType
+
+
+# =============================================================================
 
 
 def test_dict(module):

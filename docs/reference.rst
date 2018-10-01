@@ -42,16 +42,11 @@ Boolean
 ..  autoclass:: validateit.py.Bool
 
 
-Sequences
----------
+Containers
+----------
 
 ..  autoclass:: validateit.py.List
 ..  autoclass:: validateit.py.Tuple
-
-
-Mappings
---------
-
 ..  autoclass:: validateit.py.Dict
 
 

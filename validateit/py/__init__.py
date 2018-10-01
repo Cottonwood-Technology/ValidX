@@ -3,8 +3,7 @@ from .numbers import Int, Float
 from .chars import Str, Bytes
 from .datetimes import Date, Time, Datetime
 from .bools import Bool
-from .sequences import List, Tuple
-from .mappings import Dict
+from .containers import List, Tuple, Dict
 from .pipelines import AllOf, OneOf
 from .special import LazyRef, Const, Any
 from . import classes, instances
