@@ -34,14 +34,14 @@ class Extra(object):
             <xyz.@VALUE: MaxLengthError(expected=4, actual=5)>
         ])>
 
-        >>> repr(error.errors[0].context[1])
+        >>> repr(error[0].context[1])
         '@KEY'
-        >>> error.errors[0].context[1].name
+        >>> error[0].context[1].name
         'KEY'
 
-        >>> error.errors[0].context[1] is exc.EXTRA_KEY
+        >>> error[0].context[1] is exc.EXTRA_KEY
         True
-        >>> error.errors[1].context[1] is exc.EXTRA_VALUE
+        >>> error[1].context[1] is exc.EXTRA_VALUE
         True
 
     """
@@ -91,11 +91,11 @@ class Step(object):
             <#1: MinValueError(expected=90, actual=50)>
         ])>
 
-        >>> repr(error.errors[0].context[0])
+        >>> repr(error[0].context[0])
         '#0'
-        >>> error.errors[0].context[0].num
+        >>> error[0].context[0].num
         0
-        >>> isinstance(error.errors[0].context[0], exc.Step)
+        >>> isinstance(error[0].context[0], exc.Step)
         True
 
     """

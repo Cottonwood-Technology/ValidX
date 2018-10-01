@@ -63,6 +63,11 @@ cdef class Dict(abstract.Validator):
         extra validators,
         and missing required and forbidden extra keys.
 
+    :note:
+        on error raised by ``extra`` validators,
+        context marker :class:`validateit.exc.Extra` will be used to indicate,
+        which part of key/value pair is failed.
+
 
     It has been tested against the following implementations of ``MultiDict``:
 
@@ -72,7 +77,7 @@ cdef class Dict(abstract.Validator):
 
     However,
     it should work fine for other implementations,
-    if the implementation is instance of ``collections.Mapping``,
+    if the implementation is subclass of ``collections.Mapping``,
     and provides ``getall()`` or ``getlist()`` methods.
 
     .. _WebOb MultiDict: https://docs.pylonsproject.org/projects/webob/en/stable/api/multidict.html#webob.multidict.MultiDict
