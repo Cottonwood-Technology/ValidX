@@ -705,30 +705,9 @@ Here is how it can be built:
 Here we use :class:`validateit.py.LazyRef`
 to create circular reference on the parent validator.
 Each time it is called,
-it increments its recursive call depth parameter and checks limit in the following way:
-
-..  code-block:: python
-
-    try:
-        self._depth += 1
-        if self.maxdepth is not None and self._depth > self.maxdepth:
-            raise exc.RecursionMaxDepthError(
-                expected=self.maxdepth, actual=self._depth
-            )
-        return instances.get(self.use)(value)
-    finally:
-        self._depth -= 1
-
-..  warning::
-
-    It does not act as a pure function,
-    it changes its state during validation.
-
-..  warning::
-
-    It is not thread safe!
-
-    Use :class:`validateit.py.LazyRefTS` in multithreading applications.
+it increments its recursive call depth and checks the limit in the following.
+If the limit is reached,
+it raises :class:`validater.exc.RecursionMaxDepthError`.
 
 ..  warning::
 

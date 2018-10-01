@@ -14,19 +14,6 @@ class LazyRef(abstract.Validator):
         replace: bool = False
     ) -> None: ...
 
-class LazyRefTS(abstract.Validator):
-    __slots__ = t.Tuple[str, ...]
-    use: str
-    maxdepth: t.Optional[int]
-    def __init__(
-        self,
-        use: str,
-        *,
-        maxdepth: int = None,
-        alias: str = None,
-        replace: bool = False
-    ) -> None: ...
-
 class Const(abstract.Validator):
     __slots__: t.Tuple[str, ...]
     value: t.Any

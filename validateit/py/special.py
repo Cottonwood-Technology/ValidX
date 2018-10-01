@@ -13,10 +13,10 @@ class LazyRef(abstract.Validator):
 
     It is useful to build validators for recursive structures.
 
-    ..  warning::
-
-        It is not thread safe,
-        use :class:`LazyRefTS` in multithreading applications.
+    It does not act as a pure function,
+    it changes its state during validation.
+    However,
+    it is thread-safe.
 
     ..  testsetup:: lazyref
 
@@ -65,91 +65,24 @@ class LazyRef(abstract.Validator):
 
     """
 
-    __slots__ = ("use", "maxdepth", "_depth")
+    __slots__ = ("use", "maxdepth", "_state")
 
     def __init__(self, use, **kw):
-        super(LazyRef, self).__init__(use=use, _depth=0, **kw)
+        super(LazyRef, self).__init__(use=use, _state=threading.local(), **kw)
 
     def __call__(self, value):
+        instance = instances.get(self.use)
+        if self.maxdepth is None:
+            return instance(value)
+        state = self._state.__dict__
         try:
-            self._depth += 1
-            if self.maxdepth is not None and self._depth > self.maxdepth:
-                raise exc.RecursionMaxDepthError(
-                    expected=self.maxdepth, actual=self._depth
-                )
-            return instances.get(self.use)(value)
-        finally:
-            self._depth -= 1
-
-
-class LazyRefTS(abstract.Validator):
-    """
-    Lazy Referenced Validator, Thread Safe Version
-
-    It is useful to build validators for recursive structures.
-
-    ..  testsetup:: lazyrefts
-
-        from validateit import Dict, Int, LazyRefTS, instances
-
-    ..  testcleanup:: lazyrefts
-
-        instances.clear()
-
-    ..  doctest:: lazyrefts
-        :options: +ELLIPSIS, -IGNORE_EXCEPTION_DETAIL
-
-        >>> schema = Dict(
-        ...     {
-        ...         "foo": Int(),
-        ...         "bar": LazyRefTS("schema", maxdepth=1),
-        ...     },
-        ...     optional=("foo", "bar"),
-        ...     minlen=1,
-        ...     alias="schema",
-        ... )
-
-        >>> schema({"foo": 1})
-        {'foo': 1}
-
-        >>> schema({"bar": {"foo": 1}})
-        {'bar': {'foo': 1}}
-
-        >>> schema({"bar": {"bar": {"foo": 1}}})
-        Traceback (most recent call last):
-            ...
-        validateit.exc.errors.SchemaError: <SchemaError(errors=[
-            <bar.bar: RecursionMaxDepthError(expected=1, actual=2)>
-        ])>
-
-    :param str use:
-        alias of referenced validator.
-
-    :param int maxdepth:
-        maximum recursion depth.
-
-
-    :raises RecursionMaxDepthError:
-        if ``self.maxdepth is not None``
-        and current recursion depth exceeds the limit.
-
-    """
-
-    __slots__ = ("use", "maxdepth", "_depth")
-
-    def __init__(self, use, **kw):
-        super(LazyRefTS, self).__init__(use=use, _depth=threading.local(), **kw)
-
-    def __call__(self, value):
-        try:
-            depth = self._depth.__dict__.setdefault("value", 0)
-            depth += 1
-            self._depth.value = depth
-            if self.maxdepth is not None and depth > self.maxdepth:
+            depth = state.setdefault("depth", 0) + 1
+            if depth > self.maxdepth:
                 raise exc.RecursionMaxDepthError(expected=self.maxdepth, actual=depth)
-            return instances.get(self.use)(value)
+            state["depth"] = depth
+            return instance(value)
         finally:
-            self._depth.value -= 1
+            state["depth"] -= 1
 
 
 class Const(abstract.Validator):

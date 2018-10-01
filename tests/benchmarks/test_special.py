@@ -1,25 +1,22 @@
 import pytest
 
 
-@pytest.fixture(params=["LazyRef", "LazyRefTS"])
-def lazyref_classes(module, request):
-    yield module, getattr(module, request.param)
-
-
 @pytest.mark.benchmark(group="LazyRef")
-def test_lazyref(lazyref_classes, benchmark):
-    module, class_ = lazyref_classes
+def test_lazyref(module, benchmark):
     module.Int(alias="foo")
-    v = class_("foo")
+    v = module.LazyRef("foo")
     assert benchmark(v, 1) == 1
 
 
 @pytest.mark.benchmark(group="LazyRef")
-def test_lazyref_maxdepth(lazyref_classes, benchmark):
-    module, class_ = lazyref_classes
-    module.Int(alias="foo")
-    v = class_("foo", maxdepth=2)
-    assert benchmark(v, 1) == 1
+def test_lazyref_maxdepth(module, benchmark):
+    v = module.Dict(
+        {"x": module.Int(), "y": module.LazyRef("foo", maxdepth=10)},
+        alias="foo",
+        optional=("x", "y"),
+    )
+    data = {"y": {"y": {"y": {"y": {"y": {"y": {"x": 1}}}}}}}
+    assert benchmark(v, data) == data
 
 
 # =============================================================================

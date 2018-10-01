@@ -8,15 +8,9 @@ from validateit import exc
 NoneType = type(None)
 
 
-@pytest.fixture(params=["LazyRef", "LazyRefTS"])
-def lazyref_class(module, request):
-    return module, getattr(module, request.param)
-
-
-def test_lazyref(lazyref_class):
-    module, class_ = lazyref_class
+def test_lazyref(module):
     v = module.Dict(
-        {"x": module.Int(), "y": class_("foo", maxdepth=2)},
+        {"x": module.Int(), "y": module.LazyRef("foo", maxdepth=2)},
         alias="foo",
         optional=["x", "y"],
     )

@@ -13,10 +13,10 @@ cdef class LazyRef(abstract.Validator):
 
     It is useful to build validators for recursive structures.
 
-    ..  warning::
-
-        It is not thread safe,
-        use :class:`LazyRefTS` in multithreading applications.
+    It does not act as a pure function,
+    it changes its state during validation.
+    However,
+    it is thread-safe.
 
     ..  testsetup:: lazyref
 
@@ -65,11 +65,11 @@ cdef class LazyRef(abstract.Validator):
 
     """
 
-    __slots__ = ("use", "maxdepth", "_depth")
+    __slots__ = ("use", "maxdepth", "_state")
 
     cdef public str use
     cdef long _maxdepth
-    cdef public long _depth
+    cdef public _state
 
     @property
     def maxdepth(self):
@@ -80,101 +80,22 @@ cdef class LazyRef(abstract.Validator):
         self._maxdepth = value if value is not None else 0
 
     def __init__(self, use, **kw):
-        super(LazyRef, self).__init__(use=use, _depth=0, **kw)
+        super(LazyRef, self).__init__(use=use, _state=threading.local(), **kw)
 
     def __call__(self, value):
-        try:
-            self._depth += 1
-            if self._maxdepth > 0 and self._depth > self._maxdepth:
-                raise exc.RecursionMaxDepthError(
-                    expected=self._maxdepth, actual=self._depth
-                )
-            return instances.get(self.use)(value)
-        finally:
-            self._depth -= 1
-
-
-cdef class LazyRefTS(abstract.Validator):
-    """
-    Lazy Referenced Validator, Thread Safe Version
-
-    It is useful to build validators for recursive structures.
-
-    ..  testsetup:: lazyrefts
-
-        from validateit import Dict, Int, LazyRefTS, instances
-
-    ..  testcleanup:: lazyrefts
-
-        instances.clear()
-
-    ..  doctest:: lazyrefts
-        :options: +ELLIPSIS, -IGNORE_EXCEPTION_DETAIL
-
-        >>> schema = Dict(
-        ...     {
-        ...         "foo": Int(),
-        ...         "bar": LazyRefTS("schema", maxdepth=1),
-        ...     },
-        ...     optional=("foo", "bar"),
-        ...     minlen=1,
-        ...     alias="schema",
-        ... )
-
-        >>> schema({"foo": 1})
-        {'foo': 1}
-
-        >>> schema({"bar": {"foo": 1}})
-        {'bar': {'foo': 1}}
-
-        >>> schema({"bar": {"bar": {"foo": 1}}})
-        Traceback (most recent call last):
-            ...
-        validateit.exc.errors.SchemaError: <SchemaError(errors=[
-            <bar.bar: RecursionMaxDepthError(expected=1, actual=2)>
-        ])>
-
-    :param str use:
-        alias of referenced validator.
-
-    :param int maxdepth:
-        maximum recursion depth.
-
-
-    :raises RecursionMaxDepthError:
-        if ``self.maxdepth is not None``
-        and current recursion depth exceeds the limit.
-
-    """
-
-    __slots__ = ("use", "maxdepth", "_depth")
-
-    cdef public str use
-    cdef long _maxdepth
-    cdef public _depth
-
-    @property
-    def maxdepth(self):
-        return None if self._maxdepth == 0 else self._maxdepth
-
-    @maxdepth.setter
-    def maxdepth(self, value):
-        self._maxdepth = value if value is not None else 0
-
-    def __init__(self, use, **kw):
-        super(LazyRefTS, self).__init__(use=use, _depth=threading.local(), **kw)
-
-    def __call__(self, value):
+        instance = instances.get(self.use)
+        if self._maxdepth == 0:
+            return instance(value)
         cdef long depth
+        state = self._state.__dict__
         try:
-            depth = self._depth.__dict__.setdefault("value", 0)
-            depth += 1
-            self._depth.value = depth
-            if self._maxdepth > 0 and depth > self._maxdepth:
-                raise exc.RecursionMaxDepthError(expected=self.maxdepth, actual=depth)
-            return instances.get(self.use)(value)
+            depth = state.setdefault("depth", 0) + 1
+            if depth > self._maxdepth:
+                raise exc.RecursionMaxDepthError(expected=self._maxdepth, actual=depth)
+            state["depth"] = depth
+            return instance(value)
         finally:
-            self._depth.value -= 1
+            state["depth"] -= 1
 
 
 cdef class Const(abstract.Validator):

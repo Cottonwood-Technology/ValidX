@@ -66,7 +66,6 @@ Special
 -------
 
 ..  autoclass:: validateit.py.LazyRef
-..  autoclass:: validateit.py.LazyRefTS
 ..  autoclass:: validateit.py.Const
 ..  autoclass:: validateit.py.Any
 
