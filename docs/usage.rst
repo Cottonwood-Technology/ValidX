@@ -407,9 +407,9 @@ Create a validator updating constraint of nested validator of base one.
 
 ..  testoutput:: cloning_validators_4
 
-    <Tuple(items=[<Str(options=('name', 'added'))>, <Str(options=('asc', 'desc'))>])>
-    <Tuple(items=[<Str(options=('title', 'added'))>, <Str(options=('asc', 'desc'))>])>
-    <Tuple(items=[<Str(options=('name', 'added', 'relevance'))>, <Str(options=('asc', 'desc'))>])>
+    <Tuple(items=(<Str(options=('name', 'added'))>, <Str(options=('asc', 'desc'))>))>
+    <Tuple(items=(<Str(options=('title', 'added'))>, <Str(options=('asc', 'desc'))>))>
+    <Tuple(items=(<Str(options=('name', 'added', 'relevance'))>, <Str(options=('asc', 'desc'))>))>
 
 In a nutshell,
 method :meth:`validateit.py.Validator.clone`
