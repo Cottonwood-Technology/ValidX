@@ -8,6 +8,7 @@ from validateit import exc
 def test_all_of(module):
     v = module.AllOf(module.Int(min=0), module.Int(max=10))
     assert v(1) == 1
+    assert v.clone() == v
 
     with pytest.raises(exc.MinValueError) as info:
         v(-1)
@@ -41,6 +42,7 @@ def test_any_of(module):
     assert v(2) == 2
     assert v(3) == 3
     assert v(10) == 10
+    assert v.clone() == v
 
     with pytest.raises(exc.SchemaError) as info:
         v(9)

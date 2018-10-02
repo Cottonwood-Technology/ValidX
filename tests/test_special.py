@@ -24,6 +24,8 @@ def test_lazyref(module):
     data = {"y": {"y": {"x": 1}}}
     assert v(data) == data
 
+    assert v.clone() == v
+
     with pytest.raises(exc.SchemaError) as info:
         v({"y": {"y": {"y": {"x": 1}}}})
     assert len(info.value) == 1
@@ -40,6 +42,7 @@ def test_lazyref(module):
 def test_const(module):
     v = module.Const(1)
     assert v(1) == 1
+    assert v.clone() == v
 
     with pytest.raises(exc.OptionsError) as info:
         v(2)
@@ -57,6 +60,7 @@ def test_any(module, nullable):
     assert v(1) == 1
     assert v("x") == "x"
     assert v([1, "x"]) == [1, "x"]
+    assert v.clone() == v
 
     if nullable:
         assert v(None) is None

@@ -30,8 +30,9 @@ class AllOf(abstract.Validator):
     __slots__ = ("steps",)
 
     def __init__(self, *steps, **kw):
-        assert steps, "At least one validation step has to be provided"
-        super(AllOf, self).__init__(steps=list(steps), **kw)
+        kw.setdefault("steps", steps)
+        assert kw["steps"], "At least one validation step has to be provided"
+        super(AllOf, self).__init__(**kw)
 
     def __call__(self, value):
         validated = False
@@ -69,8 +70,9 @@ class OneOf(abstract.Validator):
     __slots__ = ("steps",)
 
     def __init__(self, *steps, **kw):
-        assert steps, "At least one validation step has to be provided"
-        super(OneOf, self).__init__(steps=list(steps), **kw)
+        kw.setdefault("steps", steps)
+        assert kw["steps"], "At least one validation step has to be provided"
+        super(OneOf, self).__init__(**kw)
 
     def __call__(self, value):
         errors = []

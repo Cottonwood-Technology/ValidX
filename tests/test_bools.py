@@ -10,6 +10,7 @@ def test_bool(module):
     v = module.Bool()
     assert v(True) is True
     assert v(False) is False
+    assert v.clone() == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -17,6 +18,7 @@ def test_bool_nullable(module, nullable):
     v = module.Bool(nullable=nullable)
     assert v(True) is True
     assert v(False) is False
+    assert v.clone() == v
 
     if nullable:
         assert v(None) is None
@@ -32,6 +34,7 @@ def test_bool_coerce_str(module, coerce_str):
     v = module.Bool(coerce_str=coerce_str)
     assert v(True) is True
     assert v(False) is False
+    assert v.clone() == v
 
     if coerce_str:
         assert v("0") is False
@@ -68,6 +71,7 @@ def test_bool_coerce_int(module, coerce_int):
     v = module.Bool(coerce_int=coerce_int)
     assert v(True) is True
     assert v(False) is False
+    assert v.clone() == v
 
     if coerce_int:
         assert v(0) is False

@@ -20,6 +20,7 @@ def test_date(module):
     now = datetime.now()
     assert v(today) == today
     assert v(now) == today
+    assert v.clone() == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -29,6 +30,7 @@ def test_date_nullable(module, nullable):
     now = datetime.now()
     assert v(today) == today
     assert v(now) == today
+    assert v.clone() == v
 
     if nullable:
         assert v(None) is None
@@ -46,6 +48,7 @@ def test_date_unixts(module, unixts):
     now = datetime.now()
     assert v(today) == today
     assert v(now) == today
+    assert v.clone() == v
 
     if unixts:
         assert v(timestamp()) == today
@@ -63,6 +66,7 @@ def test_date_format(module, format):
     now = datetime.now()
     assert v(today) == today
     assert v(now) == today
+    assert v.clone() == v
 
     if format:
         # Python 2.7 should handle both ``str`` and ``unicode``
@@ -85,6 +89,7 @@ def test_date_format(module, format):
 def test_date_min_max(module, min, max):
     v = module.Date(min=min, max=max)
     assert v(date(2018, 7, 3)) == date(2018, 7, 3)
+    assert v.clone() == v
 
     if min is None:
         assert v(date(2017, 7, 3)) == date(2017, 7, 3)
@@ -109,6 +114,7 @@ def test_date_relmin_relmax(module, relmin, relmax):
     v = module.Date(relmin=relmin, relmax=relmax)
     today = date.today()
     assert v(today + timedelta(days=3)) == today + timedelta(days=3)
+    assert v.clone() == v
 
     if relmin is None:
         assert v(today) == today
@@ -133,12 +139,14 @@ def test_date_relmin_relmax(module, relmin, relmax):
 def test_time(module):
     v = module.Time()
     assert v(time(13, 35)) == time(13, 35)
+    assert v.clone() == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_time_nullable(module, nullable):
     v = module.Time(nullable=nullable)
     assert v(time(13, 35)) == time(13, 35)
+    assert v.clone() == v
 
     if nullable:
         assert v(None) is None
@@ -153,6 +161,7 @@ def test_time_nullable(module, nullable):
 def test_time_format(module, format):
     v = module.Time(format=format)
     assert v(time(13, 35)) == time(13, 35)
+    assert v.clone() == v
 
     if format:
         # Python 2.7 should handle both ``str`` and ``unicode``
@@ -175,6 +184,7 @@ def test_time_format(module, format):
 def test_time_min_max(module, min, max):
     v = module.Time(min=min, max=max)
     assert v(time(13, 35)) == time(13, 35)
+    assert v.clone() == v
 
     if min is None:
         assert v(time(3, 35)) == time(3, 35)
@@ -202,6 +212,7 @@ def test_datetime(module):
     now = datetime.now()
     assert v(today) == datetime.combine(today, time())
     assert v(now) == now
+    assert v.clone() == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -211,6 +222,7 @@ def test_datetime_nullable(module, nullable):
     now = datetime.now()
     assert v(today) == datetime.combine(today, time())
     assert v(now) == now
+    assert v.clone() == v
 
     if nullable:
         assert v(None) is None
@@ -228,6 +240,7 @@ def test_datetime_unixts(module, unixts):
     now = datetime.now()
     assert v(today) == datetime.combine(today, time())
     assert v(now) == now
+    assert v.clone() == v
 
     if unixts:
         ts = timestamp()
@@ -246,6 +259,7 @@ def test_datetime_format(module, format):
     now = datetime.now()
     assert v(today) == datetime.combine(today, time())
     assert v(now) == now
+    assert v.clone() == v
 
     if format:
         # Python 2.7 should handle both ``str`` and ``unicode``
@@ -268,6 +282,7 @@ def test_datetime_format(module, format):
 def test_datetime_min_max(module, min, max):
     v = module.Datetime(min=min, max=max)
     assert v(datetime(2018, 7, 3)) == datetime(2018, 7, 3)
+    assert v.clone() == v
 
     if min is None:
         assert v(datetime(2017, 7, 3)) == datetime(2017, 7, 3)
@@ -292,6 +307,7 @@ def test_datetime_relmin_relmax(module, relmin, relmax):
     v = module.Datetime(relmin=relmin, relmax=relmax)
     today = datetime.combine(date.today(), time())
     assert v(today + timedelta(hours=3)) == today + timedelta(hours=3)
+    assert v.clone() == v
 
     if relmin is None:
         assert v(today) == today

@@ -62,6 +62,7 @@ def test_list(module):
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
     assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
+    assert v.clone() == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v(u"1, 2, 3")
@@ -89,6 +90,7 @@ def test_list_nullable(module, nullable):
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
     assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
+    assert v.clone() == v
 
     if nullable:
         assert v(None) is None
@@ -106,6 +108,7 @@ def test_list_minlen_maxlen(module, minlen, maxlen):
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
     assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
+    assert v.clone() == v
 
     if minlen is None:
         assert v([1]) == [1]
@@ -130,6 +133,7 @@ def test_list_unique(module, unique):
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
     assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
+    assert v.clone() == v
 
     if unique:
         assert v([1, 2, 3, 3, 2, 1]) == [1, 2, 3]
@@ -145,6 +149,7 @@ def test_tuple(module):
     assert v([1, 2]) == (1, 2)
     assert v((1, 2)) == (1, 2)
     assert v(CustomSequence(1, 2)) == (1, 2)
+    assert v.clone() == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v(u"1, 2")
@@ -177,6 +182,7 @@ def test_tuple_nullable(module, nullable):
     assert v([1, 2]) == (1, 2)
     assert v((1, 2)) == (1, 2)
     assert v(CustomSequence(1, 2)) == (1, 2)
+    assert v.clone() == v
 
     if nullable:
         assert v(None) is None
@@ -196,6 +202,7 @@ def test_dict(module):
     assert v(OrderedDict({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v.clone() == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v([(u"x", 1), (u"y", 2)])
@@ -223,6 +230,10 @@ def test_dict(module):
 def test_dict_nullable(module, nullable):
     v = module.Dict({u"x": module.Int(), u"y": module.Int()}, nullable=nullable)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
+    assert v(OrderedDict({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v.clone() == v
 
     if nullable:
         assert v(None) is None
@@ -238,6 +249,10 @@ def test_dict_nullable(module, nullable):
 def test_dict_minlen_maxlen(module, minlen, maxlen):
     v = module.Dict(extra=(module.Str(), module.Int()), minlen=minlen, maxlen=maxlen)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
+    assert v(OrderedDict({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v.clone() == v
 
     if minlen is None:
         assert v({u"x": 1}) == {u"x": 1}
@@ -268,6 +283,10 @@ def test_dict_defaults_and_optional(module, defaults, optional):
         {u"x": module.Int(), u"y": module.Int()}, defaults=defaults, optional=optional
     )
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
+    assert v(OrderedDict({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v.clone() == v
 
     with pytest.raises(exc.SchemaError) as info:
         v({u"x": 1})
@@ -293,6 +312,10 @@ def test_dict_extra(module, extra):
         extra = (module.Str(), module.Int())
     v = module.Dict({u"x": module.Int(), u"y": module.Int()}, extra=extra)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
+    assert v(OrderedDict({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v.clone() == v
 
     if extra:
         assert v({u"x": 1, u"y": 2, u"z": 3}) == {u"x": 1, u"y": 2, u"z": 3}
@@ -324,6 +347,10 @@ def test_dict_extra(module, extra):
 def test_dict_dispose(module, dispose):
     v = module.Dict({u"x": module.Int(), u"y": module.Int()}, dispose=dispose)
     assert v({u"x": 1, u"y": 2}) == {u"x": 1, u"y": 2}
+    assert v(OrderedDict({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
+    assert v.clone() == v
 
     if dispose:
         assert v({u"x": 1, u"y": 2, u"z": 3}) == {u"x": 1, u"y": 2}
@@ -344,3 +371,5 @@ def test_dict_multikeys(module, multidict_class):
 
     assert v1(data) == {u"x": 1, u"y": 3} or v1(data) == {u"x": 1, u"y": 2}
     assert v2(data) == {u"x": 1, u"y": [2, 3]}
+    assert v1.clone() == v1
+    assert v2.clone() == v2

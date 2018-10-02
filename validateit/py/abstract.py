@@ -58,6 +58,11 @@ class Validator(ABC):
         params = ", ".join("%s=%r" % (slot, value) for slot, value in self.params())
         return "<%s(%s)>" % (self.__class__.__name__, params)
 
+    def __eq__(self, other):
+        return self.__class__ is other.__class__ and tuple(self.params()) == tuple(
+            other.params()
+        )
+
     def params(self):
         for slot in self.__slots__:
             if slot.startswith("_"):

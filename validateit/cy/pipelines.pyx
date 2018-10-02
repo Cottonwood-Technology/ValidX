@@ -27,8 +27,9 @@ cdef class AllOf(abstract.Validator):
     cdef public steps
 
     def __init__(self, *steps, **kw):
-        assert steps, "At least one validation step has to be provided"
-        super(AllOf, self).__init__(steps=list(steps), **kw)
+        kw.setdefault("steps", steps)
+        assert kw["steps"], "At least one validation step has to be provided"
+        super(AllOf, self).__init__(**kw)
 
     def __call__(self, value):
         cdef bint validated = False
@@ -68,8 +69,9 @@ cdef class OneOf(abstract.Validator):
     cdef public steps
 
     def __init__(self, *steps, **kw):
-        assert steps, "At least one validation step has to be provided"
-        super(OneOf, self).__init__(steps=list(steps), **kw)
+        kw.setdefault("steps", steps)
+        assert kw["steps"], "At least one validation step has to be provided"
+        super(OneOf, self).__init__(**kw)
 
     def __call__(self, value):
         errors = []
