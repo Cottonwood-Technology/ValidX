@@ -1,6 +1,10 @@
 import sys
-from collections import Sequence, Mapping
 from copy import deepcopy
+
+try:
+    from collections.abc import Sequence, Mapping
+except ImportError:  # pragma: no cover
+    from collections import Sequence, Mapping
 
 from .. import exc
 from . import abstract
@@ -183,7 +187,7 @@ class Dict(abstract.Validator):
 
 
     :raises InvalidTypeError:
-        if ``not isinstance(value, collections.Mapping)``.
+        if ``not isinstance(value, collections.abc.Mapping)``.
 
     :raises MinLengthError:
         if ``len(value) < self.minlen``.
@@ -211,7 +215,7 @@ class Dict(abstract.Validator):
 
     However,
     it should work fine for other implementations,
-    if the implementation is subclass of ``collections.Mapping``,
+    if the implementation is subclass of ``collections.abc.Mapping``,
     and provides ``getall()`` or ``getlist()`` methods.
 
     .. _WebOb MultiDict: https://docs.pylonsproject.org/projects/webob/en/stable/api/multidict.html#webob.multidict.MultiDict

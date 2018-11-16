@@ -1,4 +1,9 @@
-from collections import deque, Sequence
+from collections import deque
+
+try:
+    from collections.abc import Sequence
+except ImportError:  # pragma: no cover
+    from collections import Sequence
 
 
 class ValidationError(ValueError, Sequence):

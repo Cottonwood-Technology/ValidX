@@ -1,5 +1,10 @@
 import sys
-from collections import Sequence, Mapping, OrderedDict, defaultdict, deque
+from collections import OrderedDict, defaultdict, deque
+
+try:
+    from collections.abc import Sequence, Mapping
+except ImportError:
+    from collections import Sequence, Mapping
 
 import pytest
 

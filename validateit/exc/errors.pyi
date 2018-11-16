@@ -1,4 +1,4 @@
-from collections import Sequence
+from collections.abc import Sequence
 import typing as t
 
 class ValidationError(ValueError, Sequence):
