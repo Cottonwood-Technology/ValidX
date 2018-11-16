@@ -5,6 +5,7 @@ syntax: glob
 
 
 # Caches
+.vagrant
 .tox
 .pytest_cache
 .mypy_cache
