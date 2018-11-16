@@ -315,20 +315,22 @@ cdef class Dict(abstract.Validator):
             if self.schema is not None and key in self.schema:
                 try:
                     val = self.schema[key](val)
-                except exc.ValidationError as e:
-                    errors.extend(ne.add_context(key) for ne in e)
+                except exc.ValidationError as schema_error:
+                    errors.extend(ne.add_context(key) for ne in schema_error)
             elif self.extra is not None:
                 try:
                     key = self.extra[0](key)
-                except exc.ValidationError as e:
+                except exc.ValidationError as extra_key_error:
                     errors.extend(
-                        ne.add_context(exc.EXTRA_KEY).add_context(key) for ne in e
+                        ne.add_context(exc.EXTRA_KEY).add_context(key)
+                        for ne in extra_key_error
                     )
                 try:
                     val = self.extra[1](val)
-                except exc.ValidationError as e:
+                except exc.ValidationError as extra_value_error:
                     errors.extend(
-                        ne.add_context(exc.EXTRA_VALUE).add_context(key) for ne in e
+                        ne.add_context(exc.EXTRA_VALUE).add_context(key)
+                        for ne in extra_value_error
                     )
             else:
                 errors.append(exc.ForbiddenKeyError(key))
