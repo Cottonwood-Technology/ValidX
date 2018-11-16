@@ -1,7 +1,7 @@
 ValidateIt
 ==========
 
-ValidateIt is fast, powerful, and flexible validator with sane syntax.
+ValidateIt is fast_, powerful, and flexible validator with sane syntax.
 
 ..  code-block:: python
 
@@ -15,3 +15,9 @@ ValidateIt is fast, powerful, and flexible validator with sane syntax.
 ::
 
     {'message': 'ValidateIt is cool!'}
+
+
+The full documentation is available at `Read the Docs`_.
+
+.. _fast: https://validateit.readthedocs.io/en/latest/benchmarks.html
+.. _Read the Docs: https://validateit.readthedocs.io/en/latest/
