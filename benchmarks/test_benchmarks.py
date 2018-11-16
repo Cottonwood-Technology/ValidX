@@ -15,7 +15,7 @@ Competitors
 
 
 data = {
-    "location": {"lat": 50.0464284, "lng": 19.7246942},
+    "location": {"lat": 50.046_428_4, "lng": 19.724_694_2},
     "name": "Kraków",
     "alt_names": ["Krakow", "Cracow"],
     "population": {"city": 766_739, "metro": 1_725_894},
@@ -175,7 +175,7 @@ def test_valideer(benchmark):
 
 
 def test_voluptuous(benchmark):
-    from voluptuous import Schema, All, Range, Length
+    from voluptuous import Schema, All, Range
 
     schema = Schema(
         {
