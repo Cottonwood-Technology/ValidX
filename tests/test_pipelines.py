@@ -2,7 +2,7 @@ from collections import deque
 
 import pytest
 
-from validateit import exc
+from validx import exc
 
 
 def test_all_of(module):

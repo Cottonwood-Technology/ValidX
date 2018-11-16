@@ -13,7 +13,7 @@ you will get a ready to use binary wheel during installation from PyPI_.
 
 ..  code-block:: shell
 
-    pip install validateit
+    pip install validx
 
 However,
 if it fails to find a wheel compatible with your OS,
@@ -21,7 +21,7 @@ it will try to install source code tarball and compile it on the fly.
 To get the optimized version,
 you have to have Cython
 (in addition to C/C++ compiler and Python header files)
-installed **before** ValidateIt installation.
+installed **before** ValidX installation.
 If it fails to import Cython during setup,
 no compilation will be done.
 And you will get the pure Python version of the library.
@@ -30,8 +30,8 @@ You can check which version has been installed using the following code:
 
 ..  doctest::
 
-    >>> import validateit
-    >>> validateit.__impl__
+    >>> import validx
+    >>> validx.__impl__
     'Cython'
 
 .. _PyPI: https://pypi.org/
@@ -48,7 +48,7 @@ which performs full-text search with optional filtering by tags:
 
 ..  testcode:: quick_start
 
-    from validateit import Dict, List, Str, Int
+    from validx import Dict, List, Str, Int
 
     search_params = Dict(
         {
@@ -98,7 +98,7 @@ a result exception raised by the validator may contain many errors.
 
 ..  testcode:: quick_start
 
-    from validateit import exc
+    from validx import exc
 
     try:
         search_params({"limit": 200})
@@ -116,9 +116,9 @@ a result exception raised by the validator may contain many errors.
     ])>
 
 As you can see,
-the result exception ``error`` has type :class:`validateit.exc.SchemaError`,
+the result exception ``error`` has type :class:`validx.exc.SchemaError`,
 which contains two errors:
-:class:`validateit.exc.MaxValueError` and :class:`validateit.exc.MissingKeyError`.
+:class:`validx.exc.MaxValueError` and :class:`validx.exc.MissingKeyError`.
 
 To unify error handling,
 each exception provides Sequence interface.
@@ -157,7 +157,7 @@ which accepts list of tuples ``[(field_name, sort_direction), ...]``:
 
 ..  testcode:: error_context
 
-    from validateit import exc, Dict, List, Tuple, Str, Int
+    from validx import exc, Dict, List, Tuple, Str, Int
 
     search_params = Dict(
         {
@@ -261,7 +261,7 @@ you have validators for handling resource IDs and names:
 
 ..  testcode:: reusable_validators_1
 
-    from validateit import Int, Str
+    from validx import Int, Str
 
     resource_id = Int(min=1)
     resource_name = Str(minlen=1, maxlen=200)
@@ -271,7 +271,7 @@ because they work as pure functions and produce no side effects during validatio
 
 ..  testcode:: reusable_validators_1
 
-    from validateit import Dict
+    from validx import Dict
 
     resource_update_params = Dict({
         "id": resource_id,
@@ -282,7 +282,7 @@ because they work as pure functions and produce no side effects during validatio
 ..  warning::
 
     There is only one validator that does not work as pure function —
-    :class:`validateit.py.LazyRef`.
+    :class:`validx.py.LazyRef`.
     See :ref:`usage-recursive-structure-validation` section for details.
 
 However,
@@ -291,7 +291,7 @@ So you can use :ref:`reference-instance-registry` provided by the library.
 
 ..  testcode:: reusable_validators_2
 
-    from validateit import instances, Int, Str, Dict
+    from validx import instances, Int, Str, Dict
 
     Int(alias="resource_id", min=1)
     Str(alias="resource_name", minlen=1, maxlen=200)
@@ -322,7 +322,7 @@ Create a validator adding constraint to base one.
 
 ..  testcode:: cloning_validators_1
 
-    from validateit import Int
+    from validx import Int
 
     resource_id = Int(min=1)
     nullable_resource_id = resource_id.clone(
@@ -344,7 +344,7 @@ Create a validator removing constraint from base one.
 
 ..  testcode:: cloning_validators_2
 
-    from validateit import Int
+    from validx import Int
 
     nullable_resource_id = Int(min=1, nullable=True)
     resource_id = nullable_resource_id.clone(
@@ -366,7 +366,7 @@ Create a validator updating constraint of base one.
 
 ..  testcode:: cloning_validators_3
 
-    from validateit import Str
+    from validx import Str
 
     resource_action = Str(options=("create", "update", "read", "delete"))
     email_action = resource_action.clone(
@@ -391,7 +391,7 @@ Create a validator updating constraint of nested validator of base one.
 
 ..  testcode:: cloning_validators_4
 
-    from validateit import Tuple, Str
+    from validx import Tuple, Str
 
     resource_order = Tuple(
         Str(options=("name", "added")),  # Field name
@@ -419,7 +419,7 @@ Create a validator updating constraint of nested validator of base one.
     <Tuple(items=(<Str(options=('name', 'added', 'relevance'))>, <Str(options=('asc', 'desc'))>))>
 
 In a nutshell,
-method :meth:`validateit.py.Validator.clone`
+method :meth:`validx.py.Validator.clone`
 accepts two arguments ``update`` and ``unset`` in the following format:
 
 ..  code-block:: python
@@ -450,7 +450,7 @@ It might be useful to serialize validators into JSON or load them from configura
 ..  testcode:: dumping_and_loading_validators
 
     from pprint import pprint
-    from validateit import Validator, Int
+    from validx import Validator, Int
 
     resource_id = Int(min=1)
     dumped = resource_id.dump()
@@ -496,7 +496,7 @@ and use them or clone them later during loading process.
 
 ..  testcleanup:: dumping_and_loading_validators
 
-    from validateit import instances
+    from validx import instances
     instances.clear()
 
 
@@ -520,7 +520,7 @@ Let's rewrite the validator to handle such query:
 
 ..  code-block:: python
 
-    from validateit import Dict, List, Str, Int
+    from validx import Dict, List, Str, Int
 
     search_params = Dict(
         {
@@ -552,7 +552,7 @@ And it can be used like this:
         # }
         ...
 
-ValidateIt has been tested against the following implementations of ``MultiDict``:
+ValidX has been tested against the following implementations of ``MultiDict``:
 
 *   `WebOb MultiDict`_;
 *   `Werkzeug MultiDict`_;
@@ -576,7 +576,7 @@ here is the schema for validation of `JSON-RPC 2.0`_ request:
 
 ..  testcode:: multiple_step
 
-    from validateit import Dict, Int, Str, Const, OneOf, Any
+    from validx import Dict, Int, Str, Const, OneOf, Any
 
     jsonrpc = Dict(
         {
@@ -592,7 +592,7 @@ here is the schema for validation of `JSON-RPC 2.0`_ request:
     )
 
 
-Take note of :class:`validateit.py.Any` usage.
+Take note of :class:`validx.py.Any` usage.
 It accepts literally any value,
 just like as we need here,
 because parameters of concrete method will be validated on the next step.
@@ -662,7 +662,7 @@ Here is how it can be built:
 
 ..  testcode:: recursive_structure_validation
 
-    from validateit import Dict, List, Tuple, OneOf, Any, LazyRef, Str
+    from validx import Dict, List, Tuple, OneOf, Any, LazyRef, Str
 
     # Validator for simple function
     simple_query = Dict(
@@ -709,7 +709,7 @@ Here is how it can be built:
         alias="query_dsl",
     )
 
-Here we use :class:`validateit.py.LazyRef`
+Here we use :class:`validx.py.LazyRef`
 to create circular reference on the parent validator.
 Each time it is called,
 it increments its recursive call depth and checks the limit in the following.
@@ -748,5 +748,5 @@ Let's validate a sample query:
 
 ..  testcleanup:: recursive_structure_validation
 
-    from validateit import instances
+    from validx import instances
     instances.clear()

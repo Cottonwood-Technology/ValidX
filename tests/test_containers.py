@@ -16,7 +16,7 @@ try:
 except ImportError:
     pass
 
-from validateit import exc
+from validx import exc
 
 
 if sys.version_info[0] < 3:

@@ -3,7 +3,7 @@
 import sys
 import pytest
 
-from validateit import exc
+from validx import exc
 
 
 if sys.version_info[0] < 3:

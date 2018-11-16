@@ -1,24 +1,24 @@
 
-ValidateIt
-==========
+ValidX
+======
 
-ValidateIt is fast_, powerful, and flexible validator with sane syntax.
+ValidX is fast_, powerful, and flexible validator with sane syntax.
 
 ..  code-block:: python
 
-    from validateit import Dict, Str
+    from validx import Dict, Str
 
     schema = Dict({"message": Str()})
-    data = {"message": "ValidateIt is cool!"}
+    data = {"message": "ValidX is cool!"}
 
     print(schema(data))
 
 ::
 
-    {'message': 'ValidateIt is cool!'}
+    {'message': 'ValidX is cool!'}
 
 
 The full documentation is available at `Read the Docs`_.
 
-.. _fast: https://validateit.readthedocs.io/en/latest/benchmarks.html
-.. _Read the Docs: https://validateit.readthedocs.io/en/latest/
+.. _fast: https://validx.readthedocs.io/en/latest/benchmarks.html
+.. _Read the Docs: https://validx.readthedocs.io/en/latest/

@@ -1,8 +1,8 @@
 """
 Competitors
 
-1. ValidateIt (Python version)
-2. ValidateIt (Cython version)
+1. ValidX (Python version)
+2. ValidX (Cython version)
 3. Cerberus: http://docs.python-cerberus.org/en/stable/
 4. Colander: https://docs.pylonsproject.org/projects/colander/en/latest/
 5. JSONSchema: https://python-jsonschema.readthedocs.io/en/latest/
@@ -22,8 +22,8 @@ data = {
 }
 
 
-def test_validateit_py(benchmark):
-    from validateit.py import Dict, List, Str, Float, Int
+def test_validx_py(benchmark):
+    from validx.py import Dict, List, Str, Float, Int
 
     schema = Dict(
         {
@@ -38,8 +38,8 @@ def test_validateit_py(benchmark):
     assert benchmark(schema, data) == data
 
 
-def test_validateit_cy(benchmark):
-    from validateit.cy import Dict, List, Str, Float, Int
+def test_validx_cy(benchmark):
+    from validx.cy import Dict, List, Str, Float, Int
 
     schema = Dict(
         {

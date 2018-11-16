@@ -1,6 +1,6 @@
 import pytest
 
-from validateit import exc
+from validx import exc
 
 
 NoneType = type(None)

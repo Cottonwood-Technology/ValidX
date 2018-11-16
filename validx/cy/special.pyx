@@ -1,13 +1,13 @@
 try:
     import threading
-except ImportError:  # pragma: no cover
-    import dummy_threading as threading  # noqa
+except ImportError:
+    import dummy_threading as threading
 
 from .. import exc
-from . import abstract, instances
+from . cimport abstract, instances
 
 
-class LazyRef(abstract.Validator):
+cdef class LazyRef(abstract.Validator):
     """
     Lazy Referenced Validator
 
@@ -20,7 +20,7 @@ class LazyRef(abstract.Validator):
 
     ..  testsetup:: lazyref
 
-        from validateit import Dict, Int, LazyRef, instances
+        from validx import Dict, Int, LazyRef, instances
 
     ..  testcleanup:: lazyref
 
@@ -48,7 +48,7 @@ class LazyRef(abstract.Validator):
         >>> schema({"bar": {"bar": {"foo": 1}}})
         Traceback (most recent call last):
             ...
-        validateit.exc.errors.SchemaError: <SchemaError(errors=[
+        validx.exc.errors.SchemaError: <SchemaError(errors=[
             <bar.bar: RecursionMaxDepthError(expected=1, actual=2)>
         ])>
 
@@ -67,25 +67,38 @@ class LazyRef(abstract.Validator):
 
     __slots__ = ("use", "maxdepth", "_state")
 
+    cdef public str use
+    cdef long _maxdepth
+    cdef public _state
+
+    @property
+    def maxdepth(self):
+        return None if self._maxdepth == 0 else self._maxdepth
+
+    @maxdepth.setter
+    def maxdepth(self, value):
+        self._maxdepth = value if value is not None else 0
+
     def __init__(self, use, **kw):
         super(LazyRef, self).__init__(use=use, _state=threading.local(), **kw)
 
     def __call__(self, value):
         instance = instances.get(self.use)
-        if self.maxdepth is None:
+        if self._maxdepth == 0:
             return instance(value)
+        cdef long depth
         state = self._state.__dict__
         try:
             depth = state.setdefault("depth", 0) + 1
-            if depth > self.maxdepth:
-                raise exc.RecursionMaxDepthError(expected=self.maxdepth, actual=depth)
+            if depth > self._maxdepth:
+                raise exc.RecursionMaxDepthError(expected=self._maxdepth, actual=depth)
             state["depth"] = depth
             return instance(value)
         finally:
             state["depth"] -= 1
 
 
-class Const(abstract.Validator):
+cdef class Const(abstract.Validator):
     """
     Constant Validator
 
@@ -103,6 +116,8 @@ class Const(abstract.Validator):
 
     __slots__ = ("value",)
 
+    cdef public value
+
     def __init__(self, value, **kw):
         super(Const, self).__init__(value=value, **kw)
 
@@ -112,7 +127,7 @@ class Const(abstract.Validator):
         return value
 
 
-class Any(abstract.Validator):
+cdef class Any(abstract.Validator):
     """
     Pass-Any Validator
 
@@ -131,9 +146,12 @@ class Any(abstract.Validator):
 
     __slots__ = ("nullable",)
 
+    cdef public bint nullable
+
     def __call__(self, value):
         if value is None and not self.nullable:
             # TODO: isinstance(None, object) is True
             # Should there be some special handcrafted abstract base class?
             raise exc.InvalidTypeError(expected=object, actual=type(value))
         return value
+

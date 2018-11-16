@@ -4,7 +4,7 @@ from datetime import date, time, datetime, timedelta
 
 import pytest
 
-from validateit import exc
+from validx import exc
 
 
 if sys.version_info[0] < 3:

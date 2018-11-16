@@ -1,25 +1,25 @@
-.. ValidateIt documentation master file, created by
+.. ValidX documentation master file, created by
    sphinx-quickstart on Wed Aug  1 14:36:46 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-ValidateIt
-==========
+ValidX
+======
 
-ValidateIt is :ref:`fast <benchmarks>`, powerful, and flexible validator with sane syntax.
+ValidX is :ref:`fast <benchmarks>`, powerful, and flexible validator with sane syntax.
 
 ..  testcode:: demo
 
-    from validateit import Dict, Str
+    from validx import Dict, Str
 
     schema = Dict({"message": Str()})
-    data = {"message": "ValidateIt is cool!"}
+    data = {"message": "ValidX is cool!"}
 
     print(schema(data))
 
 ..  testoutput:: demo
 
-    {'message': 'ValidateIt is cool!'}
+    {'message': 'ValidX is cool!'}
 
 
 ..  toctree::
@@ -40,7 +40,7 @@ Pull requests,
 bug reports,
 and feedback are welcome.
 
-.. _BitBucket: https://bitbucket.org/cottonwood-tech/validateit/
+.. _BitBucket: https://bitbucket.org/cottonwood-tech/validx/
 
 
 License

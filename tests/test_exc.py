@@ -5,7 +5,7 @@ from textwrap import dedent
 
 import pytest
 
-from validateit import exc
+from validx import exc
 
 
 def test_validation_error():

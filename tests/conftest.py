@@ -1,9 +1,9 @@
 import pytest
 
-from validateit import py  # noqa
+from validx import py  # noqa
 
 try:
-    from validateit import cy  # noqa
+    from validx import cy  # noqa
 except ImportError:
     pass
 

@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-import validateit
+import validx
 
 
 DEV_MODE = os.environ.get("VALIDATEIT_DEV", False)
@@ -12,7 +12,7 @@ DEV_MODE = os.environ.get("VALIDATEIT_DEV", False)
 @pytest.mark.skipif(not DEV_MODE, reason="Development mode test")
 def test_public_names(module):
     for name in module.__all__:
-        assert name in validateit.__all__
+        assert name in validx.__all__
 
         obj = getattr(module, name)
 
@@ -23,7 +23,7 @@ def test_public_names(module):
 
 @pytest.mark.skipif(not DEV_MODE, reason="Development mode test")
 def test_interfaces():
-    from validateit import py, cy
+    from validx import py, cy
 
     assert py.__all__ == cy.__all__
 
@@ -42,7 +42,7 @@ def test_interfaces():
 
 @pytest.mark.skipif(not DEV_MODE, reason="Development mode test")
 def test_docstrings():
-    from validateit import py, cy
+    from validx import py, cy
 
     def walk(py_obj, cy_obj):
         for name in getattr(py_obj, "__all__", dir(py_obj)):

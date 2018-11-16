@@ -1,17 +1,20 @@
-from libc cimport limits
-
+import sys
 from copy import deepcopy
 
 try:
     from collections.abc import Sequence, Mapping
-except ImportError:
+except ImportError:  # pragma: no cover
     from collections import Sequence, Mapping
 
 from .. import exc
-from . cimport abstract
+from . import abstract
 
 
-cdef class List(abstract.Validator):
+if sys.version_info[0] < 3:  # pragma: no cover
+    str = unicode  # noqa
+
+
+class List(abstract.Validator):
     """
     List Validator
 
@@ -49,28 +52,6 @@ cdef class List(abstract.Validator):
 
     __slots__ = ("item", "nullable", "minlen", "maxlen", "unique")
 
-    cdef public item
-    cdef public bint nullable
-    cdef long _minlen
-    cdef long _maxlen
-    cdef public bint unique
-
-    @property
-    def minlen(self):
-        return None if self._minlen == 0 else self._minlen
-
-    @minlen.setter
-    def minlen(self, value):
-        self._minlen = value if value is not None else 0
-
-    @property
-    def maxlen(self):
-        return None if self._maxlen == limits.LONG_MAX else self._maxlen
-
-    @maxlen.setter
-    def maxlen(self, value):
-        self._maxlen = value if value is not None else limits.LONG_MAX
-
     def __init__(self, item, **kw):
         super(List, self).__init__(item=item, **kw)
 
@@ -78,12 +59,12 @@ cdef class List(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, (unicode, bytes)):
+            if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
-        cdef long length = len(value)
-        if length < self._minlen:
+        length = len(value)
+        if self.minlen is not None and length < self.minlen:
             raise exc.MinLengthError(expected=self.minlen, actual=length)
-        if length > self._maxlen:
+        if self.maxlen is not None and length > self.maxlen:
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         result = []
@@ -108,7 +89,7 @@ cdef class List(abstract.Validator):
         return result
 
 
-cdef class Tuple(abstract.Validator):
+class Tuple(abstract.Validator):
     """
     Tuple Validator
 
@@ -134,9 +115,6 @@ cdef class Tuple(abstract.Validator):
 
     __slots__ = ("items", "nullable")
 
-    cdef public items
-    cdef public bint nullable
-
     def __init__(self, *items, **kw):
         kw.setdefault("items", items)
         assert kw["items"], "Tuple should contain at least one item"
@@ -146,7 +124,7 @@ cdef class Tuple(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, (unicode, bytes)):
+            if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
         if len(self.items) != len(value):
             raise exc.TupleLengthError(expected=len(self.items), actual=len(value))
@@ -167,7 +145,7 @@ cdef class Tuple(abstract.Validator):
         return tuple(result)
 
 
-cdef class Dict(abstract.Validator):
+class Dict(abstract.Validator):
     """
     Dictionary Validator
 
@@ -225,7 +203,7 @@ cdef class Dict(abstract.Validator):
 
     :note:
         on error raised by ``extra`` validators,
-        context marker :class:`validateit.exc.Extra` will be used to indicate,
+        context marker :class:`validx.exc.Extra` will be used to indicate,
         which part of key/value pair is failed.
 
 
@@ -258,32 +236,6 @@ cdef class Dict(abstract.Validator):
         "multikeys",
     )
 
-    cdef public schema
-    cdef public bint nullable
-    cdef long _minlen
-    cdef long _maxlen
-    cdef public extra
-    cdef public defaults
-    cdef public optional
-    cdef public dispose
-    cdef public multikeys
-
-    @property
-    def minlen(self):
-        return None if self._minlen == 0 else self._minlen
-
-    @minlen.setter
-    def minlen(self, value):
-        self._minlen = value if value is not None else 0
-
-    @property
-    def maxlen(self):
-        return None if self._maxlen == limits.LONG_MAX else self._maxlen
-
-    @maxlen.setter
-    def maxlen(self, value):
-        self._maxlen = value if value is not None else limits.LONG_MAX
-
     def __init__(self, schema=None, **kw):
         super(Dict, self).__init__(schema=schema, **kw)
 
@@ -293,10 +245,10 @@ cdef class Dict(abstract.Validator):
         if not isinstance(value, (dict, Mapping)):
             raise exc.InvalidTypeError(expected=Mapping, actual=type(value))
 
-        cdef long length = len(value)
-        if length < self._minlen:
+        length = len(value)
+        if self.minlen is not None and length < self.minlen:
             raise exc.MinLengthError(expected=self.minlen, actual=length)
-        if length > self._maxlen:
+        if self.maxlen is not None and length > self.maxlen:
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         result = {}
@@ -319,22 +271,20 @@ cdef class Dict(abstract.Validator):
             if self.schema is not None and key in self.schema:
                 try:
                     val = self.schema[key](val)
-                except exc.ValidationError as schema_error:
-                    errors.extend(ne.add_context(key) for ne in schema_error)
+                except exc.ValidationError as e:
+                    errors.extend(ne.add_context(key) for ne in e)
             elif self.extra is not None:
                 try:
                     key = self.extra[0](key)
-                except exc.ValidationError as extra_key_error:
+                except exc.ValidationError as e:
                     errors.extend(
-                        ne.add_context(exc.EXTRA_KEY).add_context(key)
-                        for ne in extra_key_error
+                        ne.add_context(exc.EXTRA_KEY).add_context(key) for ne in e
                     )
                 try:
                     val = self.extra[1](val)
-                except exc.ValidationError as extra_value_error:
+                except exc.ValidationError as e:
                     errors.extend(
-                        ne.add_context(exc.EXTRA_VALUE).add_context(key)
-                        for ne in extra_value_error
+                        ne.add_context(exc.EXTRA_VALUE).add_context(key) for ne in e
                     )
             else:
                 errors.append(exc.ForbiddenKeyError(key))

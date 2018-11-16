@@ -6,7 +6,7 @@ Reference
 Abstract
 --------
 
-..  autoclass:: validateit.py.Validator
+..  autoclass:: validx.py.Validator
 
     ..  automethod:: __call__
     ..  automethod:: load
@@ -17,59 +17,59 @@ Abstract
 Numbers
 -------
 
-..  autoclass:: validateit.py.Int
-..  autoclass:: validateit.py.Float
+..  autoclass:: validx.py.Int
+..  autoclass:: validx.py.Float
 
 
 Chars
 -----
 
-..  autoclass:: validateit.py.Str
-..  autoclass:: validateit.py.Bytes
+..  autoclass:: validx.py.Str
+..  autoclass:: validx.py.Bytes
 
 
 Date and Time
 -------------
 
-..  autoclass:: validateit.py.Date
-..  autoclass:: validateit.py.Time
-..  autoclass:: validateit.py.Datetime
+..  autoclass:: validx.py.Date
+..  autoclass:: validx.py.Time
+..  autoclass:: validx.py.Datetime
 
 
 Boolean
 -------
 
-..  autoclass:: validateit.py.Bool
+..  autoclass:: validx.py.Bool
 
 
 Containers
 ----------
 
-..  autoclass:: validateit.py.List
-..  autoclass:: validateit.py.Tuple
-..  autoclass:: validateit.py.Dict
+..  autoclass:: validx.py.List
+..  autoclass:: validx.py.Tuple
+..  autoclass:: validx.py.Dict
 
 
 Pipelines
 ---------
 
-..  autoclass:: validateit.py.AllOf
-..  autoclass:: validateit.py.OneOf
+..  autoclass:: validx.py.AllOf
+..  autoclass:: validx.py.OneOf
 
 
 Special
 -------
 
-..  autoclass:: validateit.py.LazyRef
-..  autoclass:: validateit.py.Const
-..  autoclass:: validateit.py.Any
+..  autoclass:: validx.py.LazyRef
+..  autoclass:: validx.py.Const
+..  autoclass:: validx.py.Any
 
 
 Class Registry
 --------------
 
-..  autofunction:: validateit.py.classes.add
-..  autofunction:: validateit.py.classes.get
+..  autofunction:: validx.py.classes.add
+..  autofunction:: validx.py.classes.get
 
 
 .. _reference-instance-registry:
@@ -77,16 +77,16 @@ Class Registry
 Instance Registry
 -----------------
 
-..  autofunction:: validateit.py.instances.add
-..  autofunction:: validateit.py.instances.put
-..  autofunction:: validateit.py.instances.get
-..  autofunction:: validateit.py.instances.clear
+..  autofunction:: validx.py.instances.add
+..  autofunction:: validx.py.instances.put
+..  autofunction:: validx.py.instances.get
+..  autofunction:: validx.py.instances.clear
 
 
 Errors
 ------
 
-..  py:currentmodule:: validateit.exc
+..  py:currentmodule:: validx.exc
 
 The class hierarchy for exceptions is:
 
@@ -117,27 +117,27 @@ The class hierarchy for exceptions is:
         *   :class:`SchemaError`
 
 
-..  autoclass:: validateit.exc.ValidationError
+..  autoclass:: validx.exc.ValidationError
 
     .. automethod:: add_context
 
-..  autoclass:: validateit.exc.ConditionError
-..  autoclass:: validateit.exc.InvalidTypeError
-..  autoclass:: validateit.exc.OptionsError
-..  autoclass:: validateit.exc.MinValueError
-..  autoclass:: validateit.exc.MaxValueError
-..  autoclass:: validateit.exc.FloatValueError
-..  autoclass:: validateit.exc.StrDecodeError
-..  autoclass:: validateit.exc.MinLengthError
-..  autoclass:: validateit.exc.MaxLengthError
-..  autoclass:: validateit.exc.TupleLengthError
-..  autoclass:: validateit.exc.PatternMatchError
-..  autoclass:: validateit.exc.DatetimeParseError
-..  autoclass:: validateit.exc.RecursionMaxDepthError
-..  autoclass:: validateit.exc.MappingKeyError
-..  autoclass:: validateit.exc.ForbiddenKeyError
-..  autoclass:: validateit.exc.MissingKeyError
-..  autoclass:: validateit.exc.SchemaError
+..  autoclass:: validx.exc.ConditionError
+..  autoclass:: validx.exc.InvalidTypeError
+..  autoclass:: validx.exc.OptionsError
+..  autoclass:: validx.exc.MinValueError
+..  autoclass:: validx.exc.MaxValueError
+..  autoclass:: validx.exc.FloatValueError
+..  autoclass:: validx.exc.StrDecodeError
+..  autoclass:: validx.exc.MinLengthError
+..  autoclass:: validx.exc.MaxLengthError
+..  autoclass:: validx.exc.TupleLengthError
+..  autoclass:: validx.exc.PatternMatchError
+..  autoclass:: validx.exc.DatetimeParseError
+..  autoclass:: validx.exc.RecursionMaxDepthError
+..  autoclass:: validx.exc.MappingKeyError
+..  autoclass:: validx.exc.ForbiddenKeyError
+..  autoclass:: validx.exc.MissingKeyError
+..  autoclass:: validx.exc.SchemaError
 
 
 .. _reference-context-markers:
@@ -145,8 +145,8 @@ The class hierarchy for exceptions is:
 Context Markers
 ---------------
 
-..  autoclass:: validateit.exc.Extra
-..  autoclass:: validateit.exc.Step
+..  autoclass:: validx.exc.Extra
+..  autoclass:: validx.exc.Step
 
 
 .. _reference-error-formatter:
@@ -154,6 +154,6 @@ Context Markers
 Error Formatter
 ---------------
 
-..  autoclass:: validateit.exc.Formatter
+..  autoclass:: validx.exc.Formatter
 
     ..  automethod:: __call__

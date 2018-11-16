@@ -1,2 +1,2 @@
 include *.rst *.txt
-include validateit/cy/*.pxd validateit/cy/*.pyx validateit/**/*.pyi
+include validx/cy/*.pxd validx/cy/*.pyx validx/**/*.pyi

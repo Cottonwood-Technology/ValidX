@@ -1,13 +1,8 @@
-try:
-    import typing as t  # noqa
-except ImportError:  # pragma: no cover
-    pass
-
 from .. import exc
-from . import abstract
+from . cimport abstract
 
 
-class AllOf(abstract.Validator):
+cdef class AllOf(abstract.Validator):
     """
     AND-style Pipeline Validator
 
@@ -22,12 +17,14 @@ class AllOf(abstract.Validator):
         raised by the first failed step.
 
     :note:
-        it uses :class:`validateit.exc.Step` marker to indicate,
+        it uses :class:`validx.exc.Step` marker to indicate,
         which step is failed.
 
     """
 
     __slots__ = ("steps",)
+
+    cdef public steps
 
     def __init__(self, *steps, **kw):
         kw.setdefault("steps", steps)
@@ -35,7 +32,7 @@ class AllOf(abstract.Validator):
         super(AllOf, self).__init__(**kw)
 
     def __call__(self, value):
-        validated = False
+        cdef bint validated = False
         for num, step in enumerate(self.steps):
             validated = True
             try:
@@ -46,7 +43,7 @@ class AllOf(abstract.Validator):
         return value
 
 
-class OneOf(abstract.Validator):
+cdef class OneOf(abstract.Validator):
     """
     OR-style Pipeline Validator
 
@@ -62,12 +59,14 @@ class OneOf(abstract.Validator):
         raised by each step.
 
     :note:
-        it uses :class:`validateit.exc.Step` marker to indicate,
+        it uses :class:`validx.exc.Step` marker to indicate,
         which step is failed.
 
     """
 
     __slots__ = ("steps",)
+
+    cdef public steps
 
     def __init__(self, *steps, **kw):
         kw.setdefault("steps", steps)

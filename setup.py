@@ -14,13 +14,13 @@ if platform.python_implementation() == "CPython":
         print("Unable to import Cython. Pure Python version will be used.")
     else:
         directives = {"language_level": sys.version_info[0]}
-        ext_modules = cythonize("validateit/cy/*.pyx", compiler_directives=directives)
+        ext_modules = cythonize("validx/cy/*.pyx", compiler_directives=directives)
 
 with open("README.rst") as f:
     readme = f.read()
 
 setup(
-    name="ValidateIt",
+    name="ValidX",
     version="0.1",
     description="fast, powerful, and flexible validator with sane syntax",
     long_description=readme,
@@ -38,7 +38,7 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     keywords="validator validation validate schema",
-    url="https://bitbucket.org/cottonwood-tech/validateit/",
+    url="https://bitbucket.org/cottonwood-tech/validx/",
     author="Cottonwood Technology",
     author_email="info@cottonwood.tech",
     license="BSD",

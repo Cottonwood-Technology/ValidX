@@ -19,7 +19,7 @@ class ValidationError(ValueError, Sequence):
 
     Since validators try to process as much as possible,
     they can raise multiple errors
-    (wrapped by :class:`validateit.exc.SchemaError`).
+    (wrapped by :class:`validx.exc.SchemaError`).
     To unify handling of such errors,
     each validation error provides ``Sequence`` interface.
     It means,
@@ -33,11 +33,11 @@ class ValidationError(ValueError, Sequence):
     It contains mapping keys,
     sequence indexes,
     and special markers
-    (see :class:`validateit.exc.Extra` and :class:`validateit.exc.Step`).
+    (see :class:`validx.exc.Extra` and :class:`validx.exc.Step`).
 
     ..  doctest:: validation_error
 
-        >>> from validateit import exc, Dict, List, Int
+        >>> from validx import exc, Dict, List, Int
 
         >>> schema = Dict({"foo": List(Int(max=100))})
         >>> try:
@@ -101,7 +101,7 @@ class ValidationError(ValueError, Sequence):
 
         ..  doctest:: add_context
 
-            >>> from validateit.exc import ValidationError
+            >>> from validx.exc import ValidationError
 
             >>> e = ValidationError()
             >>> e
@@ -366,7 +366,7 @@ class MappingKeyError(ValidationError):
 
     ..  testsetup:: mapping_key_error
 
-        from validateit.exc import MappingKeyError
+        from validx.exc import MappingKeyError
 
     ..  doctest:: mapping_key_error
 

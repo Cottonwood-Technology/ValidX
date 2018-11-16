@@ -20,7 +20,7 @@ class Extra(object):
 
     ..  doctest:: extra
 
-        >>> from validateit import exc, Dict, Str
+        >>> from validx import exc, Dict, Str
 
         >>> schema = Dict(extra=(Str(maxlen=2), Str(maxlen=4)))
         >>> try:
@@ -77,7 +77,7 @@ class Step(object):
 
     ..  doctest:: step
 
-        >>> from validateit import exc, OneOf, Int
+        >>> from validx import exc, OneOf, Int
 
         >>> schema = OneOf(Int(min=0, max=10), Int(min=90, max=100))
         >>> try:

@@ -1,21 +1,30 @@
+import sys
 from copy import deepcopy
-from . cimport classes, instances
+
+from . import classes, instances
+
+if sys.version_info[0] < 3:  # pragma: no cover
+    from abc import ABCMeta, abstractmethod
+
+    ABC = ABCMeta("ABC", (object,), {})
+else:  # pragma: no cover
+    from abc import ABC, abstractmethod
 
 
-cdef class Validator:
+class Validator(ABC):
     """
     Abstract Base Validator
 
     :param str alias:
         if it specified,
         the instance will be added into registry,
-        see :func:`validateit.py.instances.add`.
+        see :func:`validx.py.instances.add`.
 
     :param bool replace:
         if it is ``True`` and ``alias`` specified,
         the instance will be added into registry,
         replacing any existent validator with the same alias,
-        see :func:`validateit.py.instances.put`.
+        see :func:`validx.py.instances.put`.
 
     :param \**kw:
         concrete validator attributes.
@@ -34,6 +43,16 @@ cdef class Validator:
                 instances.put(alias, self)
             else:
                 instances.add(alias, self)
+
+    @abstractmethod
+    def __call__(self, value):
+        """
+        Validate value.
+
+        This is an abstract method,
+        and it should be implemented by descendant class.
+
+        """
 
     def __repr__(self):
         params = ", ".join("%s=%r" % (slot, value) for slot, value in self.params())
@@ -58,7 +77,7 @@ cdef class Validator:
 
         ..  testsetup:: dump
 
-            from validateit import Int
+            from validx import Int
 
         ..  doctest:: dump
 
@@ -93,7 +112,7 @@ cdef class Validator:
 
         ..  testsetup:: load
 
-            from validateit import Validator, Int, instances
+            from validx import Validator, Int, instances
 
         ..  testcleanup:: load
 
@@ -145,7 +164,7 @@ cdef class Validator:
 
         ..  testsetup:: clone
 
-            from validateit import Int
+            from validx import Int
 
         ..  doctest:: clone
 
@@ -175,19 +194,19 @@ cdef class Validator:
         return self.load(self.dump(), update, unset)
 
 
-cdef _load_recurcive(params, update, unset, path=()):
+def _load_recurcive(params, update, unset, path=()):
     if isinstance(params, dict):
         result = _merge_dict(params, update, unset, path)
         if "__class__" in result:
             classname = result.pop("__class__")
             class_ = classes.get(classname)
             return class_(**result)
-        if "__use__" in result:
-            return instances.get(result["__use__"])
         if "__clone__" in result:
             alias = result.pop("__clone__")
             instance = instances.get(alias)
             return instance.clone(**result)
+        if "__use__" in result:
+            return instances.get(result["__use__"])
         return result
     if isinstance(params, list):
         return _merge_list(params, update, unset, path)
@@ -196,7 +215,7 @@ cdef _load_recurcive(params, update, unset, path=()):
     return params
 
 
-cdef _merge_dict(params, update, unset, path):
+def _merge_dict(params, update, unset, path):
     if update is not None or unset is not None:
         params = dict(params)  # make a copy
         path_key = "/%s" % "/".join(str(node) for node in path)
@@ -214,7 +233,7 @@ cdef _merge_dict(params, update, unset, path):
     }
 
 
-cdef _merge_list(params, update, unset, path):
+def _merge_list(params, update, unset, path):
     this_update = None
     this_unset = None
 
@@ -244,4 +263,3 @@ cdef _merge_list(params, update, unset, path):
         )
 
     return result
-

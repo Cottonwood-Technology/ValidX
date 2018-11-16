@@ -18,7 +18,7 @@ class Formatter(object):
         templates that will be used to format errors.
 
     Each key of ``templates`` should be a subclass of
-    :class:`validateit.exc.ValidationError`.
+    :class:`validx.exc.ValidationError`.
 
     Each value of ``templates`` should be a string,
     i.e. simple template,
@@ -26,7 +26,7 @@ class Formatter(object):
 
     Conditional template is a tuple ``(predicate, string)``.
     Where ``predicate`` is a callable,
-    that accepts :class:`validateit.exc.ValidationError`
+    that accepts :class:`validx.exc.ValidationError`
     and returns boolean value.
     When the predicate evaluates to ``True``,
     its corresponding string will be used as a template.
