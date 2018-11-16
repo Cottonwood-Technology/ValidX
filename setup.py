@@ -22,7 +22,7 @@ with open("README.rst") as f:
 setup(
     name="ValidateIt",
     version="0.1",
-    description="TODO",
+    description="fast, powerful, and flexible validator with sane syntax",
     long_description=readme,
     classifiers=[
         "Intended Audience :: Developers",
