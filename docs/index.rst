@@ -6,7 +6,7 @@
 ValidateIt
 ==========
 
-ValidateIt is fast, powerful, and flexible validator with sane syntax.
+ValidateIt is :ref:`fast <benchmarks>`, powerful, and flexible validator with sane syntax.
 
 ..  testcode:: demo
 
@@ -22,18 +22,19 @@ ValidateIt is fast, powerful, and flexible validator with sane syntax.
     {'message': 'ValidateIt is cool!'}
 
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+..  toctree::
+    :maxdepth: 2
+    :caption: Contents:
 
-   usage
-   reference
+    usage
+    reference
+    benchmarks
 
 
-Contribution And Bug Reports
-----------------------------
+Contribution
+------------
 
-The project sources are hosted by BitBucket_ as well,
+The project sources are hosted on BitBucket_ as well,
 as its bug tracker.
 Pull requests,
 bug reports,

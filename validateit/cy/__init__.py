@@ -9,6 +9,8 @@ from .special import LazyRef, Const, Any
 from . import classes, instances
 
 
+__impl__ = "Cython"
+
 __all__ = [
     "Validator",
     "Int",

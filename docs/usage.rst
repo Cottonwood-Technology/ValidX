@@ -15,7 +15,6 @@ you will get a ready to use binary wheel during installation from PyPI_.
 
     pip install validateit
 
-
 However,
 if it fails to find a wheel compatible with your OS,
 it will try to install source code tarball and compile it on the fly.
@@ -26,6 +25,14 @@ installed **before** ValidateIt installation.
 If it fails to import Cython during setup,
 no compilation will be done.
 And you will get the pure Python version of the library.
+
+You can check which version has been installed using the following code:
+
+..  doctest::
+
+    >>> import validateit
+    >>> validateit.__impl__
+    'Cython'
 
 .. _PyPI: https://pypi.org/
 .. _Cython: http://cython.org/

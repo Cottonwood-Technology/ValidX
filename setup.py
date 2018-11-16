@@ -38,7 +38,7 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     keywords="validator validation validate schema",
-    url="http://www.cottonwood.tech",
+    url="https://bitbucket.org/cottonwood-tech/validateit/",
     author="Cottonwood Technology",
     author_email="info@cottonwood.tech",
     license="BSD",

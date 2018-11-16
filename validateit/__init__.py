@@ -2,6 +2,7 @@ from . import exc
 
 try:
     from .cy import (
+        __impl__,
         Validator,
         Int,
         Float,
@@ -24,6 +25,7 @@ try:
     )
 except ImportError:  # pragma: no cover
     from .py import (
+        __impl__,
         Validator,
         Int,
         Float,
@@ -68,3 +70,8 @@ __all__ = [
     "classes",
     "instances",
 ]
+
+__impl__ = __impl__
+__version__ = "0.1"
+__author__ = "Cottonwood Technology <info@cottonwood.tech>"
+__license__ = "BSD"
