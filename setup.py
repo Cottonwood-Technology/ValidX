@@ -1,3 +1,4 @@
+import sys
 import platform
 
 from setuptools import setup, find_packages
@@ -12,7 +13,7 @@ if platform.python_implementation() == "CPython":
     except ImportError:
         print("Unable to import Cython. Pure Python version will be used.")
     else:
-        directives = {}
+        directives = {"language_level": sys.version_info[0]}
         ext_modules = cythonize("validateit/cy/*.pyx", compiler_directives=directives)
 
 with open("README.rst") as f:
@@ -29,10 +30,10 @@ setup(
         "Programming Language :: Cython",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
