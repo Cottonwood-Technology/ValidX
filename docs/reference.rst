@@ -107,6 +107,7 @@ The class hierarchy for exceptions is:
             *   :class:`TupleLengthError`
             *   :class:`PatternMatchError`
             *   :class:`DatetimeParseError`
+            *   :class:`DatetimeTypeError`
             *   :class:`RecursionMaxDepthError`
 
         *   :class:`MappingKeyError`
@@ -133,6 +134,7 @@ The class hierarchy for exceptions is:
 ..  autoclass:: validx.exc.TupleLengthError
 ..  autoclass:: validx.exc.PatternMatchError
 ..  autoclass:: validx.exc.DatetimeParseError
+..  autoclass:: validx.exc.DatetimeTypeError
 ..  autoclass:: validx.exc.RecursionMaxDepthError
 ..  autoclass:: validx.exc.MappingKeyError
 ..  autoclass:: validx.exc.ForbiddenKeyError

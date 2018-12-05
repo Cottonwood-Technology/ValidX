@@ -3,6 +3,8 @@ from time import time as timestamp
 from datetime import date, time, datetime, timedelta
 
 import pytest
+from dateutil.parser import isoparse
+from pytz import UTC, timezone
 
 from validx import exc
 
@@ -11,6 +13,7 @@ if sys.version_info[0] < 3:
     str = unicode  # noqa
 
 
+EST = timezone("US/Eastern")
 NoneType = type(None)
 
 
@@ -233,18 +236,23 @@ def test_datetime_nullable(module, nullable):
         assert info.value.actual == NoneType
 
 
+@pytest.mark.parametrize("tz", [None, EST])
 @pytest.mark.parametrize("unixts", [None, False, True])
-def test_datetime_unixts(module, unixts):
-    v = module.Datetime(unixts=unixts)
+def test_datetime_unixts(module, unixts, tz):
+    v = module.Datetime(unixts=unixts, tz=tz)
     today = date.today()
-    now = datetime.now()
-    assert v(today) == datetime.combine(today, time())
+    now = datetime.now() if tz is None else datetime.now(UTC).astimezone(tz)
+    assert v(today) == datetime.combine(today, time(tzinfo=tz))
     assert v(now) == now
     assert v.clone() == v
 
     if unixts:
         ts = timestamp()
-        assert v(ts) == datetime.fromtimestamp(ts)
+        assert (
+            v(ts) == datetime.fromtimestamp(ts)
+            if tz is None
+            else datetime.fromtimestamp(ts, UTC).astimezone(tz)
+        )
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(timestamp())
@@ -252,19 +260,28 @@ def test_datetime_unixts(module, unixts):
         assert info.value.actual == float
 
 
+@pytest.mark.parametrize("tz", [None, EST])
 @pytest.mark.parametrize("format", [None, "%Y-%m-%dT%H:%M"])
-def test_datetime_format(module, format):
-    v = module.Datetime(format=format)
+def test_datetime_format(module, format, tz):
+    if tz is not None and format is not None and sys.version_info[0] >= 3:
+        # Option ``%z`` is not supported by ``datetime.strptime`` in Python 2.7
+        format += "%z"
+    v = module.Datetime(format=format, tz=tz)
     today = date.today()
-    now = datetime.now()
-    assert v(today) == datetime.combine(today, time())
+    now = datetime.now() if tz is None else datetime.now(UTC).astimezone(tz)
+    assert v(today) == datetime.combine(today, time(tzinfo=tz))
     assert v(now) == now
     assert v.clone() == v
 
     if format:
-        # Python 2.7 should handle both ``str`` and ``unicode``
-        assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
-        assert v(u"2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
+        if tz is None:
+            # Python 2.7 should handle both ``str`` and ``unicode``
+            assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
+            assert v(u"2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
+        elif sys.version_info[0] >= 3:
+            dt = datetime(2018, 7, 3, 19, 15, tzinfo=UTC).astimezone(tz)
+            assert v("2018-07-03T19:15+0000") == dt
+            assert v(u"2018-07-03T19:15+0000") == dt
 
         with pytest.raises(exc.DatetimeParseError) as info:
             v(u"03.07.2018 19:15")
@@ -277,50 +294,116 @@ def test_datetime_format(module, format):
         assert info.value.actual == str
 
 
+@pytest.mark.parametrize("tz", [None, EST])
+@pytest.mark.parametrize("parser", [None, isoparse])
+def test_datetime_parser(module, parser, tz):
+    v = module.Datetime(parser=parser, tz=tz)
+    today = date.today()
+    now = datetime.now() if tz is None else datetime.now(UTC).astimezone(tz)
+    assert v(today) == datetime.combine(today, time(tzinfo=tz))
+    assert v(now) == now
+    assert v.clone() == v
+
+    if parser:
+        # Python 2.7 should handle both ``str`` and ``unicode``
+        if tz is None:
+            assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
+            assert v(u"2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
+        else:
+            dt = datetime(2018, 7, 3, 19, 15, tzinfo=UTC).astimezone(tz)
+            assert v("2018-07-03T19:15Z") == dt
+            assert v(u"2018-07-03T19:15Z") == dt
+
+        with pytest.raises(exc.DatetimeParseError) as info:
+            v(u"03.07.2018 19:15")
+        assert info.value.expected == parser
+        assert info.value.actual == u"03.07.2018 19:15"
+    else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(u"2018-07-03T19:15")
+        assert info.value.expected == datetime
+        assert info.value.actual == str
+
+
+@pytest.mark.parametrize("tz", [None, EST])
 @pytest.mark.parametrize("min", [None, datetime(2018, 1, 1)])
 @pytest.mark.parametrize("max", [None, datetime(2019, 1, 1)])
-def test_datetime_min_max(module, min, max):
-    v = module.Datetime(min=min, max=max)
-    assert v(datetime(2018, 7, 3)) == datetime(2018, 7, 3)
+def test_datetime_min_max(module, min, max, tz):
+    if tz is not None:
+        if min is not None:
+            min = min.replace(tzinfo=tz)
+        if max is not None:
+            max = max.replace(tzinfo=tz)
+    v = module.Datetime(min=min, max=max, tz=tz)
+    assert v(datetime(2018, 7, 3, tzinfo=tz)) == datetime(2018, 7, 3, tzinfo=tz)
     assert v.clone() == v
 
     if min is None:
-        assert v(datetime(2017, 7, 3)) == datetime(2017, 7, 3)
+        assert v(datetime(2017, 7, 3, tzinfo=tz)) == datetime(2017, 7, 3, tzinfo=tz)
     else:
         with pytest.raises(exc.MinValueError) as info:
-            v(datetime(2017, 7, 3))
+            v(datetime(2017, 7, 3, tzinfo=tz))
         assert info.value.expected == min
-        assert info.value.actual == datetime(2017, 7, 3)
+        assert info.value.actual == datetime(2017, 7, 3, tzinfo=tz)
 
     if max is None:
-        assert v(datetime(2019, 7, 3)) == datetime(2019, 7, 3)
+        assert v(datetime(2019, 7, 3, tzinfo=tz)) == datetime(2019, 7, 3, tzinfo=tz)
     else:
         with pytest.raises(exc.MaxValueError) as info:
-            v(datetime(2019, 7, 3))
+            v(datetime(2019, 7, 3, tzinfo=tz))
         assert info.value.expected == max
-        assert info.value.actual == datetime(2019, 7, 3)
+        assert info.value.actual == datetime(2019, 7, 3, tzinfo=tz)
 
 
+@pytest.mark.parametrize("tz", [None, EST])
 @pytest.mark.parametrize("relmin", [None, timedelta(hours=1)])
 @pytest.mark.parametrize("relmax", [None, timedelta(hours=7)])
-def test_datetime_relmin_relmax(module, relmin, relmax):
-    v = module.Datetime(relmin=relmin, relmax=relmax)
-    today = datetime.combine(date.today(), time())
-    assert v(today + timedelta(hours=3)) == today + timedelta(hours=3)
+def test_datetime_relmin_relmax(module, relmin, relmax, tz):
+    v = module.Datetime(relmin=relmin, relmax=relmax, tz=tz)
+    now = datetime.now() if tz is None else datetime.now(UTC).astimezone(tz)
+    assert v(now + timedelta(hours=3)) == now + timedelta(hours=3)
     assert v.clone() == v
 
     if relmin is None:
-        assert v(today) == today
+        assert v(now) == now
     else:
         with pytest.raises(exc.MinValueError) as info:
-            v(today)
-        assert info.value.expected == today + relmin
-        assert info.value.actual == today
+            v(now)
+        assert info.value.expected >= now + relmin
+        assert info.value.expected <= now + relmin + timedelta(seconds=1)
+        assert info.value.actual == now
 
     if relmax is None:
-        assert v(today + timedelta(hours=9)) == today + timedelta(hours=9)
+        assert v(now + timedelta(hours=9)) == now + timedelta(hours=9)
     else:
         with pytest.raises(exc.MaxValueError) as info:
-            v(today + timedelta(hours=9))
-        assert info.value.expected == today + relmax
-        assert info.value.actual == today + timedelta(hours=9)
+            v(now + timedelta(hours=9))
+        assert info.value.expected >= now + relmax
+        assert info.value.expected <= now + relmax + timedelta(seconds=1)
+        assert info.value.actual == now + timedelta(hours=9)
+
+
+@pytest.mark.parametrize("tz", [None, EST])
+def test_datetime_tz(module, tz):
+    v = module.Datetime(tz=tz)
+
+    if tz is None:
+        now = datetime.now()
+        assert v(now) == now
+        assert v.clone() == v
+
+        now = datetime.now(UTC)
+        with pytest.raises(exc.DatetimeTypeError) as info:
+            v(now)
+        assert info.value.expected == "naive"
+        assert info.value.actual == now
+    else:
+        now = datetime.now(UTC).astimezone(tz)
+        assert v(now) == now
+        assert v.clone() == v
+
+        now = datetime.now()
+        with pytest.raises(exc.DatetimeTypeError) as info:
+            v(now)
+        assert info.value.expected == "tzaware"
+        assert info.value.actual == now

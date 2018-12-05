@@ -125,9 +125,23 @@ format_error = Formatter(
             u"Expected exactly {0.expected} elements, got {0.actual}.",
         ],
         errors.PatternMatchError: u"Cannot match “{0.actual}” using “{0.expected}”.",
-        errors.DatetimeParseError: (
-            u"Cannot parse date/time value from “{0.actual}” using “{0.expected}” format."
-        ),
+        errors.DatetimeParseError: [
+            (
+                lambda error: isinstance(error.expected, string),
+                u"Cannot parse date/time value from “{0.actual}” using “{0.expected}” format.",
+            ),
+            u"Cannot parse date/time value from “{0.actual}”.",
+        ],
+        errors.DatetimeTypeError: [
+            (
+                lambda error: error.expected == "naive",
+                u"Naive date/time object is expected.",
+            ),
+            (
+                lambda error: error.expected == "tzaware",
+                u"Timezone-aware date/time object is expected.",
+            ),
+        ],
         errors.RecursionMaxDepthError: (
             u"Too many nested structures, limit is {0.expected}."
         ),

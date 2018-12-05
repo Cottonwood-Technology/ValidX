@@ -124,5 +124,5 @@ def test_datetime_min_max(module, benchmark):
 @pytest.mark.benchmark(group="Datetime")
 def test_datetime_relmin_relmax(module, benchmark):
     v = module.Datetime(relmin=timedelta(hours=1), relmax=timedelta(hours=7))
-    today = datetime.combine(date.today(), time())
-    assert benchmark(v, today + timedelta(hours=3)) == today + timedelta(hours=3)
+    now = datetime.now()
+    assert benchmark(v, now + timedelta(hours=3)) == now + timedelta(hours=3)

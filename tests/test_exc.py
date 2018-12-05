@@ -1,9 +1,12 @@
 # coding: utf-8
 
 from collections import deque
+from datetime import datetime
 from textwrap import dedent
 
 import pytest
+from dateutil.parser import isoparse
+from pytz import UTC
 
 from validx import exc
 
@@ -169,6 +172,15 @@ def test_format_error():
     ) == [
         ("", u"Cannot parse date/time value from “08/18/2018” using “%Y-%m-%d” format.")
     ]
+    assert exc.format_error(
+        exc.DatetimeParseError(expected=isoparse, actual="08/18/2018")
+    ) == [("", u"Cannot parse date/time value from “08/18/2018”.")]
+    assert exc.format_error(
+        exc.DatetimeTypeError(expected="naive", actual=datetime.now(UTC))
+    ) == [("", u"Naive date/time object is expected.")]
+    assert exc.format_error(
+        exc.DatetimeTypeError(expected="tzaware", actual=datetime.now())
+    ) == [("", u"Timezone-aware date/time object is expected.")]
     assert exc.format_error(exc.RecursionMaxDepthError(expected=2, actual=3)) == [
         ("", u"Too many nested structures, limit is 2.")
     ]
@@ -185,4 +197,12 @@ def test_format_error():
     ]
     assert exc.format_error(exc.FloatValueError(expected="something", actual=0.0)) == [
         ("", "FloatValueError(expected='something', actual=0.0)")
+    ]
+    assert exc.format_error(
+        exc.DatetimeTypeError(expected="something", actual=datetime(2018, 12, 5))
+    ) == [
+        (
+            "",
+            "DatetimeTypeError(expected='something', actual=datetime.datetime(2018, 12, 5, 0, 0))",
+        )
     ]

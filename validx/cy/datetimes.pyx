@@ -1,6 +1,7 @@
 from datetime import date, time, datetime
 
 from .. import exc
+from .. import util
 from . cimport abstract
 
 
@@ -172,7 +173,12 @@ cdef class Datetime(abstract.Validator):
     :param str format:
         try to parse ``datetime`` from ``str`` (Python 3.x)
         or ``basestring`` (Python 2.x),
-        using specified format.
+        using ``datetime.strptime(value, self.format)``.
+
+    :param callable parser:
+        try to parse ``datetime`` from ``str`` (Python 3.x)
+        or ``basestring`` (Python 2.x),
+        using ``self.parser(value)``.
 
     :param datetime min:
         absolute lower limit.
@@ -186,6 +192,9 @@ cdef class Datetime(abstract.Validator):
     :param timedelta relmax:
         relative upper limit.
 
+    :param tzinfo tz:
+        timezone.
+
 
     :raises InvalidTypeError:
         * if ``value is None`` and ``not self.nullable``;
@@ -193,15 +202,22 @@ cdef class Datetime(abstract.Validator):
         * if ``not isinstance(value, datetime)``.
 
     :raises DatetimeParseError:
-        when ``datetime.strptime(value, self.format)`` raises ``ValueError``.
+        * if ``datetime.strptime(value, self.format)`` raises ``ValueError``;
+        * if ``self.parser(value)`` raises ``ValueError``.
+
+    :raises DatetimeTypeError:
+        * if ``self.tz is None and value.tzinfo is not None``;
+        * if ``self.tz is not None and value.tzinfo is None``;
 
     :raises MinValueError:
         * if ``value < self.min``;
-        * if ``value < datetime.combine(date.today(), time()) + self.relmin``.
+        * if ``self.tz is None and value < datetime.now() + self.relmin``.
+        * if ``self.tz is not None and value < datetime.now(UTC).astimezone(self.tz) + self.relmin``.
 
     :raises MaxValueError:
         * if ``value > self.max``;
-        * if ``value > datetime.combine(date.today(), time()) + self.relmax``.
+        * if ``self.tz is None and value > datetime.now() + self.relmax``.
+        * if ``self.tz is not None and value > datetime.now(UTC).astimezone(self.tz) + self.relmax``.
 
 
     :note:
@@ -210,40 +226,94 @@ cdef class Datetime(abstract.Validator):
 
     """
 
-    __slots__ = ("nullable", "unixts", "format", "min", "max", "relmin", "relmax")
+    __slots__ = (
+        "nullable",
+        "unixts",
+        "format",
+        "parser",
+        "min",
+        "max",
+        "relmin",
+        "relmax",
+        "tz",
+    )
 
     cdef public bint nullable
     cdef public bint unixts
     cdef public format
+    cdef public parser
     cdef public min
     cdef public max
     cdef public relmin
     cdef public relmax
+    cdef public tz
+
+    def __init__(self, **kw):
+        super(Datetime, self).__init__(**kw)
+        if self.tz is not None:
+            if self.min is not None:
+                assert (
+                    self.min.tzinfo is not None
+                ), "Datetime.min should be timezone-aware datetime object"
+                self.min = self.min.astimezone(self.tz)
+            if self.max is not None:
+                assert (
+                    self.max.tzinfo is not None
+                ), "Datetime.max should be timezone-aware datetime object"
+                self.max = self.max.astimezone(self.tz)
+        else:
+            assert (
+                self.min is None or self.min.tzinfo is None
+            ), "Datetime.min should be naive datetime object"
+            assert (
+                self.max is None or self.max.tzinfo is None
+            ), "Datetime.max should be naive datetime object"
 
     def __call__(self, value):
         if value is None and self.nullable:
             return value
+
         if not isinstance(value, datetime):
             if isinstance(value, date):
                 # Implicitly convert ``date`` to ``datetime``
-                value = datetime.combine(value, time())
+                value = datetime.combine(value, time(tzinfo=self.tz))
             elif isinstance(value, (int, float)) and self.unixts:
-                value = datetime.fromtimestamp(value)
+                # Value will be arranged to ``self.tz`` below.
+                tz = None if self.tz is None else util.UTC
+                value = datetime.fromtimestamp(value, tz)
             elif isinstance(value, string) and self.format is not None:
                 try:
                     value = datetime.strptime(value, self.format)
                 except ValueError:
                     raise exc.DatetimeParseError(expected=self.format, actual=value)
+            elif isinstance(value, string) and self.parser is not None:
+                try:
+                    value = self.parser(value)
+                except ValueError:
+                    raise exc.DatetimeParseError(expected=self.parser, actual=value)
             else:
                 raise exc.InvalidTypeError(expected=datetime, actual=type(value))
+
+        if self.tz is not None:
+            if value.tzinfo is None:
+                raise exc.DatetimeTypeError(expected="tzaware", actual=value)
+            value = value.astimezone(self.tz)
+        else:
+            if value.tzinfo is not None:
+                raise exc.DatetimeTypeError(expected="naive", actual=value)
+
         if self.min is not None and value < self.min:
             raise exc.MinValueError(expected=self.min, actual=value)
         if self.max is not None and value > self.max:
             raise exc.MaxValueError(expected=self.max, actual=value)
         if self.relmin is not None or self.relmax is not None:
-            today = datetime.combine(date.today(), time())
-            if self.relmin is not None and value < today + self.relmin:
-                raise exc.MinValueError(expected=today + self.relmin, actual=value)
-            if self.relmax is not None and value > today + self.relmax:
-                raise exc.MaxValueError(expected=today + self.relmax, actual=value)
+            if self.tz is not None:
+                now = datetime.now(util.UTC).astimezone(self.tz)
+            else:
+                now = datetime.now()
+            if self.relmin is not None and value < now + self.relmin:
+                raise exc.MinValueError(expected=now + self.relmin, actual=value)
+            if self.relmax is not None and value > now + self.relmax:
+                raise exc.MaxValueError(expected=now + self.relmax, actual=value)
+
         return value

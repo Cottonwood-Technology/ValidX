@@ -341,6 +341,21 @@ class DatetimeParseError(ConditionError):
     __slots__ = ConditionError.__slots__
 
 
+class DatetimeTypeError(ConditionError):
+    """
+    Date & Time Type Error
+
+    :param str expected:
+        expected type of datetime: "naive" or "tzaware".
+
+    :param datetime actual:
+        actual value.
+
+    """
+
+    __slots__ = ConditionError.__slots__
+
+
 class RecursionMaxDepthError(ConditionError):
     """
     Recursion Maximum Depth Error

@@ -57,6 +57,9 @@ class PatternMatchError(ConditionError):
 class DatetimeParseError(ConditionError):
     __slots__: t.Tuple[str, ...]
 
+class DatetimeTypeError(ConditionError):
+    __slots__: t.Tuple[str, ...]
+
 class RecursionMaxDepthError(ConditionError):
     __slots__: t.Tuple[str, ...]
 
