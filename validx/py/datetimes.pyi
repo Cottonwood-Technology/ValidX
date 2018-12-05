@@ -12,6 +12,7 @@ class Date(abstract.Validator):
     max: t.Optional[date]
     relmin: t.Optional[timedelta]
     relmax: t.Optional[timedelta]
+    tz: t.Optional[tzinfo]
     def __init__(
         self,
         *,
@@ -23,6 +24,7 @@ class Date(abstract.Validator):
         max: date = None,
         relmin: timedelta = None,
         relmax: timedelta = None,
+        tz: tzinfo = None,
         alias: str = None,
         replace: bool = False,
     ) -> None: ...

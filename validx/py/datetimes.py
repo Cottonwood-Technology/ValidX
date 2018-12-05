@@ -23,12 +23,12 @@ class Date(abstract.Validator):
         convert Unix timestamp (``int`` or ``float``) to ``date``.
 
     :param str format:
-        try to parse ``datetime`` from ``str`` (Python 3.x)
+        try to parse ``date`` from ``str`` (Python 3.x)
         or ``basestring`` (Python 2.x),
         using ``datetime.strptime(value, self.format).date()``.
 
     :param callable parser:
-        try to parse ``datetime`` from ``str`` (Python 3.x)
+        try to parse ``date`` from ``str`` (Python 3.x)
         or ``basestring`` (Python 2.x),
         using ``self.parser(value).date()``.
 
@@ -43,6 +43,9 @@ class Date(abstract.Validator):
 
     :param timedelta relmax:
         relative upper limit.
+
+    :param tzinfo tz:
+        timezone, see notes below.
 
 
     :raises InvalidTypeError:
@@ -67,6 +70,20 @@ class Date(abstract.Validator):
         Relative limits are calculated adding deltas to current date,
         use negative ``relmin/relmax`` to specify date in the past.
 
+    :note:
+        It implicitly converts ``datetime`` to ``date``.
+        If timezone is specified and ``datetime`` object is timezone-aware,
+        it will be arranged to specified timezone first.
+
+    :note:
+        If timezone is specified,
+        it will be used in conversion from Unix timestamp.
+        In fact,
+        it will create ``datetime`` object in UTC,
+        using ``datetime.fromtimestamp(value, UTC)``.
+        And then arrange it to specified timezone,
+        and extract date part.
+
     """
 
     __slots__ = (
@@ -78,29 +95,38 @@ class Date(abstract.Validator):
         "max",
         "relmin",
         "relmax",
+        "tz",
     )
 
     def __call__(self, value):
         if value is None and self.nullable:
             return value
-        if isinstance(value, datetime):
-            # Implicitly convert ``datetime`` to ``date``
-            value = value.date()
-        if not isinstance(value, date):
+
+        if not isinstance(value, (date, datetime)):
             if isinstance(value, (int, float)) and self.unixts:
-                value = date.fromtimestamp(value)
+                # Value will be arranged to ``self.tz`` below.
+                tz = None if self.tz is None else util.UTC
+                value = datetime.fromtimestamp(value, tz)
             elif isinstance(value, string) and self.format is not None:
                 try:
-                    value = datetime.strptime(value, self.format).date()
+                    value = datetime.strptime(value, self.format)
                 except ValueError:
                     raise exc.DatetimeParseError(expected=self.format, actual=value)
             elif isinstance(value, string) and self.parser is not None:
                 try:
-                    value = self.parser(value).date()
+                    value = self.parser(value)
                 except ValueError:
                     raise exc.DatetimeParseError(expected=self.parser, actual=value)
             else:
                 raise exc.InvalidTypeError(expected=date, actual=type(value))
+
+        if isinstance(value, datetime):
+            # Implicitly convert ``datetime`` to ``date``,
+            # but localize it first, if timezone info provided
+            if value.tzinfo is not None and self.tz is not None:
+                value = value.astimezone(self.tz)
+            value = value.date()
+
         if self.min is not None and value < self.min:
             raise exc.MinValueError(expected=self.min, actual=value)
         if self.max is not None and value > self.max:
@@ -111,6 +137,7 @@ class Date(abstract.Validator):
                 raise exc.MinValueError(expected=today + self.relmin, actual=value)
             if self.relmax is not None and value > today + self.relmax:
                 raise exc.MaxValueError(expected=today + self.relmax, actual=value)
+
         return value
 
 
@@ -123,12 +150,12 @@ class Time(abstract.Validator):
         accept ``None`` as a valid value.
 
     :param str format:
-        try to parse ``datetime`` from ``str`` (Python 3.x)
+        try to parse ``time`` from ``str`` (Python 3.x)
         or ``basestring`` (Python 2.x),
         using ``datetime.strptime(value, self.format).time()``.
 
     :param callable parser:
-        try to parse ``datetime`` from ``str`` (Python 3.x)
+        try to parse ``time`` from ``str`` (Python 3.x)
         or ``basestring`` (Python 2.x),
         using ``self.parser(value).time()``.
 

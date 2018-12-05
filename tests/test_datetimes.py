@@ -161,6 +161,26 @@ def test_date_relmin_relmax(module, relmin, relmax):
         assert info.value.actual == today + timedelta(days=9)
 
 
+@pytest.mark.parametrize("tz", [None, EST])
+def test_date_tz(module, tz):
+    v = module.Date(unixts=True, parser=isoparse, tz=tz)
+    today = date.today()
+    now = datetime.now()
+    assert v(today) == today
+    assert v(now) == today
+    assert v.clone() == v
+
+    if tz is not None:
+        assert v(datetime(2018, 12, 5, tzinfo=UTC)) == date(2018, 12, 4)
+        assert v("2018-12-05T00:00:00Z") == date(2018, 12, 4)
+        assert v(1543968000) == date(2018, 12, 4)
+    else:
+        assert v(datetime(2018, 12, 5, tzinfo=UTC)) == date(2018, 12, 5)
+        assert v("2018-12-05T00:00:00Z") == date(2018, 12, 5)
+        # Actual value below depends on system locale
+        assert v(1543968000) == date.fromtimestamp(1543968000)
+
+
 # =============================================================================
 
 
