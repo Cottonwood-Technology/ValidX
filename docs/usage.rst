@@ -28,7 +28,7 @@ And you will get the pure Python version of the library.
 
 You can check which version has been installed using the following code:
 
-..  doctest::
+..  code-block:: pycon
 
     >>> import validx
     >>> validx.__impl__
