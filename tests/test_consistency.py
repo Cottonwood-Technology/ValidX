@@ -6,7 +6,7 @@ import pytest
 import validx
 
 
-DEV_MODE = os.environ.get("VALIDATEIT_DEV", False)
+DEV_MODE = os.environ.get("VALIDX_DEV", False)
 
 
 @pytest.mark.skipif(not DEV_MODE, reason="Development mode test")
