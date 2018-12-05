@@ -1,3 +1,4 @@
+import inspect
 from copy import deepcopy
 from . cimport classes, instances
 
@@ -79,6 +80,8 @@ cdef class Validator:
             if isinstance(value, (list, tuple)):
                 type_ = type(value)
                 return type_(_dump(i) for i in value)
+            if inspect.ismethod(value) or inspect.isfunction(value):
+                return value
             return deepcopy(value)
 
         result = {"__class__": self.__class__.__name__}
