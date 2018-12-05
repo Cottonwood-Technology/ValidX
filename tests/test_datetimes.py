@@ -3,7 +3,7 @@ from time import time as timestamp
 from datetime import date, time, datetime, timedelta
 
 import pytest
-from dateutil.parser import isoparse
+from dateutil.parser import isoparse, parse as dtparse
 from pytz import UTC, timezone
 
 from validx import exc
@@ -79,6 +79,31 @@ def test_date_format(module, format):
         with pytest.raises(exc.DatetimeParseError) as info:
             v(u"03.07.2018")
         assert info.value.expected == format
+        assert info.value.actual == u"03.07.2018"
+    else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(u"2018-07-03")
+        assert info.value.expected == date
+        assert info.value.actual == str
+
+
+@pytest.mark.parametrize("parser", [None, isoparse])
+def test_date_parser(module, parser):
+    v = module.Date(parser=parser)
+    today = date.today()
+    now = datetime.now()
+    assert v(today) == today
+    assert v(now) == today
+    assert v.clone() == v
+
+    if parser:
+        # Python 2.7 should handle both ``str`` and ``unicode``
+        assert v("2018-07-03") == date(2018, 7, 3)
+        assert v(u"2018-07-03") == date(2018, 7, 3)
+
+        with pytest.raises(exc.DatetimeParseError) as info:
+            v(u"03.07.2018")
+        assert info.value.expected == parser
         assert info.value.actual == u"03.07.2018"
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
@@ -175,6 +200,28 @@ def test_time_format(module, format):
             v(u"13:35:00")
         assert info.value.expected == format
         assert info.value.actual == u"13:35:00"
+    else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(u"13:35")
+        assert info.value.expected == time
+        assert info.value.actual == str
+
+
+@pytest.mark.parametrize("parser", [None, dtparse])
+def test_time_parse(module, parser):
+    v = module.Time(parser=parser)
+    assert v(time(13, 35)) == time(13, 35)
+    assert v.clone() == v
+
+    if parser:
+        # Python 2.7 should handle both ``str`` and ``unicode``
+        assert v("13:35") == time(13, 35)
+        assert v(u"13:35") == time(13, 35)
+
+        with pytest.raises(exc.DatetimeParseError) as info:
+            v(u"13.35.00")
+        assert info.value.expected == parser
+        assert info.value.actual == u"13.35.00"
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(u"13:35")

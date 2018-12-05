@@ -7,6 +7,7 @@ class Date(abstract.Validator):
     nullable: t.Optional[bool]
     unixts: t.Optional[bool]
     format: t.Optional[str]
+    parser: t.Optional[t.Callable[[str], datetime]]
     min: t.Optional[date]
     max: t.Optional[date]
     relmin: t.Optional[timedelta]
@@ -17,6 +18,7 @@ class Date(abstract.Validator):
         nullable: bool = None,
         unixts: bool = None,
         format: str = None,
+        parser: t.Callable[[str], datetime] = None,
         min: date = None,
         max: date = None,
         relmin: timedelta = None,
@@ -30,6 +32,7 @@ class Time(abstract.Validator):
     __slots__: t.Tuple[str, ...]
     nullable: t.Optional[bool]
     format: t.Optional[str]
+    parser: t.Optional[t.Callable[[str], datetime]]
     min: t.Optional[time]
     max: t.Optional[time]
     def __init__(
@@ -37,6 +40,7 @@ class Time(abstract.Validator):
         *,
         nullable: bool = None,
         format: str = None,
+        parser: t.Callable[[str], datetime] = None,
         min: time = None,
         max: time = None,
         alias: str = None,

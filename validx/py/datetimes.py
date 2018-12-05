@@ -23,9 +23,14 @@ class Date(abstract.Validator):
         convert Unix timestamp (``int`` or ``float``) to ``date``.
 
     :param str format:
-        try to parse ``date`` from ``str`` (Python 3.x)
+        try to parse ``datetime`` from ``str`` (Python 3.x)
         or ``basestring`` (Python 2.x),
-        using specified format.
+        using ``datetime.strptime(value, self.format).date()``.
+
+    :param callable parser:
+        try to parse ``datetime`` from ``str`` (Python 3.x)
+        or ``basestring`` (Python 2.x),
+        using ``self.parser(value).date()``.
 
     :param date min:
         absolute lower limit.
@@ -46,7 +51,8 @@ class Date(abstract.Validator):
         * if ``not isinstance(value, date)``.
 
     :raises DatetimeParseError:
-        when ``datetime.strptime(value, self.format)`` raises ``ValueError``.
+        * if ``datetime.strptime(value, self.format)`` raises ``ValueError``;
+        * if ``self.parser(value)`` raises ``ValueError``.
 
     :raises MinValueError:
         * if ``value < self.min``;
@@ -63,7 +69,16 @@ class Date(abstract.Validator):
 
     """
 
-    __slots__ = ("nullable", "unixts", "format", "min", "max", "relmin", "relmax")
+    __slots__ = (
+        "nullable",
+        "unixts",
+        "format",
+        "parser",
+        "min",
+        "max",
+        "relmin",
+        "relmax",
+    )
 
     def __call__(self, value):
         if value is None and self.nullable:
@@ -79,6 +94,11 @@ class Date(abstract.Validator):
                     value = datetime.strptime(value, self.format).date()
                 except ValueError:
                     raise exc.DatetimeParseError(expected=self.format, actual=value)
+            elif isinstance(value, string) and self.parser is not None:
+                try:
+                    value = self.parser(value).date()
+                except ValueError:
+                    raise exc.DatetimeParseError(expected=self.parser, actual=value)
             else:
                 raise exc.InvalidTypeError(expected=date, actual=type(value))
         if self.min is not None and value < self.min:
@@ -103,9 +123,14 @@ class Time(abstract.Validator):
         accept ``None`` as a valid value.
 
     :param str format:
-        try to parse ``time`` from ``str`` (Python 3.x)
+        try to parse ``datetime`` from ``str`` (Python 3.x)
         or ``basestring`` (Python 2.x),
-        using specified format.
+        using ``datetime.strptime(value, self.format).time()``.
+
+    :param callable parser:
+        try to parse ``datetime`` from ``str`` (Python 3.x)
+        or ``basestring`` (Python 2.x),
+        using ``self.parser(value).time()``.
 
     :param time min:
         lower limit.
@@ -119,7 +144,8 @@ class Time(abstract.Validator):
         * if ``not isinstance(value, time)``.
 
     :raises DatetimeParseError:
-        when ``datetime.strptime(value, self.format)`` raises ``ValueError``.
+        * if ``datetime.strptime(value, self.format)`` raises ``ValueError``;
+        * if ``self.parser(value)`` raises ``ValueError``.
 
     :raises MinValueError:
         if ``value < self.min``.
@@ -129,7 +155,7 @@ class Time(abstract.Validator):
 
     """
 
-    __slots__ = ("nullable", "format", "min", "max")
+    __slots__ = ("nullable", "format", "parser", "min", "max")
 
     def __call__(self, value):
         if value is None and self.nullable:
@@ -140,6 +166,11 @@ class Time(abstract.Validator):
                     value = datetime.strptime(value, self.format).time()
                 except ValueError:
                     raise exc.DatetimeParseError(expected=self.format, actual=value)
+            elif isinstance(value, string) and self.parser is not None:
+                try:
+                    value = self.parser(value).time()
+                except ValueError:
+                    raise exc.DatetimeParseError(expected=self.parser, actual=value)
             else:
                 raise exc.InvalidTypeError(expected=time, actual=type(value))
         if self.min is not None and value < self.min:
