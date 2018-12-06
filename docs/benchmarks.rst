@@ -5,13 +5,14 @@ Benchmarks
 
 ValidX is the fastest validation library among the following competitors:
 
-*   `Cerberus <http://docs.python-cerberus.org/en/stable/>`_ ~400x slower
-*   `Colander <https://docs.pylonsproject.org/projects/colander/en/latest/>`_ ~10x slower
-*   `JSONSchema <https://python-jsonschema.readthedocs.io/en/latest/>`_ ~23.5x slower
-*   `Schema <https://github.com/keleshev/schema>`_ ~72x slower
-*   `Valideer <https://github.com/podio/valideer>`_ ~7.5x slower
-*   `Voluptuous <http://alecthomas.github.io/voluptuous/docs/_build/html/index.html>`_ ~10x slower
-*   `Validr <https://github.com/guyskk/validr>`_ ~2.5x slower
+*   `Cerberus 1.2 <http://docs.python-cerberus.org/en/stable/>`_ ~400x slower
+*   `Colander 1.5.1 <https://docs.pylonsproject.org/projects/colander/en/latest/>`_ ~10x slower
+*   `JSONSchema 2.6.0 <https://python-jsonschema.readthedocs.io/en/latest/>`_ ~25x slower
+*   `Schema 0.6.8 <https://github.com/keleshev/schema>`_ ~72x slower
+*   `Valideer 0.4.2 <https://github.com/podio/valideer>`_ ~7.5x slower
+*   `Voluptuous 0.11.5 <http://alecthomas.github.io/voluptuous/docs/_build/html/index.html>`_ ~10x slower
+*   `Validr 1.0.6 <https://github.com/guyskk/validr>`_ ~2.5x slower
+*   `Marshmallow 2.16.3 <https://marshmallow.readthedocs.io/en/stable/>`_ ~10x slower
 
 Use the following command to run benchmarks::
 
@@ -21,23 +22,24 @@ I got the following results on my laptop:
 
 *   CPU Intel i5-5200U 2.20GHz
 *   RAM 8GB
-*   OS Xubuntu 16.04, Linux core 4.15.0-38-generic
+*   OS Xubuntu 18.04, Linux core 4.15.0-42-generic
 *   Python 3.7.1
 
 ::
 
-    ----------------------------------------------------- benchmark: 9 tests ------------------------------------------------------
+    ----------------------------------------------------- benchmark: 10 tests -----------------------------------------------------
     Name (time in us)          Min                    Max                Mean              StdDev            OPS (Kops/s)
     -------------------------------------------------------------------------------------------------------------------------------
-    test_validx_cy          1.9470 (1.0)         131.1000 (2.51)       2.0616 (1.0)        0.6042 (1.0)          485.0534 (1.0)
-    test_validr             4.8800 (2.51)        147.6810 (2.83)       5.0991 (2.47)       1.1789 (1.95)         196.1140 (0.40)
-    test_validx_py         10.6050 (5.45)        125.1650 (2.40)      10.8890 (5.28)       1.4404 (2.38)          91.8356 (0.19)
-    test_valideer          14.9070 (7.66)        166.7180 (3.20)      15.4275 (7.48)       1.8975 (3.14)          64.8193 (0.13)
-    test_colander          19.9610 (10.25)        52.1790 (1.0)       20.7103 (10.05)      1.4433 (2.39)          48.2850 (0.10)
-    test_voluptuous        20.1820 (10.37)       153.9890 (2.95)      20.8221 (10.10)      2.2893 (3.79)          48.0259 (0.10)
-    test_jsonschema        47.2640 (24.28)       130.1100 (2.49)      48.7306 (23.64)      3.1049 (5.14)          20.5210 (0.04)
-    test_schema           141.4300 (72.64)       351.3240 (6.73)     148.9070 (72.23)     21.5525 (35.67)          6.7156 (0.01)
-    test_cerberus         766.0910 (393.47)   11,275.0520 (216.08)   834.1975 (404.63)   583.8028 (966.21)         1.1988 (0.00)
+    test_validx_cy          1.8870 (1.0)          20.6430 (1.0)        1.9858 (1.0)        0.3867 (1.0)          503.5804 (1.0)
+    test_validr             4.7860 (2.54)         34.9850 (1.69)       5.2407 (2.64)       1.0678 (2.76)         190.8137 (0.38)
+    test_validx_py         10.4140 (5.52)         41.3780 (2.00)      10.7922 (5.43)       1.1939 (3.09)          92.6595 (0.18)
+    test_valideer          14.7040 (7.79)         48.3870 (2.34)      15.2404 (7.67)       1.3992 (3.62)          65.6152 (0.13)
+    test_marshmallow       18.8690 (10.00)        52.8380 (2.56)      19.8564 (10.00)      1.8984 (4.91)          50.3616 (0.10)
+    test_voluptuous        19.6240 (10.40)        75.6600 (3.67)      20.3108 (10.23)      1.6403 (4.24)          49.2348 (0.10)
+    test_colander          19.7640 (10.47)        65.6900 (3.18)      20.6069 (10.38)      2.3832 (6.16)          48.5274 (0.10)
+    test_jsonschema        48.5700 (25.74)       135.6330 (6.57)      50.7647 (25.56)      6.5271 (16.88)         19.6987 (0.04)
+    test_schema           140.4190 (74.41)       327.6610 (15.87)    143.9490 (72.49)      7.1405 (18.47)          6.9469 (0.01)
+    test_cerberus         763.2160 (404.46)   11,055.2380 (535.54)   834.3364 (420.16)   581.7410 (>1000.0)        1.1986 (0.00)
     -------------------------------------------------------------------------------------------------------------------------------
 
 

@@ -1,15 +1,16 @@
 """
 Competitors
 
-1. ValidX (Python version)
-2. ValidX (Cython version)
-3. Cerberus: http://docs.python-cerberus.org/en/stable/
-4. Colander: https://docs.pylonsproject.org/projects/colander/en/latest/
-5. JSONSchema: https://python-jsonschema.readthedocs.io/en/latest/
-6. Schema: https://github.com/keleshev/schema
-7. Valideer: https://github.com/podio/valideer
-8. Voluptuous: http://alecthomas.github.io/voluptuous/docs/_build/html/index.html
-9. Validr: https://github.com/guyskk/validr
+1.  ValidX (Python version)
+2.  ValidX (Cython version)
+3.  Cerberus: http://docs.python-cerberus.org/en/stable/
+4.  Colander: https://docs.pylonsproject.org/projects/colander/en/latest/
+5.  JSONSchema: https://python-jsonschema.readthedocs.io/en/latest/
+6.  Schema: https://github.com/keleshev/schema
+7.  Valideer: https://github.com/podio/valideer
+8.  Voluptuous: http://alecthomas.github.io/voluptuous/docs/_build/html/index.html
+9.  Validr: https://github.com/guyskk/validr
+10. Marshmallow: https://marshmallow.readthedocs.io/en/stable/
 
 """
 
@@ -208,3 +209,27 @@ def test_validr(benchmark):
         )
     )
     assert benchmark(schema, data) == data
+
+
+def test_marshmallow(benchmark):
+    import marshmallow as m
+
+    class Point(m.Schema):
+        lat = m.fields.Float(validate=m.validate.Range(-90, 90))
+        lng = m.fields.Float(validate=m.validate.Range(-180, 180))
+
+    class Names(m.Schema):
+        name = m.fields.Str()
+
+    class Population(m.Schema):
+        city = m.fields.Int(validate=m.validate.Range(min=0))
+        metro = m.fields.Int(validate=m.validate.Range(min=0))
+
+    class City(m.Schema):
+        location = Point()
+        name = m.fields.Str()
+        alt_names = m.fields.List(m.fields.Str())
+        population = Population()
+
+    schema = City()
+    assert benchmark(schema.validate, data) == {}
