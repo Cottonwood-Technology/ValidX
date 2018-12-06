@@ -29,6 +29,7 @@ ValidX is :ref:`fast <benchmarks>`, powerful, and flexible validator with sane s
     usage
     reference
     benchmarks
+    changes
 
 
 Contribution

@@ -19,11 +19,14 @@ if platform.python_implementation() == "CPython":
 with open("README.rst") as f:
     readme = f.read()
 
+with open("CHANGES.rst") as f:
+    changes = f.read()
+
 setup(
     name="ValidX",
-    version="0.1",
+    version="0.2",
     description="fast, powerful, and flexible validator with sane syntax",
-    long_description=readme,
+    long_description=readme + "\n\n" + changes,
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",

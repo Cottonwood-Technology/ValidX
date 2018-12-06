@@ -75,6 +75,6 @@ __all__ = [
 ]
 
 __impl__ = __impl__
-__version__ = "0.1"
+__version__ = "0.2"
 __author__ = "Cottonwood Technology <info@cottonwood.tech>"
 __license__ = "BSD"
