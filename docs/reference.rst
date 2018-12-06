@@ -61,6 +61,7 @@ Special
 -------
 
 ..  autoclass:: validx.py.LazyRef
+..  autoclass:: validx.py.Type
 ..  autoclass:: validx.py.Const
 ..  autoclass:: validx.py.Any
 

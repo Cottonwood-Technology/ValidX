@@ -5,7 +5,7 @@ from .datetimes import Date, Time, Datetime
 from .bools import Bool
 from .containers import List, Tuple, Dict
 from .pipelines import AllOf, OneOf
-from .special import LazyRef, Const, Any
+from .special import LazyRef, Type, Const, Any
 from . import classes, instances
 
 
@@ -27,6 +27,7 @@ __all__ = [
     "AllOf",
     "OneOf",
     "LazyRef",
+    "Type",
     "Const",
     "Any",
     "classes",
@@ -48,5 +49,6 @@ classes.add(Dict)
 classes.add(AllOf)
 classes.add(OneOf)
 classes.add(LazyRef)
+classes.add(Type)
 classes.add(Const)
 classes.add(Any)

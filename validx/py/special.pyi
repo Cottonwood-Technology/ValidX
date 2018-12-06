@@ -11,8 +11,34 @@ class LazyRef(abstract.Validator):
         *,
         maxdepth: int = None,
         alias: str = None,
-        replace: bool = False
+        replace: bool = False,
     ) -> None: ...
+
+class Type(abstract.Validator):
+    __slots__: t.Tuple[str, ...]
+    tp: t.Type[t.Any]
+    nullable: t.Optional[bool]
+    coerce: t.Optional[bool]
+    min: t.Optional[t.Any]
+    max: t.Optional[t.Any]
+    minlen: t.Optional[int]
+    maxlen: t.Optional[int]
+    options: t.Optional[t.Container[t.Any]]
+    def __init__(
+        self,
+        tp: t.Type[t.Any],
+        *,
+        nullable: bool = None,
+        coerce: bool = None,
+        min: t.Any = None,
+        max: t.Any = None,
+        minlen: int = None,
+        maxlen: int = None,
+        options: t.Container[t.Any] = None,
+        alias: str = None,
+        replace: bool = False,
+    ) -> None: ...
+    def __call__(self, value: t.Any) -> t.Optional[t.Any]: ...
 
 class Const(abstract.Validator):
     __slots__: t.Tuple[str, ...]

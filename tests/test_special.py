@@ -39,6 +39,129 @@ def test_lazyref(module):
 # =============================================================================
 
 
+def test_type(module):
+    v = module.Type(int)
+    assert v(5) == 5
+
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v(5.0)
+    assert info.value.expected == int
+    assert info.value.actual == float
+
+
+@pytest.mark.parametrize("nullable", [None, False, True])
+def test_type_nullable(module, nullable):
+    v = module.Type(int, nullable=nullable)
+    assert v(5) == 5
+    assert v.clone() == v
+
+    if nullable:
+        assert v(None) is None
+    else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(None)
+        assert info.value.expected == int
+        assert info.value.actual == NoneType
+
+
+@pytest.mark.parametrize("coerce", [None, False, True])
+def test_type_coerce(module, coerce):
+    v = module.Type(int, coerce=coerce)
+    assert v(5) == 5
+    assert v.clone() == v
+
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v("abc")
+    assert info.value.expected == int
+    assert info.value.actual == str
+
+    if coerce:
+        assert v(5.5) == 5
+        assert v("5") == 5
+    else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(5.5)
+        assert info.value.expected == int
+        assert info.value.actual == float
+
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v("5")
+        assert info.value.expected == int
+        assert info.value.actual == str
+
+
+@pytest.mark.parametrize("min", [None, 0])
+@pytest.mark.parametrize("max", [None, 10])
+def test_type_min_max(module, min, max):
+    v = module.Type(int, min=min, max=max)
+    assert v(5) == 5
+    assert v.clone() == v
+
+    if min is None:
+        assert v(-1) == -1
+    else:
+        with pytest.raises(exc.MinValueError) as info:
+            v(-1)
+        assert info.value.expected == min
+        assert info.value.actual == -1
+
+    if max is None:
+        assert v(11) == 11
+    else:
+        with pytest.raises(exc.MaxValueError) as info:
+            v(11)
+        assert info.value.expected == max
+        assert info.value.actual == 11
+
+
+@pytest.mark.parametrize("minlen", [None, 2])
+@pytest.mark.parametrize("maxlen", [None, 5])
+def test_type_minlen_maxlen(module, minlen, maxlen):
+    if minlen or maxlen:
+        with pytest.raises(AssertionError) as info:
+            module.Type(int, minlen=minlen, maxlen=maxlen)
+        assert info.value.args[0] == "Type %r does not provide method '__len__()'" % int
+
+    v = module.Type(bytes, minlen=minlen, maxlen=maxlen)
+    assert v(b"abc") == b"abc"
+    assert v.clone() == v
+
+    if minlen is None:
+        assert v(b"a") == b"a"
+    else:
+        with pytest.raises(exc.MinLengthError) as info:
+            v(b"a")
+        assert info.value.expected == minlen
+        assert info.value.actual == 1
+
+    if maxlen is None:
+        assert v(b"abcdef") == b"abcdef"
+    else:
+        with pytest.raises(exc.MaxLengthError) as info:
+            v(b"abcdef")
+        assert info.value.expected == maxlen
+        assert info.value.actual == 6
+
+
+@pytest.mark.parametrize("options", [None, [5, 6]])
+def test_type_options(module, options):
+    v = module.Type(int, options=options)
+    assert v(5) == 5
+    assert v(6) == 6
+    assert v.clone() == v
+
+    if options is None:
+        assert v(4) == 4
+    else:
+        with pytest.raises(exc.OptionsError) as info:
+            v(4)
+        assert info.value.expected == options
+        assert info.value.actual == 4
+
+
+# =============================================================================
+
+
 def test_const(module):
     v = module.Const(1)
     assert v(1) == 1

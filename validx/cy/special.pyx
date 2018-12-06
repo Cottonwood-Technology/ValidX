@@ -1,3 +1,5 @@
+from libc cimport limits
+
 try:
     import threading
 except ImportError:
@@ -96,6 +98,128 @@ cdef class LazyRef(abstract.Validator):
             return instance(value)
         finally:
             state["depth"] -= 1
+
+
+cdef class Type(abstract.Validator):
+    """
+    Custom Type Validator
+
+    :param type tp:
+        valid value type.
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param bool coerce:
+        try to convert value to ``tp``.
+
+    :param tp min:
+        lower limit, makes sense only if ``tp`` provides comparison methods.
+
+    :param tp max:
+        upper limit, makes sense only if ``tp`` provides comparison methods.
+
+    :param int minlen:
+        lower length limit, makes sense only if ``tp`` provides ``__len__()`` method.
+
+    :param int maxlen:
+        upper length limit, makes sense only if ``tp`` provides ``__len__()`` method.
+
+    :param options:
+        explicit enumeration of valid values.
+    :type options: list or tuple
+
+
+    :raises InvalidTypeError:
+        * if ``value is None`` and ``not self.nullable``;
+        * if ``not isinstance(value, self.tp)`` and ``not self.coerce``;
+        * if ``self.tp(value)`` raises ``ValueError`` or ``TypeError``.
+
+    :raises MinValueError:
+        if ``value < self.min``.
+
+    :raises MaxValueError:
+        if ``value > self.max``.
+
+    :raises MinLengthError:
+        if ``len(value) < self.minlen``.
+
+    :raises MaxLengthError:
+        if ``len(value) > self.maxlen``.
+
+    :raises OptionsError:
+        if ``value not in self.options``.
+
+    """
+
+    __slots__ = (
+        "tp",
+        "nullable",
+        "coerce",
+        "min",
+        "max",
+        "minlen",
+        "maxlen",
+        "options",
+    )
+
+    cdef public tp
+    cdef public bint nullable
+    cdef public bint coerce
+    cdef public min
+    cdef public max
+    cdef long _minlen
+    cdef long _maxlen
+    cdef public options
+
+    @property
+    def minlen(self):
+        return None if self._minlen == 0 else self._minlen
+
+    @minlen.setter
+    def minlen(self, value):
+        self._minlen = value if value is not None else 0
+
+    @property
+    def maxlen(self):
+        return None if self._maxlen == limits.LONG_MAX else self._maxlen
+
+    @maxlen.setter
+    def maxlen(self, value):
+        self._maxlen = value if value is not None else limits.LONG_MAX
+
+    def __init__(self, tp, **kw):
+        super(Type, self).__init__(tp=tp, **kw)
+        if self.minlen is not None or self.maxlen is not None:
+            assert hasattr(tp, "__len__"), (
+                "Type %r does not provide method '__len__()'" % tp
+            )
+
+    def __call__(self, value):
+        if value is None and self.nullable:
+            return value
+        if not isinstance(value, self.tp):
+            if not self.coerce:
+                raise exc.InvalidTypeError(expected=self.tp, actual=type(value))
+            else:
+                try:
+                    value = self.tp(value)
+                except (TypeError, ValueError):
+                    raise exc.InvalidTypeError(expected=self.tp, actual=type(value))
+        if self.min is not None and value < self.min:
+            raise exc.MinValueError(expected=self.min, actual=value)
+        if self.max is not None and value > self.max:
+            raise exc.MaxValueError(expected=self.max, actual=value)
+        cdef long length
+        if self.minlen is not None or self.maxlen is not None:
+            length = len(value)
+            if self.minlen is not None and length < self.minlen:
+                raise exc.MinLengthError(expected=self.minlen, actual=length)
+            if self.maxlen is not None and length > self.maxlen:
+                raise exc.MaxLengthError(expected=self.maxlen, actual=length)
+        if self.options is not None and value not in self.options:
+            raise exc.OptionsError(expected=self.options, actual=value)
+        return value
 
 
 cdef class Const(abstract.Validator):
