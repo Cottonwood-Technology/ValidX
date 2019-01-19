@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.3
+---
+
+*   Fixed handling of default values and length validation within ``Dict`` validator.
+
+
 0.2
 ---
 

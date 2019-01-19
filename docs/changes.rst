@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.3
+---
+
+*   Fixed handling of default values and length validation within :class:`validx.py.Dict` validator.
+
+
 0.2
 ---
 
