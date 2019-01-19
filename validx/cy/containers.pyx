@@ -293,12 +293,6 @@ cdef class Dict(abstract.Validator):
         if not isinstance(value, (dict, Mapping)):
             raise exc.InvalidTypeError(expected=Mapping, actual=type(value))
 
-        cdef long length = len(value)
-        if length < self._minlen:
-            raise exc.MinLengthError(expected=self.minlen, actual=length)
-        if length > self._maxlen:
-            raise exc.MaxLengthError(expected=self.maxlen, actual=length)
-
         result = {}
         errors = []
         getall = None
@@ -341,7 +335,7 @@ cdef class Dict(abstract.Validator):
             result[key] = val
 
         if self.schema is not None:
-            for key in self.schema:
+            for key, validator in self.schema.items():
                 if key in result:
                     continue
                 if self.defaults is not None:
@@ -350,14 +344,21 @@ cdef class Dict(abstract.Validator):
                     except KeyError:
                         pass
                     else:
-                        if callable(default):
-                            result[key] = default()
-                        else:
-                            result[key] = deepcopy(default)
+                        default = default() if callable(default) else deepcopy(default)
+                        try:
+                            result[key] = validator(default)
+                        except exc.ValidationError as default_error:
+                            errors.extend(ne.add_context(key) for ne in default_error)
                         continue
                 if self.optional is not None and key in self.optional:
                     continue
                 errors.append(exc.MissingKeyError(key))
+
+        cdef long length = len(result)
+        if length < self._minlen:
+            raise exc.MinLengthError(expected=self.minlen, actual=length)
+        if length > self._maxlen:
+            raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         if errors:
             raise exc.SchemaError(errors)

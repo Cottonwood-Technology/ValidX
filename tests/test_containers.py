@@ -311,6 +311,49 @@ def test_dict_defaults_and_optional(module, defaults, optional):
         assert info.value[0].context == deque([u"x"])
 
 
+def test_dict_defaults_validation(module):
+    v = module.Dict(
+        {u"x": module.Dict({u"y": module.Int()}, defaults={u"y": 1})},
+        defaults={u"x": {}},
+    )
+    assert v.clone() == v
+    assert v({}) == {u"x": {u"y": 1}}
+
+    v = module.Dict(
+        {u"x": module.Dict({u"y": module.Int()}, defaults={u"y": 1})},
+        defaults={"x": []},
+    )
+    with pytest.raises(exc.SchemaError) as info:
+        v({})
+    assert len(info.value) == 1
+    assert isinstance(info.value[0], exc.InvalidTypeError)
+    assert info.value[0].context == deque([u"x"])
+    assert info.value[0].expected == Mapping
+    assert info.value[0].actual == list
+
+
+def test_dict_defaults_and_minlen_maxlen(module):
+    v = module.Dict(
+        {u"x": module.Int()},
+        defaults={u"x": 1},
+        extra=(module.Str(), module.Int()),
+        minlen=2,
+        maxlen=3,
+    )
+    assert v.clone() == v
+    assert v({u"y": 2, u"z": 3}) == {u"x": 1, u"y": 2, u"z": 3}
+
+    with pytest.raises(exc.MinLengthError) as info:
+        v({})
+    assert info.value.expected == 2
+    assert info.value.actual == 1
+
+    with pytest.raises(exc.MaxLengthError) as info:
+        v({u"y": 2, u"z": 3, u"too_much": 4})
+    assert info.value.expected == 3
+    assert info.value.actual == 4
+
+
 @pytest.mark.parametrize("extra", [None, True])
 def test_dict_extra(module, extra):
     if extra:
