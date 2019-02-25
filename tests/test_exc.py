@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import pickle
 from collections import deque
 from datetime import datetime
 from textwrap import dedent
@@ -38,6 +39,9 @@ def test_validation_error():
     assert list(te) == [te]
     assert len(te) == 1
     assert te[0] == te
+    assert te == exc.InvalidTypeError(te.context, expected=int, actual=str)
+    assert te != exc.ConditionError(te.context, expected=int, actual=str)
+    assert te != exc.InvalidTypeError(te.context, expected=int, actual=float)
     with pytest.raises(IndexError):
         te[1]
 
@@ -45,6 +49,7 @@ def test_validation_error():
     assert list(te) == [te]
     te.sort(reverse=True)
     assert list(te) == [te]
+    assert pickle.loads(pickle.dumps(te)) == te
 
 
 def test_mapping_key_error():
@@ -54,6 +59,10 @@ def test_mapping_key_error():
     assert fke.context == deque(["y"])
     assert repr(mke) == "<x: MissingKeyError()>"
     assert repr(fke) == "<y: ForbiddenKeyError()>"
+    assert mke == exc.MissingKeyError(key="x")
+    assert mke == exc.MissingKeyError(deque(["x"]))
+    assert pickle.loads(pickle.dumps(mke)) == mke
+    assert pickle.loads(pickle.dumps(fke)) == fke
 
 
 def test_schema_error():
@@ -62,6 +71,7 @@ def test_schema_error():
 
     se = exc.SchemaError(errors=[mve_1, mve_2])
     assert se.context == deque([])
+    assert se == exc.SchemaError([mve_1, mve_2])
     assert repr(se) == (
         dedent(
             """
@@ -100,6 +110,7 @@ def test_schema_error():
     assert list(se) == [mve_2, mve_1]
     se.sort(reverse=True)
     assert list(se) == [mve_1, mve_2]
+    assert pickle.loads(pickle.dumps(se)) == se
 
 
 def test_extra():
@@ -109,6 +120,8 @@ def test_extra():
     assert repr(exc.EXTRA_KEY) == "@KEY"
     assert repr(exc.EXTRA_VALUE) == "@VALUE"
     assert str(exc.EXTRA_KEY) == repr(exc.EXTRA_KEY)
+    assert pickle.loads(pickle.dumps(exc.EXTRA_KEY)) == exc.EXTRA_KEY
+    assert pickle.loads(pickle.dumps(exc.EXTRA_VALUE)) == exc.EXTRA_VALUE
 
 
 def test_step():
@@ -119,6 +132,8 @@ def test_step():
     assert repr(step_1) == "#1"
     assert repr(step_2) == "#2"
     assert str(step_1) == repr(step_1)
+    assert pickle.loads(pickle.dumps(step_1)) == step_1
+    assert pickle.loads(pickle.dumps(step_2)) == step_2
 
 
 def test_format_error():

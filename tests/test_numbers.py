@@ -1,4 +1,5 @@
 import math
+import pickle
 
 import pytest
 
@@ -13,6 +14,7 @@ def test_int(module):
     assert v(5) == 5
     assert v(5.0) == 5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -20,6 +22,7 @@ def test_int_nullable(module, nullable):
     v = module.Int(nullable=nullable)
     assert v(5) == 5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -35,6 +38,7 @@ def test_int_coerce(module, coerce):
     v = module.Int(coerce=coerce)
     assert v(5) == 5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v("abc")
@@ -62,6 +66,7 @@ def test_int_min_max(module, min, max):
     v = module.Int(min=min, max=max)
     assert v(5) == 5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if min is None:
         assert v(-1) == -1
@@ -86,6 +91,7 @@ def test_int_options(module, options):
     assert v(5) == 5
     assert v(6) == 6
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if options is None:
         assert v(4) == 4
@@ -104,6 +110,7 @@ def test_float(module):
     assert v(5.5) == 5.5
     assert v(5) == 5.0
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -111,6 +118,7 @@ def test_float_nullable(module, nullable):
     v = module.Float(nullable=nullable)
     assert v(5.5) == 5.5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -126,6 +134,7 @@ def test_float_coerce(module, coerce):
     v = module.Float(coerce=coerce)
     assert v(5.5) == 5.5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v("abc")
@@ -146,6 +155,7 @@ def test_float_nan(module, nan):
     v = module.Float(nan=nan, coerce=True)
     assert v(5.5) == 5.5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nan:
         assert math.isnan(v("nan"))
@@ -161,6 +171,7 @@ def test_float_inf(module, inf):
     v = module.Float(inf=inf, coerce=True)
     assert v(5.5) == 5.5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if inf:
         assert v("inf") == float("inf")
@@ -177,6 +188,7 @@ def test_float_min_max(module, min, max):
     v = module.Float(min=min, max=max)
     assert v(5.5) == 5.5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if min is None:
         assert v(-1.5) == -1.5

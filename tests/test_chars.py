@@ -1,6 +1,8 @@
 # coding: utf-8
 
 import sys
+import pickle
+
 import pytest
 
 from validx import exc
@@ -16,6 +18,8 @@ NoneType = type(None)
 def test_str(module):
     v = module.Str()
     assert v(u"abc") == u"abc"
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -23,6 +27,7 @@ def test_str_nullable(module, nullable):
     v = module.Str(nullable=nullable)
     assert v(u"abc") == u"abc"
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -38,6 +43,7 @@ def test_str_encoding(module, encoding):
     v = module.Str(encoding=encoding)
     assert v(u"abc") == u"abc"
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if encoding:
         assert v(b"abc") == u"abc"
@@ -60,6 +66,7 @@ def test_str_minlen_maxlen(module, minlen, maxlen):
     v = module.Str(minlen=minlen, maxlen=maxlen)
     assert v(u"abc") == u"abc"
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if minlen is None:
         assert v(u"a") == u"a"
@@ -84,6 +91,7 @@ def test_str_pattern(module, pattern):
     assert v(u"abc") == u"abc"
     assert v(u"ABC") == u"ABC"
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if pattern is None:
         assert v(u"123") == u"123"
@@ -100,6 +108,7 @@ def test_str_options(module, options):
     assert v(u"abc") == u"abc"
     assert v(u"xyz") == u"xyz"
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if options is None:
         assert v(u"123") == u"123"
@@ -117,6 +126,7 @@ def test_bytes(module):
     v = module.Bytes()
     assert v(b"abc") == b"abc"
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -124,6 +134,7 @@ def test_bytes_nullable(module, nullable):
     v = module.Bytes(nullable=nullable)
     assert v(b"abc") == b"abc"
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -140,6 +151,7 @@ def test_bytes_minlen_maxlen(module, minlen, maxlen):
     v = module.Bytes(minlen=minlen, maxlen=maxlen)
     assert v(b"abc") == b"abc"
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if minlen is None:
         assert v(b"a") == b"a"

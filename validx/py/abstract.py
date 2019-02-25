@@ -64,6 +64,9 @@ class Validator(ABC):
             other.params()
         )
 
+    def __reduce__(self):
+        return (_unpickle, (self.dump(),))
+
     def params(self):
         for slot in self.__slots__:
             if slot.startswith("_"):
@@ -266,3 +269,7 @@ def _merge_list(params, update, unset, path):
         )
 
     return result
+
+
+def _unpickle(params):
+    return Validator.load(params)

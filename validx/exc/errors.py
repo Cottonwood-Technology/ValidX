@@ -77,9 +77,9 @@ class ValidationError(ValueError, Sequence):
 
     __slots__ = ("context",)
 
-    def __init__(self, context=None, **kw):
+    def __init__(self, context=None, *args, **kw):
         self.context = context or deque()
-        for slot, value in kw.items():
+        for slot, value in dict(zip(self.__slots__[1:], args), **kw).items():
             setattr(self, slot, value)
         super(ValidationError, self).__init__(
             *(getattr(self, slot) for slot in self.__slots__)
@@ -140,6 +140,14 @@ class ValidationError(ValueError, Sequence):
 
     def __str__(self):
         return repr(self)
+
+    def __eq__(self, other):
+        if type(self) is not type(other):
+            return False
+        for slot in self.__slots__:
+            if getattr(self, slot) != getattr(other, slot):
+                return False
+        return True
 
     def format_context(self):
         def context():
@@ -393,8 +401,12 @@ class MappingKeyError(ValidationError):
 
     __slots__ = ValidationError.__slots__
 
-    def __init__(self, key, **kw):
-        super(MappingKeyError, self).__init__(context=deque([key]), **kw)
+    def __init__(self, context=None, key=None):
+        if context is not None and not isinstance(context, deque):
+            context = deque([context])
+        super(MappingKeyError, self).__init__(context)
+        if key is not None:
+            self.add_context(key)
 
 
 class ForbiddenKeyError(MappingKeyError):
@@ -423,8 +435,11 @@ class SchemaError(ValidationError):
 
     __slots__ = ValidationError.__slots__ + ("errors",)
 
-    def __init__(self, errors):
-        super(SchemaError, self).__init__(errors=errors)
+    def __init__(self, context=None, errors=None):
+        if context is not None and not isinstance(context, deque):
+            errors = context
+            context = None
+        super(SchemaError, self).__init__(context, errors=errors)
 
     def __getitem__(self, index):
         return self.errors[index]

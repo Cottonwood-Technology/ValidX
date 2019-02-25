@@ -1,3 +1,5 @@
+import pickle
+
 import pytest
 
 from validx import exc
@@ -11,6 +13,7 @@ def test_bool(module):
     assert v(True) is True
     assert v(False) is False
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -19,6 +22,7 @@ def test_bool_nullable(module, nullable):
     assert v(True) is True
     assert v(False) is False
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -35,6 +39,7 @@ def test_bool_coerce_str(module, coerce_str):
     assert v(True) is True
     assert v(False) is False
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if coerce_str:
         assert v("0") is False
@@ -72,6 +77,7 @@ def test_bool_coerce_int(module, coerce_int):
     assert v(True) is True
     assert v(False) is False
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if coerce_int:
         assert v(0) is False

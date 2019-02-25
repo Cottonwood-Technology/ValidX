@@ -1,9 +1,10 @@
 import sys
+import pickle
 from time import time as timestamp
 from datetime import date, time, datetime, timedelta
 
 import pytest
-from dateutil.parser import isoparse, parse as dtparse
+from dateutil.parser import isoparse as _isoparse, parse as dtparse
 from pytz import UTC, timezone
 
 from validx import exc
@@ -11,6 +12,11 @@ from validx import exc
 
 if sys.version_info[0] < 3:
     str = unicode  # noqa
+
+
+def isoparse(*args, **kw):
+    """ Pickable version of date/time parser """
+    return _isoparse(*args, **kw)
 
 
 EST = timezone("US/Eastern")
@@ -24,6 +30,7 @@ def test_date(module):
     assert v(today) == today
     assert v(now) == today
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -34,6 +41,7 @@ def test_date_nullable(module, nullable):
     assert v(today) == today
     assert v(now) == today
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -52,6 +60,7 @@ def test_date_unixts(module, unixts):
     assert v(today) == today
     assert v(now) == today
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if unixts:
         assert v(timestamp()) == today
@@ -70,6 +79,7 @@ def test_date_format(module, format):
     assert v(today) == today
     assert v(now) == today
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if format:
         # Python 2.7 should handle both ``str`` and ``unicode``
@@ -95,6 +105,7 @@ def test_date_parser(module, parser):
     assert v(today) == today
     assert v(now) == today
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if parser:
         # Python 2.7 should handle both ``str`` and ``unicode``
@@ -118,6 +129,7 @@ def test_date_min_max(module, min, max):
     v = module.Date(min=min, max=max)
     assert v(date(2018, 7, 3)) == date(2018, 7, 3)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if min is None:
         assert v(date(2017, 7, 3)) == date(2017, 7, 3)
@@ -143,6 +155,7 @@ def test_date_relmin_relmax(module, relmin, relmax):
     today = date.today()
     assert v(today + timedelta(days=3)) == today + timedelta(days=3)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if relmin is None:
         assert v(today) == today
@@ -169,6 +182,7 @@ def test_date_tz(module, tz):
     assert v(today) == today
     assert v(now) == today
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if tz is not None:
         assert v(datetime(2018, 12, 5, tzinfo=UTC)) == date(2018, 12, 4)
@@ -188,6 +202,7 @@ def test_time(module):
     v = module.Time()
     assert v(time(13, 35)) == time(13, 35)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -195,6 +210,7 @@ def test_time_nullable(module, nullable):
     v = module.Time(nullable=nullable)
     assert v(time(13, 35)) == time(13, 35)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -210,6 +226,7 @@ def test_time_format(module, format):
     v = module.Time(format=format)
     assert v(time(13, 35)) == time(13, 35)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if format:
         # Python 2.7 should handle both ``str`` and ``unicode``
@@ -232,6 +249,7 @@ def test_time_parse(module, parser):
     v = module.Time(parser=parser)
     assert v(time(13, 35)) == time(13, 35)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if parser:
         # Python 2.7 should handle both ``str`` and ``unicode``
@@ -255,6 +273,7 @@ def test_time_min_max(module, min, max):
     v = module.Time(min=min, max=max)
     assert v(time(13, 35)) == time(13, 35)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if min is None:
         assert v(time(3, 35)) == time(3, 35)
@@ -283,6 +302,7 @@ def test_datetime(module):
     assert v(today) == datetime.combine(today, time())
     assert v(now) == now
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
 
 @pytest.mark.parametrize("nullable", [None, False, True])
@@ -293,6 +313,7 @@ def test_datetime_nullable(module, nullable):
     assert v(today) == datetime.combine(today, time())
     assert v(now) == now
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -312,6 +333,7 @@ def test_datetime_unixts(module, unixts, tz):
     assert v(today) == datetime.combine(today, time(tzinfo=tz))
     assert v(now) == now
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if unixts:
         ts = timestamp()
@@ -339,6 +361,7 @@ def test_datetime_format(module, format, tz):
     assert v(today) == datetime.combine(today, time(tzinfo=tz))
     assert v(now) == now
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if format:
         if tz is None:
@@ -370,6 +393,7 @@ def test_datetime_parser(module, parser, tz):
     assert v(today) == datetime.combine(today, time(tzinfo=tz))
     assert v(now) == now
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if parser:
         # Python 2.7 should handle both ``str`` and ``unicode``
@@ -404,6 +428,7 @@ def test_datetime_min_max(module, min, max, tz):
     v = module.Datetime(min=min, max=max, tz=tz)
     assert v(datetime(2018, 7, 3, tzinfo=tz)) == datetime(2018, 7, 3, tzinfo=tz)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if min is None:
         assert v(datetime(2017, 7, 3, tzinfo=tz)) == datetime(2017, 7, 3, tzinfo=tz)
@@ -430,6 +455,7 @@ def test_datetime_relmin_relmax(module, relmin, relmax, tz):
     now = datetime.now() if tz is None else datetime.now(UTC).astimezone(tz)
     assert v(now + timedelta(hours=3)) == now + timedelta(hours=3)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if relmin is None:
         assert v(now) == now
@@ -458,6 +484,7 @@ def test_datetime_tz(module, tz):
         now = datetime.now()
         assert v(now) == now
         assert v.clone() == v
+        assert pickle.loads(pickle.dumps(v)) == v
 
         now = datetime.now(UTC)
         with pytest.raises(exc.DatetimeTypeError) as info:
@@ -468,6 +495,7 @@ def test_datetime_tz(module, tz):
         now = datetime.now(UTC).astimezone(tz)
         assert v(now) == now
         assert v.clone() == v
+        assert pickle.loads(pickle.dumps(v)) == v
 
         now = datetime.now()
         with pytest.raises(exc.DatetimeTypeError) as info:

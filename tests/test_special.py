@@ -1,3 +1,4 @@
+import pickle
 from collections import deque
 
 import pytest
@@ -25,6 +26,7 @@ def test_lazyref(module):
     assert v(data) == data
 
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.SchemaError) as info:
         v({"y": {"y": {"y": {"x": 1}}}})
@@ -42,6 +44,8 @@ def test_lazyref(module):
 def test_type(module):
     v = module.Type(int)
     assert v(5) == 5
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v(5.0)
@@ -54,6 +58,7 @@ def test_type_nullable(module, nullable):
     v = module.Type(int, nullable=nullable)
     assert v(5) == 5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -69,6 +74,7 @@ def test_type_coerce(module, coerce):
     v = module.Type(int, coerce=coerce)
     assert v(5) == 5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v("abc")
@@ -96,6 +102,7 @@ def test_type_min_max(module, min, max):
     v = module.Type(int, min=min, max=max)
     assert v(5) == 5
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if min is None:
         assert v(-1) == -1
@@ -125,6 +132,7 @@ def test_type_minlen_maxlen(module, minlen, maxlen):
     v = module.Type(bytes, minlen=minlen, maxlen=maxlen)
     assert v(b"abc") == b"abc"
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if minlen is None:
         assert v(b"a") == b"a"
@@ -149,6 +157,7 @@ def test_type_options(module, options):
     assert v(5) == 5
     assert v(6) == 6
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if options is None:
         assert v(4) == 4
@@ -166,6 +175,7 @@ def test_const(module):
     v = module.Const(1)
     assert v(1) == 1
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.OptionsError) as info:
         v(2)
@@ -184,6 +194,7 @@ def test_any(module, nullable):
     assert v("x") == "x"
     assert v([1, "x"]) == [1, "x"]
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None

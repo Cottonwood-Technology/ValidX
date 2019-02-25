@@ -57,6 +57,9 @@ class Extra(object):
     def __eq__(self, other):
         return self.__class__ is type(other) and self.name == other.name
 
+    def __reduce__(self):
+        return (self.__class__, (self.name,))
+
 
 EXTRA_KEY = Extra("KEY")
 EXTRA_VALUE = Extra("VALUE")
@@ -110,3 +113,6 @@ class Step(object):
 
     def __eq__(self, other):
         return self.__class__ is type(other) and self.num == other.num
+
+    def __reduce__(self):
+        return (self.__class__, (self.num,))

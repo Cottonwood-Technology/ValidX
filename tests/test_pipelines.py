@@ -1,3 +1,4 @@
+import pickle
 from collections import deque
 
 import pytest
@@ -9,6 +10,7 @@ def test_all_of(module):
     v = module.AllOf(module.Int(min=0), module.Int(max=10))
     assert v(1) == 1
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.MinValueError) as info:
         v(-1)
@@ -43,6 +45,7 @@ def test_any_of(module):
     assert v(3) == 3
     assert v(10) == 10
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.SchemaError) as info:
         v(9)

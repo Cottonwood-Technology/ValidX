@@ -1,4 +1,5 @@
 import sys
+import pickle
 from collections import OrderedDict, defaultdict, deque
 
 try:
@@ -68,6 +69,7 @@ def test_list(module):
     assert v((1, 2, 3)) == [1, 2, 3]
     assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v(u"1, 2, 3")
@@ -96,6 +98,7 @@ def test_list_nullable(module, nullable):
     assert v((1, 2, 3)) == [1, 2, 3]
     assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -114,6 +117,7 @@ def test_list_minlen_maxlen(module, minlen, maxlen):
     assert v((1, 2, 3)) == [1, 2, 3]
     assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if minlen is None:
         assert v([1]) == [1]
@@ -139,6 +143,7 @@ def test_list_unique(module, unique):
     assert v((1, 2, 3)) == [1, 2, 3]
     assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if unique:
         assert v([1, 2, 3, 3, 2, 1]) == [1, 2, 3]
@@ -155,6 +160,7 @@ def test_tuple(module):
     assert v((1, 2)) == (1, 2)
     assert v(CustomSequence(1, 2)) == (1, 2)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v(u"1, 2")
@@ -188,6 +194,7 @@ def test_tuple_nullable(module, nullable):
     assert v((1, 2)) == (1, 2)
     assert v(CustomSequence(1, 2)) == (1, 2)
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -208,6 +215,7 @@ def test_dict(module):
     assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v([(u"x", 1), (u"y", 2)])
@@ -239,6 +247,7 @@ def test_dict_nullable(module, nullable):
     assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if nullable:
         assert v(None) is None
@@ -258,6 +267,7 @@ def test_dict_minlen_maxlen(module, minlen, maxlen):
     assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if minlen is None:
         assert v({u"x": 1}) == {u"x": 1}
@@ -281,7 +291,12 @@ def test_dict_minlen_maxlen(module, minlen, maxlen):
         assert info.value.actual == 4
 
 
-@pytest.mark.parametrize("defaults", [None, {u"x": 0}, {u"x": lambda: 0}])
+def default_x():
+    """ Pickable version of callable default value """
+    return 0
+
+
+@pytest.mark.parametrize("defaults", [None, {u"x": 0}, {u"x": default_x}])
 @pytest.mark.parametrize("optional", [None, [u"x"]])
 def test_dict_defaults_and_optional(module, defaults, optional):
     v = module.Dict(
@@ -292,6 +307,7 @@ def test_dict_defaults_and_optional(module, defaults, optional):
     assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.SchemaError) as info:
         v({u"x": 1})
@@ -317,6 +333,7 @@ def test_dict_defaults_validation(module):
         defaults={u"x": {}},
     )
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
     assert v({}) == {u"x": {u"y": 1}}
 
     v = module.Dict(
@@ -341,6 +358,7 @@ def test_dict_defaults_and_minlen_maxlen(module):
         maxlen=3,
     )
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
     assert v({u"y": 2, u"z": 3}) == {u"x": 1, u"y": 2, u"z": 3}
 
     with pytest.raises(exc.MinLengthError) as info:
@@ -364,6 +382,7 @@ def test_dict_extra(module, extra):
     assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if extra:
         assert v({u"x": 1, u"y": 2, u"z": 3}) == {u"x": 1, u"y": 2, u"z": 3}
@@ -399,6 +418,7 @@ def test_dict_dispose(module, dispose):
     assert v(defaultdict(None, {u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v(CustomMapping({u"x": 1, u"y": 2})) == {u"x": 1, u"y": 2}
     assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
     if dispose:
         assert v({u"x": 1, u"y": 2, u"z": 3}) == {u"x": 1, u"y": 2}
