@@ -136,6 +136,27 @@ def test_list_minlen_maxlen(module, minlen, maxlen):
         assert info.value.actual == 6
 
 
+def test_list_minlen_maxlen_unique(module):
+    v = module.List(module.Int(), minlen=2, maxlen=5, unique=True)
+    assert v([1, 2, 3]) == [1, 2, 3]
+    assert v((1, 2, 3)) == [1, 2, 3]
+    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
+
+    assert v([1, 1, 1, 2, 2, 2, 3, 3, 3]) == [1, 2, 3]
+
+    with pytest.raises(exc.MinLengthError) as info:
+        v([1, 1, 1])
+    assert info.value.expected == 2
+    assert info.value.actual == 1
+
+    with pytest.raises(exc.MaxLengthError) as info:
+        v([1, 1, 1, 2, 3, 4, 5, 6])
+    assert info.value.expected == 5
+    assert info.value.actual == 6
+
+
 @pytest.mark.parametrize("unique", [None, False, True])
 def test_list_unique(module, unique):
     v = module.List(module.Int(), unique=unique)

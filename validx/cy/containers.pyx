@@ -80,11 +80,6 @@ cdef class List(abstract.Validator):
         if not isinstance(value, (list, tuple)):
             if not isinstance(value, Sequence) or isinstance(value, (unicode, bytes)):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
-        cdef long length = len(value)
-        if length < self._minlen:
-            raise exc.MinLengthError(expected=self.minlen, actual=length)
-        if length > self._maxlen:
-            raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         result = []
         errors = []
@@ -102,6 +97,12 @@ cdef class List(abstract.Validator):
                     continue
                 unique.add(val)
             result.append(val)
+
+        cdef long length = len(result)
+        if length < self._minlen:
+            raise exc.MinLengthError(expected=self.minlen, actual=length)
+        if length > self._maxlen:
+            raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         if errors:
             raise exc.SchemaError(errors)

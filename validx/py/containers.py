@@ -61,11 +61,6 @@ class List(abstract.Validator):
         if not isinstance(value, (list, tuple)):
             if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
-        length = len(value)
-        if self.minlen is not None and length < self.minlen:
-            raise exc.MinLengthError(expected=self.minlen, actual=length)
-        if self.maxlen is not None and length > self.maxlen:
-            raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         result = []
         errors = []
@@ -83,6 +78,12 @@ class List(abstract.Validator):
                     continue
                 unique.add(val)
             result.append(val)
+
+        length = len(result)
+        if self.minlen is not None and length < self.minlen:
+            raise exc.MinLengthError(expected=self.minlen, actual=length)
+        if self.maxlen is not None and length > self.maxlen:
+            raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         if errors:
             raise exc.SchemaError(errors)
