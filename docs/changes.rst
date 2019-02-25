@@ -1,6 +1,13 @@
 Changes
 =======
 
+0.4
+---
+
+*   Fixed library objects pickling.
+*   Fixed checking of length within :class:`validx.py.List` validator.
+
+
 0.3
 ---
 
