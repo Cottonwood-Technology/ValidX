@@ -24,9 +24,9 @@ copyright = "2018, Cottonwood Technology"
 author = "Cottonwood Technology"
 
 # The short X.Y version
-version = "0.5"
+version = "0.5.1"
 # The full version, including alpha/beta/rc tags
-release = "0.5"
+release = "0.5.1"
 
 
 # -- General configuration ---------------------------------------------------

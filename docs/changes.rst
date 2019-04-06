@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.5.1
+-----
+
+*   Fixed type declarations. Again. One does not simply make mypy happy.
+
+
 0.5
 ---
 
