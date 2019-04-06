@@ -25,7 +25,7 @@ try:
         instances,
     )
 except ImportError:  # pragma: no cover
-    from .py import (
+    from .py import (  # type: ignore
         __impl__,
         Validator,
         Int,
