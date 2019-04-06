@@ -46,7 +46,7 @@ setup(
     author_email="info@cottonwood.tech",
     license="BSD",
     packages=find_packages(exclude=["tests", "tests.*", "benchmarks", "benchmarks.*"]),
-    package_data={"": ["*.pyi"]},
+    package_data={"": ["*.pyi"], "validx": ["py.typed"]},
     zip_safe=False,
     ext_modules=ext_modules,
     install_requires=requirements,

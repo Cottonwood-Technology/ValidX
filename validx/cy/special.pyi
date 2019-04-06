@@ -2,7 +2,7 @@ import typing as t
 from . import abstract
 
 class LazyRef(abstract.Validator):
-    __slots__ = t.Tuple[str, ...]
+    __slots__: t.Tuple[str, ...]
     use: str
     maxdepth: t.Optional[int]
     def __init__(
@@ -38,7 +38,6 @@ class Type(abstract.Validator):
         alias: str = None,
         replace: bool = False,
     ) -> None: ...
-    def __call__(self, value: t.Any) -> t.Optional[t.Any]: ...
 
 class Const(abstract.Validator):
     __slots__: t.Tuple[str, ...]

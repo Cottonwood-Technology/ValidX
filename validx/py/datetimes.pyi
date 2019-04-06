@@ -28,7 +28,6 @@ class Date(abstract.Validator):
         alias: str = None,
         replace: bool = False,
     ) -> None: ...
-    def __call__(self, value: t.Any) -> t.Optional[date]: ...
 
 class Time(abstract.Validator):
     __slots__: t.Tuple[str, ...]
@@ -48,7 +47,6 @@ class Time(abstract.Validator):
         alias: str = None,
         replace: bool = False,
     ) -> None: ...
-    def __call__(self, value: t.Any) -> t.Optional[time]: ...
 
 class Datetime(abstract.Validator):
     __slots__: t.Tuple[str, ...]
@@ -76,4 +74,3 @@ class Datetime(abstract.Validator):
         alias: str = None,
         replace: bool = False,
     ) -> None: ...
-    def __call__(self, value: t.Any) -> t.Optional[datetime]: ...

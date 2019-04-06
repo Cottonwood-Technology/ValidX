@@ -19,7 +19,6 @@ class List(abstract.Validator):
         alias: str = None,
         replace: bool = False,
     ) -> None: ...
-    def __call__(self, value: t.Any) -> t.Optional[t.List]: ...
 
 class Tuple(abstract.Validator):
     __slots__: t.Tuple[str, ...]
@@ -32,7 +31,6 @@ class Tuple(abstract.Validator):
         alias: str = None,
         replace: bool = False,
     ) -> None: ...
-    def __call__(self, value: t.Any) -> t.Optional[t.Tuple]: ...
 
 class Dict(abstract.Validator):
     __slots__: t.Tuple[str, ...]
@@ -60,4 +58,3 @@ class Dict(abstract.Validator):
         alias: str = None,
         replace: bool = False,
     ) -> None: ...
-    def __call__(self, value: t.Any) -> t.Optional[t.Dict]: ...
