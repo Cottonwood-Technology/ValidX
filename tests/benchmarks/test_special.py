@@ -35,9 +35,3 @@ def test_const(module, benchmark):
 def test_any(module, benchmark):
     v = module.Any()
     assert benchmark(v, 1) == 1
-
-
-@pytest.mark.benchmark(group="Any")
-def test_any_nullable(module, benchmark):
-    v = module.Any(nullable=True)
-    assert benchmark(v, None) is None

@@ -186,20 +186,12 @@ def test_const(module):
 # =============================================================================
 
 
-@pytest.mark.parametrize("nullable", [None, False, True])
-def test_any(module, nullable):
-    v = module.Any(nullable=nullable)
+def test_any(module):
+    v = module.Any()
+    assert v(None) is None
     assert v(True) is True
     assert v(1) == 1
     assert v("x") == "x"
     assert v([1, "x"]) == [1, "x"]
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
-
-    if nullable:
-        assert v(None) is None
-    else:
-        with pytest.raises(exc.InvalidTypeError) as info:
-            v(None)
-        assert info.value.expected == object
-        assert info.value.actual == NoneType
