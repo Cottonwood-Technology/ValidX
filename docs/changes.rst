@@ -1,6 +1,13 @@
 Changes
 =======
 
+0.5
+---
+
+*   Removed confusing nullable check from :class:`validx.py.Any` validator.
+*   Fixed type declarations.
+
+
 0.4
 ---
 

@@ -1,6 +1,13 @@
 Changes
 =======
 
+0.5
+---
+
+*   Removed confusing nullable check from ``Any`` validator.
+*   Fixed type declarations.
+
+
 0.4
 ---
 

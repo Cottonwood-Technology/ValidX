@@ -24,7 +24,7 @@ with open("CHANGES.rst") as f:
 
 setup(
     name="ValidX",
-    version="0.4",
+    version="0.5",
     description="fast, powerful, and flexible validator with sane syntax",
     long_description=readme + "\n\n" + changes,
     classifiers=[
