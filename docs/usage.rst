@@ -730,7 +730,7 @@ Let's validate a sample query:
 
     # (
     #   type == "whiskey"
-    #   and origin in ["Scotland", "Ireland"],
+    #   and origin in ["Scotland", "Ireland"]
     #   and age > 10
     #   and age < 20
     #   and status != "out_of_stock"
