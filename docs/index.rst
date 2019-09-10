@@ -35,13 +35,13 @@ ValidX is :ref:`fast <benchmarks>`, powerful, and flexible validator with sane s
 Contribution
 ------------
 
-The project sources are hosted on BitBucket_ as well,
+The project sources are hosted on GitHub_ as well,
 as its bug tracker.
 Pull requests,
 bug reports,
 and feedback are welcome.
 
-.. _BitBucket: https://bitbucket.org/cottonwood-tech/validx/
+.. _GitHub: https://github.com/Cottonwood-Technology/ValidX
 
 
 License

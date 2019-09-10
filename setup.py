@@ -41,7 +41,7 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     keywords="validator validation validate schema",
-    url="https://bitbucket.org/cottonwood-tech/validx/",
+    url="https://github.com/Cottonwood-Technology/ValidX",
     author="Cottonwood Technology",
     author_email="info@cottonwood.tech",
     license="BSD",
