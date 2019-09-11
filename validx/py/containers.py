@@ -95,7 +95,7 @@ class Tuple(abstract.Validator):
     Tuple Validator
 
 
-    :param Validator \*items:
+    :param Validator \\*items:
         validators for tuple members.
 
     :param bool nullable:

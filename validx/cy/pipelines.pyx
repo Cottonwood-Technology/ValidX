@@ -10,7 +10,7 @@ cdef class AllOf(abstract.Validator):
     The last step returns result.
 
 
-    :param Validator \*steps:
+    :param Validator \\*steps:
         nested validators.
 
     :raises ValidationError:
@@ -50,7 +50,7 @@ cdef class OneOf(abstract.Validator):
     The first succeeded step returns result.
 
 
-    :param Validator \*steps:
+    :param Validator \\*steps:
         nested validators.
 
     :raises SchemaError:

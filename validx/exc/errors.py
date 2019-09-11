@@ -14,7 +14,7 @@ class ValidationError(ValueError, Sequence):
         error context,
         empty ``deque`` by default.
 
-    :param \**kw:
+    :param \\**kw:
         concrete error attributes.
 
     Since validators try to process as much as possible,

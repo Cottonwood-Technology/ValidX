@@ -27,7 +27,7 @@ class Validator(ABC):
         replacing any existent validator with the same alias,
         see :func:`validx.py.instances.put`.
 
-    :param \**kw:
+    :param \\**kw:
         concrete validator attributes.
 
     """
