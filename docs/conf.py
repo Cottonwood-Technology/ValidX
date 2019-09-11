@@ -16,6 +16,7 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import re
 
 # -- Project information -----------------------------------------------------
 
@@ -23,10 +24,14 @@ project = "ValidX"
 copyright = "2018, Cottonwood Technology"
 author = "Cottonwood Technology"
 
-# The short X.Y version
-version = "0.5.1"
-# The full version, including alpha/beta/rc tags
-release = "0.5.1"
+
+with open("../validx/__init__.py") as f:
+    # The full version, including alpha/beta/rc tags
+    release = next(line for line in f if line.startswith("__version__"))
+    release = release.strip().split(" = ")[1]
+    release = release.strip('"')
+    # The short X.Y version
+    version = re.sub("[a-z]+[0-9]+", "", release).rstrip(".")
 
 
 # -- General configuration ---------------------------------------------------

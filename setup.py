@@ -16,6 +16,11 @@ if platform.python_implementation() == "CPython":
         directives = {"language_level": sys.version_info[0]}
         ext_modules = cythonize("validx/cy/*.pyx", compiler_directives=directives)
 
+with open("validx/__init__.py") as f:
+    version = next(line for line in f if line.startswith("__version__"))
+    version = version.strip().split(" = ")[1]
+    version = version.strip('"')
+
 with open("README.rst") as f:
     readme = f.read()
 
@@ -24,7 +29,7 @@ with open("CHANGES.rst") as f:
 
 setup(
     name="ValidX",
-    version="0.5.1",
+    version=version,
     description="fast, powerful, and flexible validator with sane syntax",
     long_description=readme + "\n\n" + changes,
     classifiers=[
