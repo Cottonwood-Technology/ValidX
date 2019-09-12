@@ -34,12 +34,15 @@ class AllOf(abstract.Validator):
         assert kw["steps"], "At least one validation step has to be provided"
         super(AllOf, self).__init__(**kw)
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
+        if __context is None:
+            __context = {}  # Setup context, if it's top level call
+
         validated = False
         for num, step in enumerate(self.steps):
             validated = True
             try:
-                value = step(value)
+                value = step(value, __context)
             except exc.ValidationError as e:
                 raise e.add_context(exc.Step(num))
         assert validated, "At least one validation step has to be passed"
@@ -74,11 +77,14 @@ class OneOf(abstract.Validator):
         assert kw["steps"], "At least one validation step has to be provided"
         super(OneOf, self).__init__(**kw)
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
+        if __context is None:
+            __context = {}  # Setup context, if it's top level call
+
         errors = []
         for num, step in enumerate(self.steps):
             try:
-                return step(value)
+                return step(value, __context)
             except exc.ValidationError as e:
                 errors.extend(ne.add_context(exc.Step(num)) for ne in e)
         if errors:

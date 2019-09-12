@@ -63,6 +63,9 @@ class CustomMapping(Mapping):
         return len(self.content)
 
 
+# =============================================================================
+
+
 def test_list(module):
     v = module.List(module.Int())
     assert v([1, 2, 3]) == [1, 2, 3]
@@ -172,6 +175,18 @@ def test_list_unique(module, unique):
         assert v([1, 2, 3, 3, 2, 1]) == [1, 2, 3, 3, 2, 1]
 
 
+def test_list_context(module):
+    class MarkContext(module.Validator):
+        def __call__(self, value, __context=None):
+            __context["marked"] = True
+            return value
+
+    v = module.List(MarkContext())
+    context = {}
+    v([None], context)
+    assert context["marked"]
+
+
 # =============================================================================
 
 
@@ -224,6 +239,18 @@ def test_tuple_nullable(module, nullable):
             v(None)
         assert info.value.expected == Sequence
         assert info.value.actual == NoneType
+
+
+def test_tuple_context(module):
+    class MarkContext(module.Validator):
+        def __call__(self, value, __context=None):
+            __context["marked"] = True
+            return value
+
+    v = module.Tuple(MarkContext())
+    context = {}
+    v((None,), context)
+    assert context["marked"]
 
 
 # =============================================================================
@@ -462,3 +489,30 @@ def test_dict_multikeys(module, multidict_class):
     assert v2(data) == {u"x": 1, u"y": [2, 3]}
     assert v1.clone() == v1
     assert v2.clone() == v2
+
+
+def test_dict_context(module):
+    class MarkContext(module.Validator):
+        def __call__(self, value, __context=None):
+            __context["marked"] = True
+            return value
+
+    v = module.Dict({u"x": MarkContext()})
+    context = {}
+    v({u"x": None}, context)
+    assert context["marked"]
+
+    v = module.Dict({u"x": MarkContext()}, defaults={u"x": None})
+    context = {}
+    v({}, context)
+    assert context["marked"]
+
+    v = module.Dict(extra=(module.Str(), MarkContext()))
+    context = {}
+    v({u"x": None}, context)
+    assert context["marked"]
+
+    v = module.Dict(extra=(MarkContext(), module.Any()))
+    context = {}
+    v({u"x": None}, context)
+    assert context["marked"]

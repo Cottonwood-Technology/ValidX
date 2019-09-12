@@ -74,7 +74,10 @@ cdef class List(abstract.Validator):
     def __init__(self, item, **kw):
         super(List, self).__init__(item=item, **kw)
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
+        if __context is None:
+            __context = {}  # Setup context, if it's top level call
+
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
@@ -88,7 +91,7 @@ cdef class List(abstract.Validator):
 
         for num, val in enumerate(value):
             try:
-                val = self.item(val)
+                val = self.item(val, __context)
             except exc.ValidationError as e:
                 errors.extend(ne.add_context(num) for ne in e)
                 continue
@@ -143,7 +146,10 @@ cdef class Tuple(abstract.Validator):
         assert kw["items"], "Tuple should contain at least one item"
         super(Tuple, self).__init__(**kw)
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
+        if __context is None:
+            __context = {}  # Setup context, if it's top level call
+
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
@@ -157,7 +163,7 @@ cdef class Tuple(abstract.Validator):
 
         for num, val in enumerate(value):
             try:
-                val = self.items[num](val)
+                val = self.items[num](val, __context)
             except exc.ValidationError as e:
                 errors.extend(ne.add_context(num) for ne in e)
                 continue
@@ -288,7 +294,10 @@ cdef class Dict(abstract.Validator):
     def __init__(self, schema=None, **kw):
         super(Dict, self).__init__(schema=schema, **kw)
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
+        if __context is None:
+            __context = {}  # Setup context, if it's top level call
+
         if value is None and self.nullable:
             return value
         if not isinstance(value, (dict, Mapping)):
@@ -313,19 +322,19 @@ cdef class Dict(abstract.Validator):
                 val = getall(key)
             if self.schema is not None and key in self.schema:
                 try:
-                    val = self.schema[key](val)
+                    val = self.schema[key](val, __context)
                 except exc.ValidationError as schema_error:
                     errors.extend(ne.add_context(key) for ne in schema_error)
             elif self.extra is not None:
                 try:
-                    key = self.extra[0](key)
+                    key = self.extra[0](key, __context)
                 except exc.ValidationError as extra_key_error:
                     errors.extend(
                         ne.add_context(exc.EXTRA_KEY).add_context(key)
                         for ne in extra_key_error
                     )
                 try:
-                    val = self.extra[1](val)
+                    val = self.extra[1](val, __context)
                 except exc.ValidationError as extra_value_error:
                     errors.extend(
                         ne.add_context(exc.EXTRA_VALUE).add_context(key)
@@ -347,7 +356,7 @@ cdef class Dict(abstract.Validator):
                     else:
                         default = default() if callable(default) else deepcopy(default)
                         try:
-                            result[key] = validator(default)
+                            result[key] = validator(default, __context)
                         except exc.ValidationError as default_error:
                             errors.extend(ne.add_context(key) for ne in default_error)
                         continue

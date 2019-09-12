@@ -49,7 +49,7 @@ class Int(abstract.Validator):
 
     __slots__ = ("nullable", "coerce", "min", "max", "options")
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, int):
@@ -119,7 +119,7 @@ class Float(abstract.Validator):
 
     __slots__ = ("nullable", "coerce", "nan", "inf", "min", "max")
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, float):

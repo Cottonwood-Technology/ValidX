@@ -72,7 +72,7 @@ cdef class Int(abstract.Validator):
     def max(self, value):
         self._max = value if value is not None else limits.LONG_MAX
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, int):
@@ -166,7 +166,7 @@ cdef class Float(abstract.Validator):
     def max(self, value):
         self._max = value if value is not None else float("inf")
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, float):

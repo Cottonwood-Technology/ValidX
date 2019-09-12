@@ -98,7 +98,7 @@ class Date(abstract.Validator):
         "tz",
     )
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
 
@@ -184,7 +184,7 @@ class Time(abstract.Validator):
 
     __slots__ = ("nullable", "format", "parser", "min", "max")
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, time):
@@ -307,7 +307,7 @@ class Datetime(abstract.Validator):
                 self.max is None or self.max.tzinfo is None
             ), "Datetime.max should be naive datetime object"
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
 

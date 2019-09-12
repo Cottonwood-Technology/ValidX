@@ -105,7 +105,7 @@ cdef class Date(abstract.Validator):
     cdef public relmax
     cdef public tz
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
 
@@ -197,7 +197,7 @@ cdef class Time(abstract.Validator):
     cdef public min
     cdef public max
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, time):
@@ -331,7 +331,7 @@ cdef class Datetime(abstract.Validator):
                 self.max is None or self.max.tzinfo is None
             ), "Datetime.max should be naive datetime object"
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
 

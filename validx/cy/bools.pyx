@@ -38,7 +38,7 @@ cdef class Bool(abstract.Validator):
     cdef public bint coerce_str
     cdef public bint coerce_int
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, bool):

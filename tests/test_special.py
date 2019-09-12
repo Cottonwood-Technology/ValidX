@@ -38,6 +38,27 @@ def test_lazyref(module):
     assert info.value[0].actual == 3
 
 
+def test_lazyref_context(module):
+    class MarkContext(module.Validator):
+        def __call__(self, value, __context=None):
+            __context["marked"] = True
+            return value
+
+    MarkContext(alias="foo")
+    v = module.LazyRef("foo")
+
+    context = {}
+    v(None, context)
+    assert context["marked"]
+
+    v = module.LazyRef("foo", maxdepth=1)
+
+    context = {}
+    v(None, context)
+    assert context["marked"]
+    assert context["foo.recursion_depth"] == 0
+
+
 # =============================================================================
 
 

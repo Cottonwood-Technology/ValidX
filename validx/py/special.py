@@ -1,8 +1,3 @@
-try:
-    import threading
-except ImportError:  # pragma: no cover
-    import dummy_threading as threading  # noqa
-
 from .. import exc
 from . import abstract, instances
 
@@ -12,11 +7,6 @@ class LazyRef(abstract.Validator):
     Lazy Referenced Validator
 
     It is useful to build validators for recursive structures.
-
-    It does not act as a pure function,
-    it changes its state during validation.
-    However,
-    it is thread-safe.
 
     ..  testsetup:: lazyref
 
@@ -65,24 +55,28 @@ class LazyRef(abstract.Validator):
 
     """
 
-    __slots__ = ("use", "maxdepth", "_state")
+    __slots__ = ("use", "maxdepth")
 
     def __init__(self, use, **kw):
-        super(LazyRef, self).__init__(use=use, _state=threading.local(), **kw)
+        super(LazyRef, self).__init__(use=use, **kw)
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
+        if __context is None:
+            __context = {}  # Setup context, if it's top level call
+
         instance = instances.get(self.use)
         if self.maxdepth is None:
-            return instance(value)
-        state = self._state.__dict__
+            return instance(value, __context)
+
         try:
-            depth = state.setdefault("depth", 0) + 1
+            key = self.use + ".recursion_depth"
+            depth = __context.setdefault(key, 0) + 1
             if depth > self.maxdepth:
                 raise exc.RecursionMaxDepthError(expected=self.maxdepth, actual=depth)
-            state["depth"] = depth
-            return instance(value)
+            __context[key] = depth
+            return instance(value, __context)
         finally:
-            state["depth"] -= 1
+            __context[key] -= 1
 
 
 class Type(abstract.Validator):
@@ -155,7 +149,7 @@ class Type(abstract.Validator):
                 "Type %r does not provide method '__len__()'" % tp
             )
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, self.tp):
@@ -202,7 +196,7 @@ class Const(abstract.Validator):
     def __init__(self, value, **kw):
         super(Const, self).__init__(value=value, **kw)
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value != self.value:
             raise exc.OptionsError(expected=[self.value], actual=value)
         return value
@@ -216,5 +210,5 @@ class Any(abstract.Validator):
 
     """
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         return value

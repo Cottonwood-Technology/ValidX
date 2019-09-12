@@ -59,7 +59,7 @@ class Str(abstract.Validator):
 
     __slots__ = ("nullable", "encoding", "minlen", "maxlen", "pattern", "options")
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, str):
@@ -111,7 +111,7 @@ class Bytes(abstract.Validator):
 
     __slots__ = ("nullable", "minlen", "maxlen")
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, bytes):

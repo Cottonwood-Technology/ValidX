@@ -35,10 +35,23 @@ def test_all_of(module):
     assert info.value.args == ("At least one validation step has to be passed",)
 
 
+def test_all_of_context(module):
+    class MarkContext(module.Validator):
+        def __call__(self, value, __context=None):
+            __context["marked"] = True
+            return value
+
+    v = module.AllOf(MarkContext())
+
+    context = {}
+    v(None, context)
+    assert context["marked"]
+
+
 # =============================================================================
 
 
-def test_any_of(module):
+def test_one_of(module):
     v = module.OneOf(module.Int(options=[1, 2, 3]), module.Int(min=10))
     assert v(1) == 1
     assert v(2) == 2
@@ -70,3 +83,16 @@ def test_any_of(module):
     with pytest.raises(AssertionError) as info:
         v(1)
     assert info.value.args == ("At least one validation step has to be passed",)
+
+
+def test_one_of_context(module):
+    class MarkContext(module.Validator):
+        def __call__(self, value, __context=None):
+            __context["marked"] = True
+            return value
+
+    v = module.OneOf(MarkContext())
+
+    context = {}
+    v(None, context)
+    assert context["marked"]

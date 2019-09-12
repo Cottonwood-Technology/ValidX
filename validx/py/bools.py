@@ -34,7 +34,7 @@ class Bool(abstract.Validator):
 
     __slots__ = ("nullable", "coerce_str", "coerce_int")
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, bool):

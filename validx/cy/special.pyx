@@ -1,10 +1,5 @@
 from libc cimport limits
 
-try:
-    import threading
-except ImportError:
-    import dummy_threading as threading
-
 from .. import exc
 from . cimport abstract, instances
 
@@ -14,11 +9,6 @@ cdef class LazyRef(abstract.Validator):
     Lazy Referenced Validator
 
     It is useful to build validators for recursive structures.
-
-    It does not act as a pure function,
-    it changes its state during validation.
-    However,
-    it is thread-safe.
 
     ..  testsetup:: lazyref
 
@@ -67,11 +57,10 @@ cdef class LazyRef(abstract.Validator):
 
     """
 
-    __slots__ = ("use", "maxdepth", "_state")
+    __slots__ = ("use", "maxdepth")
 
     cdef public str use
     cdef long _maxdepth
-    cdef public _state
 
     @property
     def maxdepth(self):
@@ -82,22 +71,26 @@ cdef class LazyRef(abstract.Validator):
         self._maxdepth = value if value is not None else 0
 
     def __init__(self, use, **kw):
-        super(LazyRef, self).__init__(use=use, _state=threading.local(), **kw)
+        super(LazyRef, self).__init__(use=use, **kw)
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
+        if __context is None:
+            __context = {}  # Setup context, if it's top level call
+
         instance = instances.get(self.use)
         if self._maxdepth == 0:
-            return instance(value)
+            return instance(value, __context)
+
         cdef long depth
-        state = self._state.__dict__
         try:
-            depth = state.setdefault("depth", 0) + 1
+            key = self.use + ".recursion_depth"
+            depth = __context.setdefault(key, 0) + 1
             if depth > self._maxdepth:
                 raise exc.RecursionMaxDepthError(expected=self._maxdepth, actual=depth)
-            state["depth"] = depth
-            return instance(value)
+            __context[key] = depth
+            return instance(value, __context)
         finally:
-            state["depth"] -= 1
+            __context[key] -= 1
 
 
 cdef class Type(abstract.Validator):
@@ -195,7 +188,7 @@ cdef class Type(abstract.Validator):
                 "Type %r does not provide method '__len__()'" % tp
             )
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, self.tp):
@@ -245,7 +238,7 @@ cdef class Const(abstract.Validator):
     def __init__(self, value, **kw):
         super(Const, self).__init__(value=value, **kw)
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value != self.value:
             raise exc.OptionsError(expected=[self.value], actual=value)
         return value
@@ -259,6 +252,6 @@ cdef class Any(abstract.Validator):
 
     """
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         return value
 

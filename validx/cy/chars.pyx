@@ -78,7 +78,7 @@ cdef class Str(abstract.Validator):
     def maxlen(self, value):
         self._maxlen = value if value is not None else limits.LONG_MAX
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, unicode):
@@ -150,7 +150,7 @@ cdef class Bytes(abstract.Validator):
     def maxlen(self, value):
         self._maxlen = value if value is not None else limits.LONG_MAX
 
-    def __call__(self, value):
+    def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
         if not isinstance(value, bytes):

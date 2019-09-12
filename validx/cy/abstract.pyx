@@ -50,8 +50,6 @@ cdef class Validator:
 
     def params(self):
         for slot in self.__slots__:
-            if slot.startswith("_"):
-                continue
             value = getattr(self, slot)
             if value is not None and value is not False:
                 yield slot, value
