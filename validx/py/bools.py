@@ -1,4 +1,5 @@
 from .. import exc
+from .. import contracts
 from . import abstract
 
 
@@ -33,6 +34,25 @@ class Bool(abstract.Validator):
     FALSE = ("0", "false", "no", "n", "off")
 
     __slots__ = ("nullable", "coerce_str", "coerce_int")
+
+    def __init__(
+        self,
+        nullable=False,
+        coerce_str=False,
+        coerce_int=False,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce_str = contracts.expect_flag(self, "coerce_str", coerce_str)
+        coerce_int = contracts.expect_flag(self, "coerce_int", coerce_int)
+
+        setattr = object.__setattr__
+        setattr(self, "nullable", nullable)
+        setattr(self, "coerce_str", coerce_str)
+        setattr(self, "coerce_int", coerce_int)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:

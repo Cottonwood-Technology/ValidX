@@ -25,11 +25,10 @@ cdef class Validator:
 
     __slots__ = ()
 
-    def __init__(self, alias=None, replace=False, **kw):
-        for slot in self.__slots__:
-            kw.setdefault(slot, None)
-        for slot, value in kw.items():
-            setattr(self, slot, value)
+    def __init__(self, alias=None, replace=False):
+        self._register(alias, replace)
+
+    def _register(self, alias=None, replace=False):
         if alias is not None:
             if replace:
                 instances.put(alias, self)

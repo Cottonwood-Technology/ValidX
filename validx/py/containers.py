@@ -6,6 +6,7 @@ try:
 except ImportError:  # pragma: no cover
     from collections import Sequence, Mapping
 
+from .. import contracts
 from .. import exc
 from . import abstract
 
@@ -52,8 +53,30 @@ class List(abstract.Validator):
 
     __slots__ = ("item", "nullable", "minlen", "maxlen", "unique")
 
-    def __init__(self, item, **kw):
-        super(List, self).__init__(item=item, **kw)
+    def __init__(
+        self,
+        item,
+        nullable=False,
+        minlen=None,
+        maxlen=None,
+        unique=False,
+        alias=None,
+        replace=False,
+    ):
+        item = contracts.expect(self, "item", item, types=abstract.Validator)
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+        unique = contracts.expect_flag(self, "unique", unique)
+
+        setattr = object.__setattr__
+        setattr(self, "item", item)
+        setattr(self, "nullable", nullable)
+        setattr(self, "minlen", minlen)
+        setattr(self, "maxlen", maxlen)
+        setattr(self, "unique", unique)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:
@@ -119,10 +142,17 @@ class Tuple(abstract.Validator):
 
     __slots__ = ("items", "nullable")
 
-    def __init__(self, *items, **kw):
-        kw.setdefault("items", items)
-        assert kw["items"], "Tuple should contain at least one item"
-        super(Tuple, self).__init__(**kw)
+    def __init__(self, *items_, items=None, nullable=False, alias=None, replace=False):
+        items = contracts.expect_sequence(
+            self, "items", items or items_, item_type=abstract.Validator
+        )
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+
+        setattr = object.__setattr__
+        setattr(self, "items", items)
+        setattr(self, "nullable", nullable)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:
@@ -243,8 +273,63 @@ class Dict(abstract.Validator):
         "multikeys",
     )
 
-    def __init__(self, schema=None, **kw):
-        super(Dict, self).__init__(schema=schema, **kw)
+    def __init__(
+        self,
+        schema=None,
+        nullable=False,
+        minlen=None,
+        maxlen=None,
+        extra=None,
+        defaults=None,
+        optional=None,
+        dispose=None,
+        multikeys=None,
+        alias=None,
+        replace=False,
+    ):
+        schema = contracts.expect_mapping(
+            self,
+            "schema",
+            schema,
+            nullable=True,
+            empty=True,
+            value_type=abstract.Validator,
+        )
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+        extra = contracts.expect_tuple(
+            self,
+            "extra",
+            extra,
+            nullable=True,
+            struct=(abstract.Validator, abstract.Validator),
+        )
+        defaults = contracts.expect_mapping(
+            self, "defaults", defaults, nullable=True, empty=True
+        )
+        optional = contracts.expect_container(
+            self, "optional", optional, nullable=True, empty=True
+        )
+        dispose = contracts.expect_container(
+            self, "dispose", dispose, nullable=True, empty=True
+        )
+        multikeys = contracts.expect_container(
+            self, "multikeys", multikeys, nullable=True, empty=True
+        )
+
+        setattr = object.__setattr__
+        setattr(self, "schema", schema)
+        setattr(self, "nullable", nullable)
+        setattr(self, "minlen", minlen)
+        setattr(self, "maxlen", maxlen)
+        setattr(self, "extra", extra)
+        setattr(self, "defaults", defaults)
+        setattr(self, "optional", optional)
+        setattr(self, "dispose", dispose)
+        setattr(self, "multikeys", multikeys)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:

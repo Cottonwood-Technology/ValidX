@@ -16,6 +16,9 @@ if platform.python_implementation() == "CPython":
         directives = {"language_level": sys.version_info[0]}
         ext_modules = cythonize("validx/cy/*.pyx", compiler_directives=directives)
 
+if sys.version_info[:2] >= (3, 5):
+    requirements.append("immutables")
+
 with open("validx/__init__.py") as f:
     version = next(line for line in f if line.startswith("__version__"))
     version = version.strip().split(" = ")[1]

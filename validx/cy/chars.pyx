@@ -2,6 +2,7 @@ from libc cimport limits
 import re
 
 from .. import exc
+from .. import contracts
 from . cimport abstract
 
 
@@ -55,28 +56,65 @@ cdef class Str(abstract.Validator):
 
     __slots__ = ("nullable", "encoding", "minlen", "maxlen", "pattern", "options")
 
-    cdef public bint nullable
-    cdef public str encoding
+    cdef bint _nullable
+    cdef str _encoding
     cdef long _minlen
     cdef long _maxlen
-    cdef public pattern
-    cdef public options
+    cdef str _pattern
+    cdef frozenset _options
+
+    @property
+    def nullable(self):
+        return self._nullable
+
+    @property
+    def encoding(self):
+        return self._encoding
 
     @property
     def minlen(self):
         return None if self._minlen == 0 else self._minlen
 
-    @minlen.setter
-    def minlen(self, value):
-        self._minlen = value if value is not None else 0
-
     @property
     def maxlen(self):
         return None if self._maxlen == limits.LONG_MAX else self._maxlen
 
-    @maxlen.setter
-    def maxlen(self, value):
-        self._maxlen = value if value is not None else limits.LONG_MAX
+    @property
+    def pattern(self):
+        return self._pattern
+
+    @property
+    def options(self):
+        return self._options
+
+    def __init__(
+        self,
+        nullable=False,
+        encoding=None,
+        minlen=None,
+        maxlen=None,
+        pattern=None,
+        options=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        encoding = contracts.expect_string(self, "encoding", encoding, nullable=True)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+        pattern = contracts.expect_string(self, "pattern", pattern, nullable=True)
+        options = contracts.expect_container(
+            self, "options", options, nullable=True, item_type=unicode
+        )
+
+        self._nullable = nullable
+        self._encoding = encoding
+        self._minlen = 0 if minlen is None else minlen
+        self._maxlen = limits.LONG_MAX if maxlen is None else maxlen
+        self._pattern = pattern
+        self._options = options
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
@@ -130,28 +168,37 @@ cdef class Bytes(abstract.Validator):
 
     __slots__ = ("nullable", "minlen", "maxlen")
 
-    cdef public nullable
+    cdef bint _nullable
     cdef long _minlen
     cdef long _maxlen
+
+    @property
+    def nullable(self):
+        return self._nullable
 
     @property
     def minlen(self):
         return None if self._minlen == 0 else self._minlen
 
-    @minlen.setter
-    def minlen(self, value):
-        self._minlen = value if value is not None else 0
-
     @property
     def maxlen(self):
         return None if self._maxlen == limits.LONG_MAX else self._maxlen
 
-    @maxlen.setter
-    def maxlen(self, value):
-        self._maxlen = value if value is not None else limits.LONG_MAX
+    def __init__(
+        self, nullable=False, minlen=None, maxlen=None, alias=None, replace=False
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+
+        self._nullable = nullable
+        self._minlen = 0 if minlen is None else minlen
+        self._maxlen = limits.LONG_MAX if maxlen is None else maxlen
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
-        if value is None and self.nullable:
+        if value is None and self._nullable:
             return value
         if not isinstance(value, bytes):
             raise exc.InvalidTypeError(expected=bytes, actual=type(value))

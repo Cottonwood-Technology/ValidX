@@ -1,6 +1,7 @@
 from libc cimport limits
 
 from .. import exc
+from .. import contracts
 from . cimport abstract, instances
 
 
@@ -59,19 +60,25 @@ cdef class LazyRef(abstract.Validator):
 
     __slots__ = ("use", "maxdepth")
 
-    cdef public str use
+    cdef str _use
     cdef long _maxdepth
+
+    @property
+    def use(self):
+        return self._use
 
     @property
     def maxdepth(self):
         return None if self._maxdepth == 0 else self._maxdepth
 
-    @maxdepth.setter
-    def maxdepth(self, value):
-        self._maxdepth = value if value is not None else 0
+    def __init__(self, use, maxdepth=None, alias=None, replace=False):
+        use = contracts.expect_string(self, "use", use)
+        maxdepth = contracts.expect_length(self, "maxdepth", maxdepth, nullable=True)
 
-    def __init__(self, use, **kw):
-        super(LazyRef, self).__init__(use=use, **kw)
+        self._use = use
+        self._maxdepth = 0 if maxdepth is None else maxdepth
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:
@@ -156,37 +163,85 @@ cdef class Type(abstract.Validator):
         "options",
     )
 
-    cdef public tp
-    cdef public bint nullable
-    cdef public bint coerce
-    cdef public min
-    cdef public max
+    cdef type _tp
+    cdef bint _nullable
+    cdef bint _coerce
+    cdef _min
+    cdef _max
     cdef long _minlen
     cdef long _maxlen
-    cdef public options
+    cdef _options
+
+    @property
+    def tp(self):
+        return self._tp
+
+    @property
+    def nullable(self):
+        return self._nullable
+
+    @property
+    def coerce(self):
+        return self._coerce
+
+    @property
+    def min(self):
+        return self._min
+
+    @property
+    def max(self):
+        return self._max
 
     @property
     def minlen(self):
         return None if self._minlen == 0 else self._minlen
 
-    @minlen.setter
-    def minlen(self, value):
-        self._minlen = value if value is not None else 0
-
     @property
     def maxlen(self):
         return None if self._maxlen == limits.LONG_MAX else self._maxlen
 
-    @maxlen.setter
-    def maxlen(self, value):
-        self._maxlen = value if value is not None else limits.LONG_MAX
+    @property
+    def options(self):
+        return self._options
 
-    def __init__(self, tp, **kw):
-        super(Type, self).__init__(tp=tp, **kw)
-        if self.minlen is not None or self.maxlen is not None:
-            assert hasattr(tp, "__len__"), (
-                "Type %r does not provide method '__len__()'" % tp
-            )
+    def __init__(
+        self,
+        tp,
+        nullable=False,
+        coerce=False,
+        min=None,
+        max=None,
+        minlen=None,
+        maxlen=None,
+        options=None,
+        alias=None,
+        replace=False,
+    ):
+        tp = contracts.expect(self, "tp", tp, types=type)
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce = contracts.expect_flag(self, "coerce", coerce)
+        min = contracts.expect(self, "min", min, types=tp, nullable=True)
+        max = contracts.expect(self, "max", max, types=tp, nullable=True)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+        options = contracts.expect_container(
+            self, "options", options, nullable=True, item_type=tp
+        )
+
+        if minlen is not None or maxlen is not None:
+            if not hasattr(tp, "__len__"):
+                raise TypeError("Type %r does not provide method '__len__()'" % tp)
+
+        self._tp = tp
+        self._nullable = nullable
+        self._coerce = coerce
+        self._min = min
+        self._max = max
+        self._minlen = 0 if minlen is None else minlen
+        self._maxlen = limits.LONG_MAX if maxlen is None else maxlen
+        self._options = options
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
@@ -233,10 +288,15 @@ cdef class Const(abstract.Validator):
 
     __slots__ = ("value",)
 
-    cdef public value
+    cdef _value
 
-    def __init__(self, value, **kw):
-        super(Const, self).__init__(value=value, **kw)
+    @property
+    def value(self):
+        return self._value
+
+    def __init__(self, value, alias=None, replace=False):
+        self._value = value
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value != self.value:

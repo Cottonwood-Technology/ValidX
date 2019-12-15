@@ -8,6 +8,7 @@ except ImportError:
     from collections import Sequence, Mapping
 
 from .. import exc
+from .. import contracts
 from . cimport abstract
 
 
@@ -49,30 +50,55 @@ cdef class List(abstract.Validator):
 
     __slots__ = ("item", "nullable", "minlen", "maxlen", "unique")
 
-    cdef public item
-    cdef public bint nullable
+    cdef _item
+    cdef bint _nullable
     cdef long _minlen
     cdef long _maxlen
-    cdef public bint unique
+    cdef bint _unique
+
+    @property
+    def item(self):
+        return self._item
+
+    @property
+    def nullable(self):
+        return self._nullable
 
     @property
     def minlen(self):
         return None if self._minlen == 0 else self._minlen
 
-    @minlen.setter
-    def minlen(self, value):
-        self._minlen = value if value is not None else 0
-
     @property
     def maxlen(self):
         return None if self._maxlen == limits.LONG_MAX else self._maxlen
 
-    @maxlen.setter
-    def maxlen(self, value):
-        self._maxlen = value if value is not None else limits.LONG_MAX
+    @property
+    def unique(self):
+        return self._unique
 
-    def __init__(self, item, **kw):
-        super(List, self).__init__(item=item, **kw)
+    def __init__(
+        self,
+        item,
+        nullable=False,
+        minlen=None,
+        maxlen=None,
+        unique=False,
+        alias=None,
+        replace=False,
+    ):
+        item = contracts.expect(self, "item", item, types=abstract.Validator)
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+        unique = contracts.expect_flag(self, "unique", unique)
+
+        self._item = item
+        self._nullable = nullable
+        self._minlen = 0 if minlen is None else minlen
+        self._maxlen = limits.LONG_MAX if maxlen is None else maxlen
+        self._unique = unique
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:
@@ -138,13 +164,27 @@ cdef class Tuple(abstract.Validator):
 
     __slots__ = ("items", "nullable")
 
-    cdef public items
-    cdef public bint nullable
+    cdef tuple _items
+    cdef bint _nullable
 
-    def __init__(self, *items, **kw):
-        kw.setdefault("items", items)
-        assert kw["items"], "Tuple should contain at least one item"
-        super(Tuple, self).__init__(**kw)
+    @property
+    def items(self):
+        return self._items
+
+    @property
+    def nullable(self):
+        return self._nullable
+
+    def __init__(self, *items_, items=None, nullable=False, alias=None, replace=False):
+        items = contracts.expect_sequence(
+            self, "items", items or items_, item_type=abstract.Validator
+        )
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+
+        self._items = items
+        self._nullable = nullable
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:
@@ -265,34 +305,108 @@ cdef class Dict(abstract.Validator):
         "multikeys",
     )
 
-    cdef public schema
-    cdef public bint nullable
+    cdef _schema
+    cdef bint _nullable
     cdef long _minlen
     cdef long _maxlen
-    cdef public extra
-    cdef public defaults
-    cdef public optional
-    cdef public dispose
-    cdef public multikeys
+    cdef tuple _extra
+    cdef _defaults
+    cdef frozenset _optional
+    cdef frozenset _dispose
+    cdef frozenset _multikeys
+
+    @property
+    def schema(self):
+        return self._schema
+
+    @property
+    def nullable(self):
+        return self._nullable
 
     @property
     def minlen(self):
         return None if self._minlen == 0 else self._minlen
 
-    @minlen.setter
-    def minlen(self, value):
-        self._minlen = value if value is not None else 0
-
     @property
     def maxlen(self):
         return None if self._maxlen == limits.LONG_MAX else self._maxlen
 
-    @maxlen.setter
-    def maxlen(self, value):
-        self._maxlen = value if value is not None else limits.LONG_MAX
+    @property
+    def extra(self):
+        return self._extra
 
-    def __init__(self, schema=None, **kw):
-        super(Dict, self).__init__(schema=schema, **kw)
+    @property
+    def defaults(self):
+        return self._defaults
+
+    @property
+    def optional(self):
+        return self._optional
+
+    @property
+    def dispose(self):
+        return self._dispose
+
+    @property
+    def multikeys(self):
+        return self._multikeys
+
+    def __init__(
+        self,
+        schema=None,
+        nullable=False,
+        minlen=None,
+        maxlen=None,
+        extra=None,
+        defaults=None,
+        optional=None,
+        dispose=None,
+        multikeys=None,
+        alias=None,
+        replace=False,
+    ):
+        schema = contracts.expect_mapping(
+            self,
+            "schema",
+            schema,
+            nullable=True,
+            empty=True,
+            value_type=abstract.Validator,
+        )
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+        extra = contracts.expect_tuple(
+            self,
+            "extra",
+            extra,
+            nullable=True,
+            struct=(abstract.Validator, abstract.Validator),
+        )
+        defaults = contracts.expect_mapping(
+            self, "defaults", defaults, nullable=True, empty=True
+        )
+        optional = contracts.expect_container(
+            self, "optional", optional, nullable=True, empty=True
+        )
+        dispose = contracts.expect_container(
+            self, "dispose", dispose, nullable=True, empty=True
+        )
+        multikeys = contracts.expect_container(
+            self, "multikeys", multikeys, nullable=True, empty=True
+        )
+
+        self._schema = schema
+        self._nullable = nullable
+        self._minlen = 0 if minlen is None else minlen
+        self._maxlen = limits.LONG_MAX if maxlen is None else maxlen
+        self._extra = extra
+        self._defaults = defaults
+        self._optional = optional
+        self._dispose = dispose
+        self._multikeys = multikeys
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:

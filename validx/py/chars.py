@@ -2,6 +2,7 @@ import re
 import sys
 
 from .. import exc
+from .. import contracts
 from . import abstract
 
 
@@ -59,6 +60,36 @@ class Str(abstract.Validator):
 
     __slots__ = ("nullable", "encoding", "minlen", "maxlen", "pattern", "options")
 
+    def __init__(
+        self,
+        nullable=False,
+        encoding=None,
+        minlen=None,
+        maxlen=None,
+        pattern=None,
+        options=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        encoding = contracts.expect_string(self, "encoding", encoding, nullable=True)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+        pattern = contracts.expect_string(self, "pattern", pattern, nullable=True)
+        options = contracts.expect_container(
+            self, "options", options, nullable=True, item_type=str
+        )
+
+        setattr = object.__setattr__
+        setattr(self, "nullable", nullable)
+        setattr(self, "encoding", encoding)
+        setattr(self, "minlen", minlen)
+        setattr(self, "maxlen", maxlen)
+        setattr(self, "pattern", pattern)
+        setattr(self, "options", options)
+
+        self._register(alias, replace)
+
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
@@ -110,6 +141,20 @@ class Bytes(abstract.Validator):
     """
 
     __slots__ = ("nullable", "minlen", "maxlen")
+
+    def __init__(
+        self, nullable=False, minlen=None, maxlen=None, alias=None, replace=False
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+
+        setattr = object.__setattr__
+        setattr(self, "nullable", nullable)
+        setattr(self, "minlen", minlen)
+        setattr(self, "maxlen", maxlen)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:

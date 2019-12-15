@@ -98,7 +98,7 @@ def test_int_options(module, options):
     else:
         with pytest.raises(exc.OptionsError) as info:
             v(4)
-        assert info.value.expected == options
+        assert info.value.expected == frozenset(options)
         assert info.value.actual == 4
 
 

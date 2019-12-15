@@ -1,4 +1,5 @@
 from .. import exc
+from .. import contracts
 from . cimport abstract
 
 
@@ -34,9 +35,39 @@ cdef class Bool(abstract.Validator):
 
     __slots__ = ("nullable", "coerce_str", "coerce_int")
 
-    cdef public bint nullable
-    cdef public bint coerce_str
-    cdef public bint coerce_int
+    cdef bint _nullable
+    cdef bint _coerce_str
+    cdef bint _coerce_int
+
+    @property
+    def nullable(self):
+        return self._nullable
+
+    @property
+    def coerce_str(self):
+        return self._coerce_str
+
+    @property
+    def coerce_int(self):
+        return self._coerce_int
+
+    def __init__(
+        self,
+        nullable=False,
+        coerce_str=False,
+        coerce_int=False,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce_str = contracts.expect_flag(self, "coerce_str", coerce_str)
+        coerce_int = contracts.expect_flag(self, "coerce_int", coerce_int)
+
+        self._nullable = nullable
+        self._coerce_str = coerce_str
+        self._coerce_int = coerce_int
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:

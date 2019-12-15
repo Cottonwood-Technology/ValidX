@@ -24,15 +24,11 @@ def test_all_of(module):
     assert info.value.expected == 10
     assert info.value.actual == 11
 
-    with pytest.raises(AssertionError) as info:
+    with pytest.raises(ValueError) as info:
         module.AllOf()
-    assert info.value.args == ("At least one validation step has to be provided",)
-
-    v = module.AllOf(module.Int())
-    v.steps = []
-    with pytest.raises(AssertionError) as info:
-        v(1)
-    assert info.value.args == ("At least one validation step has to be passed",)
+    assert info.value.args == (
+        "%s.AllOf.steps should not be empty" % module.AllOf.__module__,
+    )
 
 
 def test_all_of_context(module):
@@ -66,7 +62,7 @@ def test_one_of(module):
 
     assert isinstance(info.value[0], exc.OptionsError)
     assert info.value[0].context == deque([exc.Step(0)])
-    assert info.value[0].expected == [1, 2, 3]
+    assert info.value[0].expected == frozenset([1, 2, 3])
     assert info.value[0].actual == 9
 
     assert isinstance(info.value[1], exc.MinValueError)
@@ -74,15 +70,11 @@ def test_one_of(module):
     assert info.value[1].expected == 10
     assert info.value[1].actual == 9
 
-    with pytest.raises(AssertionError) as info:
+    with pytest.raises(ValueError) as info:
         module.OneOf()
-    assert info.value.args == ("At least one validation step has to be provided",)
-
-    v = module.OneOf(module.Int())
-    v.steps = []
-    with pytest.raises(AssertionError) as info:
-        v(1)
-    assert info.value.args == ("At least one validation step has to be passed",)
+    assert info.value.args == (
+        "%s.OneOf.steps should not be empty" % module.OneOf.__module__,
+    )
 
 
 def test_one_of_context(module):

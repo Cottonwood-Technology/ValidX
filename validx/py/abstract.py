@@ -34,11 +34,10 @@ class Validator(ABC):
 
     __slots__ = ()
 
-    def __init__(self, alias=None, replace=False, **kw):
-        for slot in self.__slots__:
-            kw.setdefault(slot, None)
-        for slot, value in kw.items():
-            setattr(self, slot, value)
+    def __init__(self, alias=None, replace=False):
+        self._register(alias, replace)
+
+    def _register(self, alias=None, replace=False):
         if alias is not None:
             if replace:
                 instances.put(alias, self)
@@ -54,6 +53,9 @@ class Validator(ABC):
         and it should be implemented by descendant class.
 
         """
+
+    def __setattr__(self, name, value):
+        raise NotImplementedError("%s object is immutable", self.__class__)
 
     def __repr__(self):
         params = ", ".join("%s=%r" % (slot, value) for slot, value in self.params())

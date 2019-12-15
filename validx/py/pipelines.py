@@ -1,8 +1,4 @@
-try:
-    import typing as t  # noqa
-except ImportError:  # pragma: no cover
-    pass
-
+from .. import contracts
 from .. import exc
 from . import abstract
 
@@ -29,23 +25,25 @@ class AllOf(abstract.Validator):
 
     __slots__ = ("steps",)
 
-    def __init__(self, *steps, **kw):
-        kw.setdefault("steps", steps)
-        assert kw["steps"], "At least one validation step has to be provided"
-        super(AllOf, self).__init__(**kw)
+    def __init__(self, *steps_, steps=None, alias=None, replace=False):
+        steps = contracts.expect_sequence(
+            self, "steps", steps or steps_, item_type=abstract.Validator
+        )
+
+        setattr = object.__setattr__
+        setattr(self, "steps", steps)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:
             __context = {}  # Setup context, if it's top level call
 
-        validated = False
         for num, step in enumerate(self.steps):
-            validated = True
             try:
                 value = step(value, __context)
             except exc.ValidationError as e:
                 raise e.add_context(exc.Step(num))
-        assert validated, "At least one validation step has to be passed"
         return value
 
 
@@ -72,10 +70,15 @@ class OneOf(abstract.Validator):
 
     __slots__ = ("steps",)
 
-    def __init__(self, *steps, **kw):
-        kw.setdefault("steps", steps)
-        assert kw["steps"], "At least one validation step has to be provided"
-        super(OneOf, self).__init__(**kw)
+    def __init__(self, *steps_, steps=None, alias=None, replace=False):
+        steps = contracts.expect_sequence(
+            self, "steps", steps or steps_, item_type=abstract.Validator
+        )
+
+        setattr = object.__setattr__
+        setattr(self, "steps", steps)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:
@@ -89,4 +92,3 @@ class OneOf(abstract.Validator):
                 errors.extend(ne.add_context(exc.Step(num)) for ne in e)
         if errors:
             raise exc.SchemaError(errors)
-        assert False, "At least one validation step has to be passed"

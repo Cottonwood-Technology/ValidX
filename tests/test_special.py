@@ -146,7 +146,7 @@ def test_type_min_max(module, min, max):
 @pytest.mark.parametrize("maxlen", [None, 5])
 def test_type_minlen_maxlen(module, minlen, maxlen):
     if minlen or maxlen:
-        with pytest.raises(AssertionError) as info:
+        with pytest.raises(TypeError) as info:
             module.Type(int, minlen=minlen, maxlen=maxlen)
         assert info.value.args[0] == "Type %r does not provide method '__len__()'" % int
 
@@ -185,7 +185,7 @@ def test_type_options(module, options):
     else:
         with pytest.raises(exc.OptionsError) as info:
             v(4)
-        assert info.value.expected == options
+        assert info.value.expected == frozenset(options)
         assert info.value.actual == 4
 
 

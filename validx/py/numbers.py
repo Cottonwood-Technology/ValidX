@@ -1,5 +1,6 @@
 import math
 
+from .. import contracts
 from .. import exc
 from . import abstract
 
@@ -48,6 +49,33 @@ class Int(abstract.Validator):
     """
 
     __slots__ = ("nullable", "coerce", "min", "max", "options")
+
+    def __init__(
+        self,
+        nullable=False,
+        coerce=False,
+        min=None,
+        max=None,
+        options=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce = contracts.expect_flag(self, "coerce", coerce)
+        min = contracts.expect(self, "min", min, nullable=True, types=int)
+        max = contracts.expect(self, "max", max, nullable=True, types=int)
+        options = contracts.expect_container(
+            self, "options", options, nullable=True, item_type=int
+        )
+
+        setattr = object.__setattr__
+        setattr(self, "nullable", nullable)
+        setattr(self, "coerce", coerce)
+        setattr(self, "min", min)
+        setattr(self, "max", max)
+        setattr(self, "options", options)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
@@ -118,6 +146,38 @@ class Float(abstract.Validator):
     """
 
     __slots__ = ("nullable", "coerce", "nan", "inf", "min", "max")
+
+    def __init__(
+        self,
+        nullable=False,
+        coerce=False,
+        nan=False,
+        inf=False,
+        min=None,
+        max=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce = contracts.expect_flag(self, "coerce", coerce)
+        nan = contracts.expect_flag(self, "nan", nan)
+        inf = contracts.expect_flag(self, "inf", inf)
+        min = contracts.expect(
+            self, "min", min, nullable=True, types=(int, float), convert_to=float
+        )
+        max = contracts.expect(
+            self, "max", max, nullable=True, types=(int, float), convert_to=float
+        )
+
+        setattr = object.__setattr__
+        setattr(self, "nullable", nullable)
+        setattr(self, "coerce", coerce)
+        setattr(self, "nan", nan)
+        setattr(self, "inf", inf)
+        setattr(self, "min", min)
+        setattr(self, "max", max)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:

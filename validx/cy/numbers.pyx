@@ -2,6 +2,7 @@ from libc cimport math
 from libc cimport limits
 
 from .. import exc
+from .. import contracts
 from . cimport abstract
 
 
@@ -50,27 +51,57 @@ cdef class Int(abstract.Validator):
 
     __slots__ = ("nullable", "coerce", "min", "max", "options")
 
-    cdef public bint nullable
-    cdef public bint coerce
+    cdef bint _nullable
+    cdef bint _coerce
     cdef long _min
     cdef long _max
-    cdef public options
+    cdef _options
+
+    @property
+    def nullable(self):
+        return self._nullable
+
+    @property
+    def coerce(self):
+        return self._coerce
 
     @property
     def min(self):
         return None if self._min == limits.LONG_MIN else self._min
 
-    @min.setter
-    def min(self, value):
-        self._min = value if value is not None else limits.LONG_MIN
-
     @property
     def max(self):
         return None if self._max == limits.LONG_MAX else self._max
 
-    @max.setter
-    def max(self, value):
-        self._max = value if value is not None else limits.LONG_MAX
+    @property
+    def options(self):
+        return self._options
+
+    def __init__(
+        self,
+        nullable=False,
+        coerce=False,
+        min=None,
+        max=None,
+        options=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce = contracts.expect_flag(self, "coerce", coerce)
+        min = contracts.expect(self, "min", min, nullable=True, types=int)
+        max = contracts.expect(self, "max", max, nullable=True, types=int)
+        options = contracts.expect_container(
+            self, "options", options, nullable=True, item_type=int
+        )
+
+        self._nullable = nullable
+        self._coerce = coerce
+        self._min = limits.LONG_MIN if min is None else min
+        self._max = limits.LONG_MAX if max is None else max
+        self._options = options
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
@@ -143,28 +174,67 @@ cdef class Float(abstract.Validator):
 
     __slots__ = ("nullable", "coerce", "nan", "inf", "min", "max")
 
-    cdef public bint nullable
-    cdef public bint coerce
-    cdef public bint nan
-    cdef public bint inf
-    cdef public float _min
-    cdef public float _max
+    cdef bint _nullable
+    cdef bint _coerce
+    cdef bint _nan
+    cdef bint _inf
+    cdef double _min
+    cdef double _max
+
+    @property
+    def nullable(self):
+        return self._nullable
+
+    @property
+    def coerce(self):
+        return self._coerce
+
+    @property
+    def nan(self):
+        return self._nan
+
+    @property
+    def inf(self):
+        return self._inf
 
     @property
     def min(self):
         return None if self._min == float("-inf") else self._min
 
-    @min.setter
-    def min(self, value):
-        self._min = value if value is not None else float("-inf")
-
     @property
     def max(self):
-        return None if self._max == float("inf") else self._max
+        return None if self._max == float("+inf") else self._max
 
-    @max.setter
-    def max(self, value):
-        self._max = value if value is not None else float("inf")
+    def __init__(
+        self,
+        nullable=False,
+        coerce=False,
+        nan=False,
+        inf=False,
+        min=None,
+        max=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce = contracts.expect_flag(self, "coerce", coerce)
+        nan = contracts.expect_flag(self, "nan", nan)
+        inf = contracts.expect_flag(self, "inf", inf)
+        min = contracts.expect(
+            self, "min", min, nullable=True, types=(int, float), convert_to=float
+        )
+        max = contracts.expect(
+            self, "max", max, nullable=True, types=(int, float), convert_to=float
+        )
+
+        self._nullable = nullable
+        self._coerce = coerce
+        self._nan = nan
+        self._inf = inf
+        self._min = float("-inf") if min is None else min
+        self._max = float("+inf") if max is None else max
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
@@ -180,7 +250,7 @@ cdef class Float(abstract.Validator):
                     value = float(value)
                 except (TypeError, ValueError):
                     raise exc.InvalidTypeError(expected=float, actual=type(value))
-        cdef float _value = value
+        cdef double _value = value
         if math.isnan(_value):
             if not self.nan:
                 raise exc.FloatValueError(expected="number", actual=value)

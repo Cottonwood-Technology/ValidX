@@ -1,4 +1,5 @@
 from .. import exc
+from .. import contracts
 from . cimport abstract
 
 
@@ -24,12 +25,17 @@ cdef class AllOf(abstract.Validator):
 
     __slots__ = ("steps",)
 
-    cdef public steps
+    cdef tuple _steps
 
-    def __init__(self, *steps, **kw):
-        kw.setdefault("steps", steps)
-        assert kw["steps"], "At least one validation step has to be provided"
-        super(AllOf, self).__init__(**kw)
+    @property
+    def steps(self):
+        return self._steps
+
+    def __init__(self, *steps_, steps=None, alias=None, replace=False):
+        self._steps = contracts.expect_sequence(
+            self, "steps", steps or steps_, item_type=abstract.Validator
+        )
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:
@@ -69,12 +75,17 @@ cdef class OneOf(abstract.Validator):
 
     __slots__ = ("steps",)
 
-    cdef public steps
+    cdef tuple _steps
 
-    def __init__(self, *steps, **kw):
-        kw.setdefault("steps", steps)
-        assert kw["steps"], "At least one validation step has to be provided"
-        super(OneOf, self).__init__(**kw)
+    @property
+    def steps(self):
+        return self._steps
+
+    def __init__(self, *steps_, steps=None, alias=None, replace=False):
+        self._steps = contracts.expect_sequence(
+            self, "steps", steps or steps_, item_type=abstract.Validator
+        )
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:

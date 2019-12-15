@@ -1,4 +1,5 @@
 from .. import exc
+from .. import contracts
 from . import abstract, instances
 
 
@@ -57,8 +58,15 @@ class LazyRef(abstract.Validator):
 
     __slots__ = ("use", "maxdepth")
 
-    def __init__(self, use, **kw):
-        super(LazyRef, self).__init__(use=use, **kw)
+    def __init__(self, use, maxdepth=None, alias=None, replace=False):
+        use = contracts.expect_string(self, "use", use)
+        maxdepth = contracts.expect_length(self, "maxdepth", maxdepth, nullable=True)
+
+        setattr = object.__setattr__
+        setattr(self, "use", use)
+        setattr(self, "maxdepth", maxdepth)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if __context is None:
@@ -142,12 +150,45 @@ class Type(abstract.Validator):
         "options",
     )
 
-    def __init__(self, tp, **kw):
-        super(Type, self).__init__(tp=tp, **kw)
-        if self.minlen is not None or self.maxlen is not None:
-            assert hasattr(tp, "__len__"), (
-                "Type %r does not provide method '__len__()'" % tp
-            )
+    def __init__(
+        self,
+        tp,
+        nullable=False,
+        coerce=False,
+        min=None,
+        max=None,
+        minlen=None,
+        maxlen=None,
+        options=None,
+        alias=None,
+        replace=False,
+    ):
+        tp = contracts.expect(self, "tp", tp, types=type)
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce = contracts.expect_flag(self, "coerce", coerce)
+        min = contracts.expect(self, "min", min, types=tp, nullable=True)
+        max = contracts.expect(self, "max", max, types=tp, nullable=True)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+        options = contracts.expect_container(
+            self, "options", options, nullable=True, item_type=tp
+        )
+
+        if minlen is not None or maxlen is not None:
+            if not hasattr(tp, "__len__"):
+                raise TypeError("Type %r does not provide method '__len__()'" % tp)
+
+        setattr = object.__setattr__
+        setattr(self, "tp", tp)
+        setattr(self, "nullable", nullable)
+        setattr(self, "coerce", coerce)
+        setattr(self, "min", min)
+        setattr(self, "max", max)
+        setattr(self, "minlen", minlen)
+        setattr(self, "maxlen", maxlen)
+        setattr(self, "options", options)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
@@ -193,8 +234,11 @@ class Const(abstract.Validator):
 
     __slots__ = ("value",)
 
-    def __init__(self, value, **kw):
-        super(Const, self).__init__(value=value, **kw)
+    def __init__(self, value, alias=None, replace=False):
+        setattr = object.__setattr__
+        setattr(self, "value", value)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value != self.value:

@@ -115,7 +115,7 @@ def test_str_options(module, options):
     else:
         with pytest.raises(exc.OptionsError) as info:
             v(u"123")
-        assert info.value.expected == options
+        assert info.value.expected == frozenset(options)
         assert info.value.actual == u"123"
 
 

@@ -1,7 +1,8 @@
 import sys
-from datetime import date, time, datetime
+from datetime import date, time, datetime, timedelta, tzinfo
 
 from .. import exc
+from .. import contracts
 from .. import util
 from . import abstract
 
@@ -98,6 +99,47 @@ class Date(abstract.Validator):
         "tz",
     )
 
+    def __init__(
+        self,
+        nullable=False,
+        unixts=False,
+        format=None,
+        parser=None,
+        min=None,
+        max=None,
+        relmin=None,
+        relmax=None,
+        tz=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        unixts = contracts.expect_flag(self, "unixts", unixts)
+        format = contracts.expect_string(self, "format", format, nullable=True)
+        parser = contracts.expect_callable(self, "parser", parser, nullable=True)
+        min = contracts.expect(self, "min", min, types=date, nullable=True)
+        max = contracts.expect(self, "max", max, types=date, nullable=True)
+        relmin = contracts.expect(
+            self, "relmin", relmin, types=timedelta, nullable=True
+        )
+        relmax = contracts.expect(
+            self, "relmax", relmax, types=timedelta, nullable=True
+        )
+        tz = contracts.expect(self, "tz", tz, types=tzinfo, nullable=True)
+
+        setattr = object.__setattr__
+        setattr(self, "nullable", nullable)
+        setattr(self, "unixts", unixts)
+        setattr(self, "format", format)
+        setattr(self, "parser", parser)
+        setattr(self, "min", min)
+        setattr(self, "max", max)
+        setattr(self, "relmin", relmin)
+        setattr(self, "relmax", relmax)
+        setattr(self, "tz", tz)
+
+        self._register(alias, replace)
+
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
@@ -183,6 +225,31 @@ class Time(abstract.Validator):
     """
 
     __slots__ = ("nullable", "format", "parser", "min", "max")
+
+    def __init__(
+        self,
+        nullable=False,
+        format=None,
+        parser=None,
+        min=None,
+        max=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        format = contracts.expect_string(self, "format", format, nullable=True)
+        parser = contracts.expect_callable(self, "parser", parser, nullable=True)
+        min = contracts.expect(self, "min", min, types=time, nullable=True)
+        max = contracts.expect(self, "max", max, types=time, nullable=True)
+
+        setattr = object.__setattr__
+        setattr(self, "nullable", nullable)
+        setattr(self, "format", format)
+        setattr(self, "parser", parser)
+        setattr(self, "min", min)
+        setattr(self, "max", max)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
@@ -286,26 +353,73 @@ class Datetime(abstract.Validator):
         "tz",
     )
 
-    def __init__(self, **kw):
-        super(Datetime, self).__init__(**kw)
-        if self.tz is not None:
-            if self.min is not None:
-                assert (
-                    self.min.tzinfo is not None
-                ), "Datetime.min should be timezone-aware datetime object"
-                self.min = self.min.astimezone(self.tz)
-            if self.max is not None:
-                assert (
-                    self.max.tzinfo is not None
-                ), "Datetime.max should be timezone-aware datetime object"
-                self.max = self.max.astimezone(self.tz)
+    def __init__(
+        self,
+        nullable=False,
+        unixts=False,
+        format=None,
+        parser=None,
+        min=None,
+        max=None,
+        relmin=None,
+        relmax=None,
+        tz=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        unixts = contracts.expect_flag(self, "unixts", unixts)
+        format = contracts.expect_string(self, "format", format, nullable=True)
+        parser = contracts.expect_callable(self, "parser", parser, nullable=True)
+        min = contracts.expect(self, "min", min, types=datetime, nullable=True)
+        max = contracts.expect(self, "max", max, types=datetime, nullable=True)
+        relmin = contracts.expect(
+            self, "relmin", relmin, types=timedelta, nullable=True
+        )
+        relmax = contracts.expect(
+            self, "relmax", relmax, types=timedelta, nullable=True
+        )
+        tz = contracts.expect(self, "tz", tz, types=tzinfo, nullable=True)
+
+        if tz is not None:
+            if min is not None:
+                if min.tzinfo is None:
+                    raise ValueError(
+                        "%s.%s.min should be timezone-aware datetime object"
+                        % (self.__class__.__module__, self.__class__.__name__)
+                    )
+                min = min.astimezone(tz)
+            if max is not None:
+                if max.tzinfo is None:
+                    raise ValueError(
+                        "%s.%s.max should be timezone-aware datetime object"
+                        % (self.__class__.__module__, self.__class__.__name__)
+                    )
+                max = max.astimezone(tz)
         else:
-            assert (
-                self.min is None or self.min.tzinfo is None
-            ), "Datetime.min should be naive datetime object"
-            assert (
-                self.max is None or self.max.tzinfo is None
-            ), "Datetime.max should be naive datetime object"
+            if min is not None and min.tzinfo is not None:
+                raise ValueError(
+                    "%s.%s.min should be naive datetime object"
+                    % (self.__class__.__module__, self.__class__.__name__)
+                )
+            if max is not None and max.tzinfo is not None:
+                raise ValueError(
+                    "%s.%s.max should be naive datetime object"
+                    % (self.__class__.__module__, self.__class__.__name__)
+                )
+
+        setattr = object.__setattr__
+        setattr(self, "nullable", nullable)
+        setattr(self, "unixts", unixts)
+        setattr(self, "format", format)
+        setattr(self, "parser", parser)
+        setattr(self, "min", min)
+        setattr(self, "max", max)
+        setattr(self, "relmin", relmin)
+        setattr(self, "relmax", relmax)
+        setattr(self, "tz", tz)
+
+        self._register(alias, replace)
 
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
