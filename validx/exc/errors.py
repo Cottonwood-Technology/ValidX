@@ -1,9 +1,6 @@
 from collections import deque
 
-try:
-    from collections.abc import Sequence
-except ImportError:  # pragma: no cover
-    from collections import Sequence
+from ..compat.colabc import Sequence
 
 
 class ValidationError(ValueError, Sequence):

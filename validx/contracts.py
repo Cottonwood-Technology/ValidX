@@ -1,14 +1,6 @@
-import sys
-
-try:
-    from collections.abc import Container, Sequence, Mapping, Callable
-except ImportError:  # pragma: no cover
-    from collections import Container, Sequence, Mapping, Callable
-
-from .util import Map
-
-if sys.version_info[0] < 3:  # pragma: no cover
-    str = unicode  # noqa
+from .compat.colabc import Container, Sequence, Mapping, Callable
+from .compat.immutables import Map
+from .compat.types import chars, basestr
 
 
 def expect(obj, attr, value, nullable=False, types=None, convert_to=None):
@@ -39,8 +31,8 @@ def expect_length(obj, attr, value, nullable=False):
     return value
 
 
-def expect_string(obj, attr, value, nullable=False):
-    return expect(obj, attr, value, nullable=nullable, types=str)
+def expect_basestr(obj, attr, value, nullable=False):
+    return expect(obj, attr, value, nullable=nullable, types=basestr)
 
 
 def expect_callable(obj, attr, value, nullable=False):
@@ -48,7 +40,7 @@ def expect_callable(obj, attr, value, nullable=False):
 
 
 def expect_container(obj, attr, value, nullable=False, empty=False, item_type=None):
-    if isinstance(value, (str, bytes)):
+    if isinstance(value, chars):
         raise TypeError(
             "%s.%s.%s should not be of type %r"
             % (obj.__class__.__module__, obj.__class__.__name__, attr, type(value))
@@ -83,7 +75,7 @@ def expect_container(obj, attr, value, nullable=False, empty=False, item_type=No
 
 
 def expect_sequence(obj, attr, value, nullable=False, empty=False, item_type=None):
-    if isinstance(value, (str, bytes)):
+    if isinstance(value, chars):
         raise TypeError(
             "%s.%s.%s should not be of type %r"
             % (obj.__class__.__module__, obj.__class__.__name__, attr, type(value))

@@ -2,11 +2,9 @@ from datetime import date, time, datetime, timedelta, tzinfo
 
 from .. import exc
 from .. import contracts
-from .. import util
+from ..compat.datetime import UTC
+from ..compat.types import basestr
 from . cimport abstract
-
-
-string = (str, unicode)
 
 
 cdef class Date(abstract.Validator):
@@ -98,13 +96,13 @@ cdef class Date(abstract.Validator):
 
     cdef bint _nullable
     cdef bint _unixts
-    cdef _format
-    cdef _parser
-    cdef _min
-    cdef _max
-    cdef _relmin
-    cdef _relmax
-    cdef _tz
+    cdef basestring _format
+    cdef object _parser
+    cdef object _min
+    cdef object _max
+    cdef object _relmin
+    cdef object _relmax
+    cdef object _tz
 
     @property
     def nullable(self):
@@ -158,7 +156,7 @@ cdef class Date(abstract.Validator):
     ):
         nullable = contracts.expect_flag(self, "nullable", nullable)
         unixts = contracts.expect_flag(self, "unixts", unixts)
-        format = contracts.expect_string(self, "format", format, nullable=True)
+        format = contracts.expect_basestr(self, "format", format, nullable=True)
         parser = contracts.expect_callable(self, "parser", parser, nullable=True)
         min = contracts.expect(self, "min", min, types=date, nullable=True)
         max = contracts.expect(self, "max", max, types=date, nullable=True)
@@ -189,14 +187,14 @@ cdef class Date(abstract.Validator):
         if not isinstance(value, (date, datetime)):
             if isinstance(value, (int, float)) and self.unixts:
                 # Value will be arranged to ``self.tz`` below.
-                tz = None if self.tz is None else util.UTC
+                tz = None if self.tz is None else UTC
                 value = datetime.fromtimestamp(value, tz)
-            elif isinstance(value, string) and self.format is not None:
+            elif isinstance(value, basestr) and self.format is not None:
                 try:
                     value = datetime.strptime(value, self.format)
                 except ValueError:
                     raise exc.DatetimeParseError(expected=self.format, actual=value)
-            elif isinstance(value, string) and self.parser is not None:
+            elif isinstance(value, basestr) and self.parser is not None:
                 try:
                     value = self.parser(value)
                 except ValueError:
@@ -269,10 +267,10 @@ cdef class Time(abstract.Validator):
     __slots__ = ("nullable", "format", "parser", "min", "max")
 
     cdef bint _nullable
-    cdef _format
-    cdef _parser
-    cdef _min
-    cdef _max
+    cdef basestring _format
+    cdef object _parser
+    cdef object _min
+    cdef object _max
 
     @property
     def nullable(self):
@@ -305,7 +303,7 @@ cdef class Time(abstract.Validator):
         replace=False,
     ):
         nullable = contracts.expect_flag(self, "nullable", nullable)
-        format = contracts.expect_string(self, "format", format, nullable=True)
+        format = contracts.expect_basestr(self, "format", format, nullable=True)
         parser = contracts.expect_callable(self, "parser", parser, nullable=True)
         min = contracts.expect(self, "min", min, types=time, nullable=True)
         max = contracts.expect(self, "max", max, types=time, nullable=True)
@@ -322,12 +320,12 @@ cdef class Time(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, time):
-            if isinstance(value, string) and self.format is not None:
+            if isinstance(value, basestr) and self.format is not None:
                 try:
                     value = datetime.strptime(value, self.format).time()
                 except ValueError:
                     raise exc.DatetimeParseError(expected=self.format, actual=value)
-            elif isinstance(value, string) and self.parser is not None:
+            elif isinstance(value, basestr) and self.parser is not None:
                 try:
                     value = self.parser(value).time()
                 except ValueError:
@@ -423,13 +421,13 @@ cdef class Datetime(abstract.Validator):
 
     cdef bint _nullable
     cdef bint _unixts
-    cdef _format
-    cdef _parser
-    cdef _min
-    cdef _max
-    cdef _relmin
-    cdef _relmax
-    cdef _tz
+    cdef basestring _format
+    cdef object _parser
+    cdef object _min
+    cdef object _max
+    cdef object _relmin
+    cdef object _relmax
+    cdef object _tz
 
     @property
     def nullable(self):
@@ -483,7 +481,7 @@ cdef class Datetime(abstract.Validator):
     ):
         nullable = contracts.expect_flag(self, "nullable", nullable)
         unixts = contracts.expect_flag(self, "unixts", unixts)
-        format = contracts.expect_string(self, "format", format, nullable=True)
+        format = contracts.expect_basestr(self, "format", format, nullable=True)
         parser = contracts.expect_callable(self, "parser", parser, nullable=True)
         min = contracts.expect(self, "min", min, types=datetime, nullable=True)
         max = contracts.expect(self, "max", max, types=datetime, nullable=True)
@@ -544,14 +542,14 @@ cdef class Datetime(abstract.Validator):
                 value = datetime.combine(value, time(tzinfo=self.tz))
             elif isinstance(value, (int, float)) and self.unixts:
                 # Value will be arranged to ``self.tz`` below.
-                tz = None if self.tz is None else util.UTC
+                tz = None if self.tz is None else UTC
                 value = datetime.fromtimestamp(value, tz)
-            elif isinstance(value, string) and self.format is not None:
+            elif isinstance(value, basestr) and self.format is not None:
                 try:
                     value = datetime.strptime(value, self.format)
                 except ValueError:
                     raise exc.DatetimeParseError(expected=self.format, actual=value)
-            elif isinstance(value, string) and self.parser is not None:
+            elif isinstance(value, basestr) and self.parser is not None:
                 try:
                     value = self.parser(value)
                 except ValueError:
@@ -573,7 +571,7 @@ cdef class Datetime(abstract.Validator):
             raise exc.MaxValueError(expected=self.max, actual=value)
         if self.relmin is not None or self.relmax is not None:
             if self.tz is not None:
-                now = datetime.now(util.UTC).astimezone(self.tz)
+                now = datetime.now(UTC).astimezone(self.tz)
             else:
                 now = datetime.now()
             if self.relmin is not None and value < now + self.relmin:

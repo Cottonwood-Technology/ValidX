@@ -1,13 +1,7 @@
 # coding: utf-8
 
-import sys
-
 from . import errors
-
-if sys.version_info[0] < 3:  # pragma: no cover
-    string = basestring  # noqa
-else:  # pragma: no cover
-    string = str
+from ..compat.types import basestr
 
 
 class Formatter(object):
@@ -45,14 +39,14 @@ class Formatter(object):
         for exc_class, template in templates.items():
             assert isinstance(exc_class, type), exc_class
             assert issubclass(exc_class, errors.ValidationError), exc_class
-            assert isinstance(template, (string, list, tuple)), template
+            assert isinstance(template, (basestr, list, tuple)), template
             if isinstance(template, (list, tuple)):
                 for f in template:
-                    assert isinstance(f, (string, tuple))
+                    assert isinstance(f, (basestr, tuple))
                     if isinstance(f, tuple):
                         assert len(f) == 2, f
                         assert callable(f[0]), f[0]
-                        assert isinstance(f[1], string), f[1]
+                        assert isinstance(f[1], basestr), f[1]
         self._templates = templates
 
     def __call__(self, error):
@@ -73,14 +67,14 @@ class Formatter(object):
             template = self._templates.get(type(e))
             if template is None:
                 result.append((context, e.format_error()))
-            elif isinstance(template, string):
+            elif isinstance(template, basestr):
                 result.append((context, template.format(e)))
             elif isinstance(template, (list, tuple)):
                 for f in template:
                     if isinstance(f, tuple) and f[0](e):
                         result.append((context, f[1].format(e)))
                         break
-                    elif isinstance(f, string):
+                    elif isinstance(f, basestr):
                         result.append((context, f.format(e)))
                         break
                 else:
@@ -127,7 +121,7 @@ format_error = Formatter(
         errors.PatternMatchError: u"Cannot match “{0.actual}” using “{0.expected}”.",
         errors.DatetimeParseError: [
             (
-                lambda error: isinstance(error.expected, string),
+                lambda error: isinstance(error.expected, basestr),
                 u"Cannot parse date/time value from “{0.actual}” using “{0.expected}” format.",
             ),
             u"Cannot parse date/time value from “{0.actual}”.",

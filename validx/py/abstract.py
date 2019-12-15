@@ -1,15 +1,8 @@
-import sys
 import inspect
 from copy import deepcopy
 
 from . import classes, instances
-
-if sys.version_info[0] < 3:  # pragma: no cover
-    from abc import ABCMeta, abstractmethod
-
-    ABC = ABCMeta("ABC", (object,), {})
-else:  # pragma: no cover
-    from abc import ABC, abstractmethod
+from ..compat.abc import ABC, abstractmethod
 
 
 class Validator(ABC):

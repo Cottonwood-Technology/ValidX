@@ -3,6 +3,7 @@ import re
 
 from .. import exc
 from .. import contracts
+from ..compat.types import string
 from . cimport abstract
 
 
@@ -57,10 +58,10 @@ cdef class Str(abstract.Validator):
     __slots__ = ("nullable", "encoding", "minlen", "maxlen", "pattern", "options")
 
     cdef bint _nullable
-    cdef str _encoding
+    cdef basestring _encoding
     cdef long _minlen
     cdef long _maxlen
-    cdef str _pattern
+    cdef basestring _pattern
     cdef frozenset _options
 
     @property
@@ -99,12 +100,12 @@ cdef class Str(abstract.Validator):
         replace=False,
     ):
         nullable = contracts.expect_flag(self, "nullable", nullable)
-        encoding = contracts.expect_string(self, "encoding", encoding, nullable=True)
+        encoding = contracts.expect_basestr(self, "encoding", encoding, nullable=True)
         minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
         maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
-        pattern = contracts.expect_string(self, "pattern", pattern, nullable=True)
+        pattern = contracts.expect_basestr(self, "pattern", pattern, nullable=True)
         options = contracts.expect_container(
-            self, "options", options, nullable=True, item_type=unicode
+            self, "options", options, nullable=True, item_type=string
         )
 
         self._nullable = nullable
@@ -119,14 +120,14 @@ cdef class Str(abstract.Validator):
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
-        if not isinstance(value, unicode):
+        if not isinstance(value, string):
             if isinstance(value, bytes) and self.encoding is not None:
                 try:
                     value = value.decode(self.encoding)
                 except UnicodeDecodeError:
                     raise exc.StrDecodeError(expected=self.encoding, actual=value)
             else:
-                raise exc.InvalidTypeError(expected=unicode, actual=type(value))
+                raise exc.InvalidTypeError(expected=string, actual=type(value))
         cdef long length = len(value)
         if length < self._minlen:
             raise exc.MinLengthError(expected=self.minlen, actual=length)

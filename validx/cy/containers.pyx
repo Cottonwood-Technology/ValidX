@@ -2,13 +2,10 @@ from libc cimport limits
 
 from copy import deepcopy
 
-try:
-    from collections.abc import Sequence, Mapping
-except ImportError:
-    from collections import Sequence, Mapping
-
 from .. import exc
 from .. import contracts
+from ..compat.colabc import Sequence, Mapping
+from ..compat.types import chars
 from . cimport abstract
 
 
@@ -50,7 +47,7 @@ cdef class List(abstract.Validator):
 
     __slots__ = ("item", "nullable", "minlen", "maxlen", "unique")
 
-    cdef _item
+    cdef object _item
     cdef bint _nullable
     cdef long _minlen
     cdef long _maxlen
@@ -107,7 +104,7 @@ cdef class List(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, (unicode, bytes)):
+            if not isinstance(value, Sequence) or isinstance(value, chars):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
 
         result = []
@@ -193,7 +190,7 @@ cdef class Tuple(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, (unicode, bytes)):
+            if not isinstance(value, Sequence) or isinstance(value, chars):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
         if len(self.items) != len(value):
             raise exc.TupleLengthError(expected=len(self.items), actual=len(value))
@@ -305,12 +302,12 @@ cdef class Dict(abstract.Validator):
         "multikeys",
     )
 
-    cdef _schema
+    cdef object _schema
     cdef bint _nullable
     cdef long _minlen
     cdef long _maxlen
     cdef tuple _extra
-    cdef _defaults
+    cdef object _defaults
     cdef frozenset _optional
     cdef frozenset _dispose
     cdef frozenset _multikeys

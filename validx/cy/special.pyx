@@ -60,7 +60,7 @@ cdef class LazyRef(abstract.Validator):
 
     __slots__ = ("use", "maxdepth")
 
-    cdef str _use
+    cdef basestring _use
     cdef long _maxdepth
 
     @property
@@ -72,7 +72,7 @@ cdef class LazyRef(abstract.Validator):
         return None if self._maxdepth == 0 else self._maxdepth
 
     def __init__(self, use, maxdepth=None, alias=None, replace=False):
-        use = contracts.expect_string(self, "use", use)
+        use = contracts.expect_basestr(self, "use", use)
         maxdepth = contracts.expect_length(self, "maxdepth", maxdepth, nullable=True)
 
         self._use = use
@@ -166,11 +166,11 @@ cdef class Type(abstract.Validator):
     cdef type _tp
     cdef bint _nullable
     cdef bint _coerce
-    cdef _min
-    cdef _max
+    cdef object _min
+    cdef object _max
     cdef long _minlen
     cdef long _maxlen
-    cdef _options
+    cdef object _options
 
     @property
     def tp(self):
@@ -288,7 +288,7 @@ cdef class Const(abstract.Validator):
 
     __slots__ = ("value",)
 
-    cdef _value
+    cdef object _value
 
     @property
     def value(self):

@@ -25,9 +25,14 @@ class AllOf(abstract.Validator):
 
     __slots__ = ("steps",)
 
-    def __init__(self, *steps_, steps=None, alias=None, replace=False):
+    def __init__(self, *args, **kw):
+        # Python 2.7 complains on key-word only arguments
+        kw.setdefault("steps", args)
+        self.__init(**kw)
+
+    def __init(self, steps=None, alias=None, replace=False):
         steps = contracts.expect_sequence(
-            self, "steps", steps or steps_, item_type=abstract.Validator
+            self, "steps", steps, item_type=abstract.Validator
         )
 
         setattr = object.__setattr__
@@ -70,9 +75,14 @@ class OneOf(abstract.Validator):
 
     __slots__ = ("steps",)
 
-    def __init__(self, *steps_, steps=None, alias=None, replace=False):
+    def __init__(self, *args, **kw):
+        # Python 2.7 complains on key-word only arguments
+        kw.setdefault("steps", args)
+        self.__init(**kw)
+
+    def __init(self, steps=None, alias=None, replace=False):
         steps = contracts.expect_sequence(
-            self, "steps", steps or steps_, item_type=abstract.Validator
+            self, "steps", steps, item_type=abstract.Validator
         )
 
         setattr = object.__setattr__

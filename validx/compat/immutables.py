@@ -1,34 +1,17 @@
-from datetime import timedelta, tzinfo
+from __future__ import absolute_import
 
 
-class UTCTimeZone(tzinfo):
-    _offset = timedelta(0)
-
-    def __repr__(self):
-        return "<UTC>"
-
-    def utcoffset(self, dt):
-        return self._offset
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return self._offset
-
-
-UTC = UTCTimeZone()
+__all__ = ["Map"]
 
 
 try:
     from immutables import Map
 except ImportError:  # pragma: no cover
-    from collections import Mapping
+    from .colabc import Mapping
 
     class Map(Mapping):  # type: ignore
         def __init__(self, *args, **kw):
-            self.__data = {}
-            self.update(*args, **kw)
+            self.__data = dict(*args, **kw)
 
         def __getitem__(self, key):
             return self.__data[key]

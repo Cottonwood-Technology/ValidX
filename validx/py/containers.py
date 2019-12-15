@@ -1,18 +1,10 @@
-import sys
 from copy import deepcopy
-
-try:
-    from collections.abc import Sequence, Mapping
-except ImportError:  # pragma: no cover
-    from collections import Sequence, Mapping
 
 from .. import contracts
 from .. import exc
+from ..compat.colabc import Sequence, Mapping
+from ..compat.types import chars
 from . import abstract
-
-
-if sys.version_info[0] < 3:  # pragma: no cover
-    str = unicode  # noqa
 
 
 class List(abstract.Validator):
@@ -85,7 +77,7 @@ class List(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+            if not isinstance(value, Sequence) or isinstance(value, chars):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
 
         result = []
@@ -142,9 +134,14 @@ class Tuple(abstract.Validator):
 
     __slots__ = ("items", "nullable")
 
-    def __init__(self, *items_, items=None, nullable=False, alias=None, replace=False):
+    def __init__(self, *args, **kw):
+        # Python 2.7 complains on key-word only arguments
+        kw.setdefault("items", args)
+        self.__init(**kw)
+
+    def __init(self, items=None, nullable=False, alias=None, replace=False):
         items = contracts.expect_sequence(
-            self, "items", items or items_, item_type=abstract.Validator
+            self, "items", items, item_type=abstract.Validator
         )
         nullable = contracts.expect_flag(self, "nullable", nullable)
 
@@ -161,7 +158,7 @@ class Tuple(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+            if not isinstance(value, Sequence) or isinstance(value, chars):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
         if len(self.items) != len(value):
             raise exc.TupleLengthError(expected=len(self.items), actual=len(value))
