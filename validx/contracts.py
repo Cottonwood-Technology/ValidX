@@ -3,13 +3,20 @@ from .compat.immutables import Map
 from .compat.types import chars, basestr
 
 
-def expect(obj, attr, value, nullable=False, types=None, convert_to=None):
+def expect(
+    obj, attr, value, nullable=False, types=None, not_types=None, convert_to=None
+):
     if nullable and value is None:
         return value
     if types is not None and not isinstance(value, types):
         raise TypeError(
             "%s.%s.%s should be of type %r"
             % (obj.__class__.__module__, obj.__class__.__name__, attr, types)
+        )
+    if not_types is not None and isinstance(value, not_types):
+        raise TypeError(
+            "%s.%s.%s should not be of type %r"
+            % (obj.__class__.__module__, obj.__class__.__name__, attr, not_types)
         )
     if convert_to is not None and not isinstance(value, convert_to):
         value = convert_to(value)
@@ -21,11 +28,11 @@ def expect_flag(obj, attr, value):
 
 
 def expect_length(obj, attr, value, nullable=False):
-    value = expect(obj, attr, value, nullable=nullable, types=int, convert_to=int)
+    value = expect(obj, attr, value, nullable=nullable, types=int)
     if value is not None:
         if value < 0:
             raise ValueError(
-                "%s.%s.%s should be greater than or equal to zero"
+                "%s.%s.%s should not be negative number"
                 % (obj.__class__.__module__, obj.__class__.__name__, attr)
             )
     return value
@@ -40,12 +47,9 @@ def expect_callable(obj, attr, value, nullable=False):
 
 
 def expect_container(obj, attr, value, nullable=False, empty=False, item_type=None):
-    if isinstance(value, chars):
-        raise TypeError(
-            "%s.%s.%s should not be of type %r"
-            % (obj.__class__.__module__, obj.__class__.__name__, attr, type(value))
-        )
-    value = expect(obj, attr, value, nullable=nullable, types=Container)
+    value = expect(
+        obj, attr, value, nullable=nullable, types=Container, not_types=chars
+    )
     if value is not None:
         if not isinstance(value, frozenset):
             try:
@@ -75,13 +79,14 @@ def expect_container(obj, attr, value, nullable=False, empty=False, item_type=No
 
 
 def expect_sequence(obj, attr, value, nullable=False, empty=False, item_type=None):
-    if isinstance(value, chars):
-        raise TypeError(
-            "%s.%s.%s should not be of type %r"
-            % (obj.__class__.__module__, obj.__class__.__name__, attr, type(value))
-        )
     value = expect(
-        obj, attr, value, nullable=nullable, types=Sequence, convert_to=tuple
+        obj,
+        attr,
+        value,
+        nullable=nullable,
+        types=Sequence,
+        not_types=chars,
+        convert_to=tuple,
     )
     if value is not None:
         if not value and not empty:
@@ -93,7 +98,7 @@ def expect_sequence(obj, attr, value, nullable=False, empty=False, item_type=Non
             for n, item in enumerate(value):
                 if not isinstance(item, item_type):
                     raise TypeError(
-                        "%s.%s.%s[%s] should be of type %r"
+                        "%s.%s.%s[%s] value should be of type %r"
                         % (
                             obj.__class__.__module__,
                             obj.__class__.__name__,
@@ -130,17 +135,31 @@ def expect_mapping(obj, attr, value, nullable=False, empty=False, value_type=Non
 
 
 def expect_tuple(obj, attr, value, struct, nullable=False):
-    if nullable and value is None:
-        return value
-    if len(value) != len(struct):
-        raise ValueError(
-            "%s.%s.%s value should be tuple of %r"
-            % (obj.__class__.__module__, obj.__class__.__name__, attr, struct)
-        )
-    for n, (item_type, item) in enumerate(zip(struct, value)):
-        if not isinstance(item, item_type):
-            raise TypeError(
-                "%s.%s.%s[%s] value should be of type %r"
-                % (obj.__class__.__module__, obj.__class__.__name__, attr, n, item_type)
+    value = expect(
+        obj,
+        attr,
+        value,
+        nullable=nullable,
+        types=Sequence,
+        not_types=chars,
+        convert_to=tuple,
+    )
+    if value is not None:
+        if len(value) != len(struct):
+            raise ValueError(
+                "%s.%s.%s should be a tuple of %r"
+                % (obj.__class__.__module__, obj.__class__.__name__, attr, struct)
             )
+        for n, (item_type, item) in enumerate(zip(struct, value)):
+            if not isinstance(item, item_type):
+                raise TypeError(
+                    "%s.%s.%s[%s] value should be of type %r"
+                    % (
+                        obj.__class__.__module__,
+                        obj.__class__.__name__,
+                        attr,
+                        n,
+                        item_type,
+                    )
+                )
     return value
