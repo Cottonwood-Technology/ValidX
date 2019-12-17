@@ -1,6 +1,6 @@
-import inspect
-from copy import deepcopy
 from . cimport classes, instances
+from ..compat.colabc import Mapping, Sequence, Container
+from ..compat.types import chars
 
 
 cdef class Validator:
@@ -75,14 +75,13 @@ cdef class Validator:
         def _dump(value):
             if isinstance(value, Validator):
                 return value.dump()
-            if isinstance(value, dict):
+            if isinstance(value, Mapping):
                 return {k: _dump(v) for k, v in value.items()}
-            if isinstance(value, (list, tuple)):
-                type_ = type(value)
-                return type_(_dump(i) for i in value)
-            if inspect.ismethod(value) or inspect.isfunction(value):
-                return value
-            return deepcopy(value)
+            if isinstance(value, Sequence) and not isinstance(value, chars):
+                return [_dump(i) for i in value]
+            if isinstance(value, Container) and not isinstance(value, chars):
+                return set(value)
+            return value
 
         result = {"__class__": self.__class__.__name__}
         for slot, value in self.params():
@@ -185,24 +184,24 @@ cdef _load_recurcive(params, update, unset, path=()):
             classname = result.pop("__class__")
             class_ = classes.get(classname)
             return class_(**result)
-        if "__use__" in result:
-            return instances.get(result["__use__"])
         if "__clone__" in result:
             alias = result.pop("__clone__")
             instance = instances.get(alias)
             return instance.clone(**result)
+        if "__use__" in result:
+            return instances.get(result["__use__"])
         return result
+    if isinstance(params, set):
+        return _merge_set(params, update, unset, path)
     if isinstance(params, list):
         return _merge_list(params, update, unset, path)
-    if isinstance(params, tuple):
-        return tuple(_merge_list(params, update, unset, path))
     return params
 
 
 cdef _merge_dict(params, update, unset, path):
     if update is not None or unset is not None:
         params = dict(params)  # make a copy
-        path_key = "/%s" % "/".join(str(node) for node in path)
+        path_key = "/" + ("/".join(str(node) for node in path))
 
         if update is not None and path_key in update:
             params.update(update[path_key])
@@ -217,12 +216,26 @@ cdef _merge_dict(params, update, unset, path):
     }
 
 
+cdef _merge_set(params, update, unset, path):
+    if update is not None or unset is not None:
+        path_key = "/" + ("/".join(str(node) for node in path))
+
+        if update is not None and path_key in update:
+            params.update(update[path_key])
+
+        if unset is not None and path_key in unset:
+            for value in unset[path_key]:
+                params.remove(value)
+
+    return params
+
+
 cdef _merge_list(params, update, unset, path):
     this_update = None
     this_unset = None
 
     if update is not None or unset is not None:
-        path_key = "/%s" % "/".join(str(node) for node in path)
+        path_key = "/" + ("/".join(str(node) for node in path))
         if update is not None and path_key in update:
             this_update = update[path_key]
         if unset is not None and path_key in unset:
