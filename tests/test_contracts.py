@@ -3,7 +3,7 @@ from functools import partial
 import pytest
 
 from validx import contracts
-from validx.compat.immutables import Map
+from validx.compat.immutables import frozendict
 from validx.compat.colabc import Sequence, Container, Mapping, Callable
 from validx.compat.types import numbers, chars, string, basestr
 
@@ -200,10 +200,10 @@ def test_expect_sequence():
 
 def test_expect_mapping():
     c = partial(contracts.expect_mapping, obj, "attr")
-    assert c({"a": 1, "b": 2}) == Map({"a": 1, "b": 2})
-    assert c({}, empty=True) == Map({})
+    assert c({"a": 1, "b": 2}) == frozendict({"a": 1, "b": 2})
+    assert c({}, empty=True) == frozendict({})
     assert c(None, nullable=True) is None
-    assert c({"a": 1, "b": u"x"}) == Map({"a": 1, "b": u"x"})
+    assert c({"a": 1, "b": u"x"}) == frozendict({"a": 1, "b": u"x"})
 
     with pytest.raises(TypeError) as info:
         c(None)

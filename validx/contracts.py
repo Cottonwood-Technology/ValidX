@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from .compat.colabc import Container, Sequence, Mapping, Callable
-from .compat.immutables import Map
+from .compat.immutables import frozendict
 from .compat.types import chars, basestr
 
 
@@ -372,10 +372,12 @@ def expect_mapping(obj, attr, value, nullable=False, empty=False, value_type=Non
         if ``not empty`` and ``not value``.
 
     :returns:
-        passed mapping converted to ``immutables.Map``.
+        passed mapping converted to ``frozendict``.
 
     """
-    value = expect(obj, attr, value, nullable=nullable, types=Mapping, convert_to=Map)
+    value = expect(
+        obj, attr, value, nullable=nullable, types=Mapping, convert_to=frozendict
+    )
     if value is not None:
         if not value and not empty:
             raise ValueError(
