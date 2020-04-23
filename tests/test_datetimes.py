@@ -305,6 +305,31 @@ def test_datetime(module):
     assert pickle.loads(pickle.dumps(v)) == v
 
 
+def test_datetime_contracts(module):
+    with pytest.raises(ValueError) as info:
+        module.Datetime(min=datetime.now(), tz=UTC)
+    assert info.value.args == (
+        "%s.Datetime.min should be timezone-aware datetime object"
+        % module.Datetime.__module__,
+    )
+    with pytest.raises(ValueError) as info:
+        module.Datetime(max=datetime.now(), tz=UTC)
+    assert info.value.args == (
+        "%s.Datetime.max should be timezone-aware datetime object"
+        % module.Datetime.__module__,
+    )
+    with pytest.raises(ValueError) as info:
+        module.Datetime(min=datetime.now(UTC))
+    assert info.value.args == (
+        "%s.Datetime.min should be naive datetime object" % module.Datetime.__module__,
+    )
+    with pytest.raises(ValueError) as info:
+        module.Datetime(max=datetime.now(UTC))
+    assert info.value.args == (
+        "%s.Datetime.max should be naive datetime object" % module.Datetime.__module__,
+    )
+
+
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_datetime_nullable(module, nullable):
     v = module.Datetime(nullable=nullable)
