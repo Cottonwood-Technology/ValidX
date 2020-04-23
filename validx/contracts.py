@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from .compat.colabc import Container, Sequence, Mapping, Callable
-from .compat.immutables import frozendict
+from .compat.frozendict import frozendict
 from .compat.types import chars, basestr
 
 

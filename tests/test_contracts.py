@@ -3,7 +3,7 @@ from functools import partial
 import pytest
 
 from validx import contracts
-from validx.compat.immutables import frozendict
+from validx.compat.frozendict import frozendict
 from validx.compat.colabc import Sequence, Container, Mapping, Callable
 from validx.compat.types import numbers, chars, string, basestr
 
