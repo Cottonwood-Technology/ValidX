@@ -1,3 +1,5 @@
+from warnings import warn
+
 from . import classes, instances
 from ..compat.abc import ABC, abstractmethod
 from ..compat.colabc import Mapping, Sequence, Container
@@ -46,7 +48,7 @@ class Validator(ABC):
 
         """
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name, value):  # pragma: no cover
         raise NotImplementedError("%s object is immutable", self.__class__)
 
     def __repr__(self):
@@ -59,7 +61,7 @@ class Validator(ABC):
         )
 
     def __reduce__(self):
-        return (_unpickle, (self.dump(),))
+        return (_load_recurcive, (self.dump(),))
 
     def params(self):
         for slot in self.__slots__:
@@ -103,7 +105,7 @@ class Validator(ABC):
         return result
 
     @staticmethod
-    def load(params, update=None, unset=None):
+    def load(params, update=None, unset=None, **kw):
         """
         Load validator.
 
@@ -142,7 +144,7 @@ class Validator(ABC):
             >>> Validator.load({
             ...     "__clone__": "some_int",
             ...     "update": {
-            ...         "/": {"min": -100},
+            ...         "min": -100,
             ...     },
             ... })
             <Int(min=-100, max=100)>
@@ -153,9 +155,48 @@ class Validator(ABC):
             "One of keys ['__class__', '__use__', '__clone__'] must be specified in: %r"
             % params
         )
-        return _load_recurcive(params, update, unset)
 
-    def clone(self, update=None, unset=None):
+        _update = {}
+        _unset = {}
+
+        if update is not None:
+            for key, value in update.items():
+                if key.startswith("/"):
+                    key = key.replace("/", ".").lstrip(".")
+                    _update[key] = value
+                    warn(
+                        "This syntax is deprecated. "
+                        "Consider to use '%s+' instead." % key,
+                        DeprecationWarning,
+                    )
+                elif key.endswith("+"):
+                    key = key.rstrip("+")
+                    _update[key] = value
+                elif key.endswith("-"):
+                    key = key.rstrip("-")
+                    _unset[key] = value
+                else:
+                    context_key, value_key = (
+                        key.rsplit(".", 1) if "." in key else ("", key)
+                    )
+                    _update.setdefault(context_key, {})[value_key] = value
+        if kw:
+            _update.setdefault("", {}).update(kw)
+
+        if unset is not None:
+            for key, value in unset.items():
+                key = key.replace("/", ".").lstrip(".")
+                _unset[key] = value
+                warn(
+                    "This syntax is deprecated. "
+                    "Consider to use '%s-' instead "
+                    "and place it into update param." % key,
+                    DeprecationWarning,
+                )
+
+        return _load_recurcive(params, _update, _unset)
+
+    def clone(self, update=None, unset=None, **kw):
         """
         Clone validator.
 
@@ -165,35 +206,47 @@ class Validator(ABC):
 
         ..  doctest:: clone
 
-            >>> some_enum = Int(options=(1, 2, 3, 4, 5))
-            >>> some_enum
-            <Int(options=(1, 2, 3, 4, 5))>
-
+            >>> some_enum = Int(options=[1, 2, 3])
             >>> some_enum.clone(
-            ...     update={
-            ...         "/": {"nullable": True},
-            ...         "/options": {0: 10, 2: 30},
-            ...     },
-            ...     unset={
-            ...         "/options": (1, 3),
+            ...     {
+            ...         "nullable": True,
+            ...         "options+": [4, 5],
+            ...         "options-": [1, 2],
             ...     }
-            ... )
-            <Int(nullable=True, options=(10, 30, 5))>
+            ... ) == Int(nullable=True, options=[3, 4, 5])
+            True
 
 
         In fact, the method is a shortcut for:
 
         ..  code-block:: python
 
-            self.load(self.dump(), update, unset)
+            self.load(self.dump(), update, **kw)
 
         """
-        return self.load(self.dump(), update, unset)
+        return self.load(self.dump(), update, unset, **kw)
 
 
-def _load_recurcive(params, update, unset, path=()):
+def _load_recurcive(params, update=None, unset=None, path=()):
+    path_key = ".".join(path)
+    update_this = update.get(path_key) if update is not None else None
+    unset_this = unset.get(path_key) if unset is not None else None
+
     if isinstance(params, dict):
-        result = _merge_dict(params, update, unset, path)
+        result = {
+            key: _load_recurcive(value, update, unset, path + (str(key),))
+            for key, value in params.items()
+        }
+        if update_this is not None:
+            result.update(
+                {key: _load_recurcive(value) for key, value in update_this.items()}
+            )
+        if unset_this is not None:
+            for key in unset_this:
+                try:
+                    del result[key]
+                except KeyError:
+                    raise KeyError("%r is not in dict at '%s'" % (key, path_key))
         if "__class__" in result:
             classname = result.pop("__class__")
             class_ = classes.get(classname)
@@ -205,76 +258,33 @@ def _load_recurcive(params, update, unset, path=()):
         if "__use__" in result:
             return instances.get(result["__use__"])
         return result
+
     if isinstance(params, set):
-        return _merge_set(params, update, unset, path)
+        result = set(params)
+        if update_this is not None:
+            result.update(update_this)
+        if unset_this is not None:
+            for value in unset_this:
+                try:
+                    result.remove(value)
+                except KeyError:
+                    raise KeyError("%r is not in set at '%s'" % (value, path_key))
+        return result
+
     if isinstance(params, list):
-        return _merge_list(params, update, unset, path)
-    return params
-
-
-def _merge_dict(params, update, unset, path):
-    if update is not None or unset is not None:
-        params = dict(params)  # make a copy
-        path_key = "/" + ("/".join(str(node) for node in path))
-
-        if update is not None and path_key in update:
-            params.update(update[path_key])
-
-        if unset is not None and path_key in unset:
-            for key in unset[path_key]:
-                params.pop(key, None)
-
-    return {
-        key: _load_recurcive(value, update, unset, path + (key,))
-        for key, value in params.items()
-    }
-
-
-def _merge_set(params, update, unset, path):
-    if update is not None or unset is not None:
-        path_key = "/" + ("/".join(str(node) for node in path))
-
-        if update is not None and path_key in update:
-            params.update(update[path_key])
-
-        if unset is not None and path_key in unset:
-            for value in unset[path_key]:
-                params.remove(value)
+        result = [
+            _load_recurcive(value, update, unset, path + (str(num),))
+            for num, value in enumerate(params)
+        ]
+        if update_this is not None:
+            result.extend(_load_recurcive(value) for value in update_this)
+        if unset_this is not None:
+            for value in unset_this:
+                value = _load_recurcive(value)
+                try:
+                    result.remove(value)
+                except ValueError:
+                    raise ValueError("%r is not in list at '%s'" % (value, path_key))
+        return result
 
     return params
-
-
-def _merge_list(params, update, unset, path):
-    this_update = None
-    this_unset = None
-
-    if update is not None or unset is not None:
-        path_key = "/" + ("/".join(str(node) for node in path))
-        if update is not None and path_key in update:
-            this_update = update[path_key]
-        if unset is not None and path_key in unset:
-            this_unset = unset[path_key]
-
-    result = []
-    last_num = 0
-    for num, value in enumerate(params):
-        if this_unset is not None and num in this_unset:
-            continue
-        if this_update is not None and num in this_update:
-            value = this_update[num]
-        result.append(_load_recurcive(value, update, unset, path + (num,)))
-        last_num = num
-
-    if this_update is not None and "extend" in this_update:
-        result.extend(
-            # It makes no sense to update or unset from additional elements.
-            # So that ``update`` and ``unset`` parameter are not passed.
-            _load_recurcive(value, None, None, path + (last_num + num,))
-            for num, value in enumerate(this_update["extend"])
-        )
-
-    return result
-
-
-def _unpickle(params):
-    return Validator.load(params)
