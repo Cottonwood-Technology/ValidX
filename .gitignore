@@ -8,6 +8,7 @@
 .pytest_cache
 .mypy_cache
 .coverage
+.benchmarks
 *.egg-info
 build
 dist

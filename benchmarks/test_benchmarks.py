@@ -226,10 +226,10 @@ def test_marshmallow(benchmark):
         metro = m.fields.Int(validate=m.validate.Range(min=0))
 
     class City(m.Schema):
-        location = Point()
+        location = m.fields.Nested(Point())
         name = m.fields.Str()
         alt_names = m.fields.List(m.fields.Str())
-        population = Population()
+        population = m.fields.Nested(Population())
 
     schema = City()
     assert benchmark(schema.validate, data) == {}
