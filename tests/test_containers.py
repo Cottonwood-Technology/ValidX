@@ -1,11 +1,5 @@
-import sys
 import pickle
 from collections import OrderedDict, defaultdict, deque
-
-try:
-    from collections.abc import Sequence, Mapping
-except ImportError:
-    from collections import Sequence, Mapping
 
 import pytest
 
@@ -18,10 +12,8 @@ except ImportError:
     pass
 
 from validx import exc
-
-
-if sys.version_info[0] < 3:
-    str = unicode  # noqa
+from validx.compat.types import string
+from validx.compat.colabc import Sequence, Mapping
 
 
 NoneType = type(None)
@@ -77,7 +69,7 @@ def test_list(module):
     with pytest.raises(exc.InvalidTypeError) as info:
         v(u"1, 2, 3")
     assert info.value.expected == Sequence
-    assert info.value.actual == str
+    assert info.value.actual == string
 
     with pytest.raises(exc.SchemaError) as info:
         v([1, u"2", 3, None])
@@ -86,7 +78,7 @@ def test_list(module):
     assert isinstance(info.value[0], exc.InvalidTypeError)
     assert info.value[0].context == deque([1])
     assert info.value[0].expected == int
-    assert info.value[0].actual == str
+    assert info.value[0].actual == string
 
     assert isinstance(info.value[1], exc.InvalidTypeError)
     assert info.value[1].context == deque([3])
@@ -207,7 +199,7 @@ def test_tuple(module):
     with pytest.raises(exc.InvalidTypeError) as info:
         v(u"1, 2")
     assert info.value.expected == Sequence
-    assert info.value.actual == str
+    assert info.value.actual == string
 
     with pytest.raises(exc.TupleLengthError) as info:
         v([1, 2, 3])
@@ -221,7 +213,7 @@ def test_tuple(module):
     assert isinstance(info.value[0], exc.InvalidTypeError)
     assert info.value[0].context == deque([0])
     assert info.value[0].expected == int
-    assert info.value[0].actual == str
+    assert info.value[0].actual == string
 
     assert isinstance(info.value[1], exc.InvalidTypeError)
     assert info.value[1].context == deque([1])
@@ -285,7 +277,7 @@ def test_dict(module):
     assert isinstance(info.value[0], exc.InvalidTypeError)
     assert info.value[0].context == deque([u"x"])
     assert info.value[0].expected == int
-    assert info.value[0].actual == str
+    assert info.value[0].actual == string
 
     assert isinstance(info.value[1], exc.InvalidTypeError)
     assert info.value[1].context == deque([u"y"])
@@ -455,7 +447,7 @@ def test_dict_extra(module, extra):
 
         assert isinstance(info.value[0], exc.InvalidTypeError)
         assert info.value[0].context == deque([3, exc.EXTRA_KEY])
-        assert info.value[0].expected == str
+        assert info.value[0].expected == string
         assert info.value[0].actual == int
 
         assert isinstance(info.value[1], exc.InvalidTypeError)

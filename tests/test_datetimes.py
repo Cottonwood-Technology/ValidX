@@ -8,10 +8,7 @@ from dateutil.parser import isoparse as _isoparse, parse as dtparse
 from pytz import UTC, timezone
 
 from validx import exc
-
-
-if sys.version_info[0] < 3:
-    str = unicode  # noqa
+from validx.compat.types import string
 
 
 def isoparse(*args, **kw):
@@ -94,7 +91,7 @@ def test_date_format(module, format):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(u"2018-07-03")
         assert info.value.expected == date
-        assert info.value.actual == str
+        assert info.value.actual == string
 
 
 @pytest.mark.parametrize("parser", [None, isoparse])
@@ -120,7 +117,7 @@ def test_date_parser(module, parser):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(u"2018-07-03")
         assert info.value.expected == date
-        assert info.value.actual == str
+        assert info.value.actual == string
 
 
 @pytest.mark.parametrize("min", [None, date(2018, 1, 1)])
@@ -241,7 +238,7 @@ def test_time_format(module, format):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(u"13:35")
         assert info.value.expected == time
-        assert info.value.actual == str
+        assert info.value.actual == string
 
 
 @pytest.mark.parametrize("parser", [None, dtparse])
@@ -264,7 +261,7 @@ def test_time_parse(module, parser):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(u"13:35")
         assert info.value.expected == time
-        assert info.value.actual == str
+        assert info.value.actual == string
 
 
 @pytest.mark.parametrize("min", [None, time(8, 0)])
@@ -406,7 +403,7 @@ def test_datetime_format(module, format, tz):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(u"2018-07-03T19:15")
         assert info.value.expected == datetime
-        assert info.value.actual == str
+        assert info.value.actual == string
 
 
 @pytest.mark.parametrize("tz", [None, EST])
@@ -438,7 +435,7 @@ def test_datetime_parser(module, parser, tz):
         with pytest.raises(exc.InvalidTypeError) as info:
             v(u"2018-07-03T19:15")
         assert info.value.expected == datetime
-        assert info.value.actual == str
+        assert info.value.actual == string
 
 
 @pytest.mark.parametrize("tz", [None, EST])

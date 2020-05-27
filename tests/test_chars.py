@@ -1,15 +1,11 @@
 # coding: utf-8
 
-import sys
 import pickle
 
 import pytest
 
 from validx import exc
-
-
-if sys.version_info[0] < 3:
-    str = unicode  # noqa
+from validx.compat.types import string
 
 
 NoneType = type(None)
@@ -34,7 +30,7 @@ def test_str_nullable(module, nullable):
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
-        assert info.value.expected == str
+        assert info.value.expected == string
         assert info.value.actual == NoneType
 
 
@@ -56,7 +52,7 @@ def test_str_encoding(module, encoding):
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(b"abc")
-        assert info.value.expected == str
+        assert info.value.expected == string
         assert info.value.actual == bytes
 
 
