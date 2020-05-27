@@ -4,7 +4,14 @@ Changes
 0.6.dev0
 --------
 
-TODO
+*   Added Python 3.8 into test matrix.
+*   Made validators immutable.
+*   Added contracts checks on validator initialization.
+*   Added new simplified syntax for cloning validators.
+*   Got rid of global state within ``LazyRef`` validator.
+    It now acts like a pure function.
+*   Fixed raising of ambiguous ``MinLengthError`` on ``List`` and ``Dict`` validation.
+
 
 
 0.5.1

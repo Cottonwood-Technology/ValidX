@@ -1,6 +1,19 @@
 Changes
 =======
 
+0.6.dev0
+--------
+
+*   Added Python 3.8 into test matrix.
+*   Made validators immutable.
+*   Added contracts checks on validator initialization.
+*   Added new simplified syntax for :ref:`usage-cloning-validators`.
+*   Got rid of global state within :class:`validx.py.LazyRef` validator.
+    It now acts like a pure function.
+*   Fixed raising of ambiguous :class:`validx.exc.MinLengthError` on
+    :class:`validx.py.List` and :class:`validx.py.Dict` validation.
+
+
 0.5.1
 -----
 
