@@ -124,14 +124,15 @@ cdef class List(abstract.Validator):
                 unique.add(val)
             result.append(val)
 
+        if errors:
+            raise exc.SchemaError(errors)
+
         cdef long length = len(result)
         if length < self._minlen:
             raise exc.MinLengthError(expected=self.minlen, actual=length)
         if length > self._maxlen:
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
-        if errors:
-            raise exc.SchemaError(errors)
         return result
 
 
@@ -475,12 +476,13 @@ cdef class Dict(abstract.Validator):
                     continue
                 errors.append(exc.MissingKeyError(key))
 
+        if errors:
+            raise exc.SchemaError(errors)
+
         cdef long length = len(result)
         if length < self._minlen:
             raise exc.MinLengthError(expected=self.minlen, actual=length)
         if length > self._maxlen:
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
-        if errors:
-            raise exc.SchemaError(errors)
         return result

@@ -130,6 +130,12 @@ def test_list_minlen_maxlen(module, minlen, maxlen):
         assert info.value.expected == minlen
         assert info.value.actual == 1
 
+        # First item doesn't pass validation, so the result length is 1.
+        # However, it should not raise MinLengthError, but SchemaError instead.
+        with pytest.raises(exc.SchemaError) as info:
+            v(["1", 2])
+        assert len(info.value) == 1
+
     if maxlen is None:
         assert v([1, 2, 3, 4, 5, 6]) == [1, 2, 3, 4, 5, 6]
     else:
@@ -324,6 +330,12 @@ def test_dict_minlen_maxlen(module, minlen, maxlen):
             v({u"x": 1})
         assert info.value.expected == minlen
         assert info.value.actual == 1
+
+        # First key doesn't pass validation, so the result length is 1.
+        # However, it should not raise MinLengthError, but SchemaError instead.
+        with pytest.raises(exc.SchemaError) as info:
+            v({u"x": "1", u"y": 2})
+        assert len(info.value) == 1
 
     if maxlen is None:
         assert v({u"x": 1, u"y": 2, u"z": 3, u"a": 4}) == {

@@ -97,14 +97,15 @@ class List(abstract.Validator):
                 unique.add(val)
             result.append(val)
 
+        if errors:
+            raise exc.SchemaError(errors)
+
         length = len(result)
         if self.minlen is not None and length < self.minlen:
             raise exc.MinLengthError(expected=self.minlen, actual=length)
         if self.maxlen is not None and length > self.maxlen:
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
-        if errors:
-            raise exc.SchemaError(errors)
         return result
 
 
@@ -396,12 +397,13 @@ class Dict(abstract.Validator):
                     continue
                 errors.append(exc.MissingKeyError(key))
 
+        if errors:
+            raise exc.SchemaError(errors)
+
         length = len(result)
         if self.minlen is not None and length < self.minlen:
             raise exc.MinLengthError(expected=self.minlen, actual=length)
         if self.maxlen is not None and length > self.maxlen:
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
-        if errors:
-            raise exc.SchemaError(errors)
         return result
