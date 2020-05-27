@@ -28,9 +28,8 @@ cdef class Str(abstract.Validator):
     :param str pattern:
         validate string using regular expression.
 
-    :param options:
+    :param iterable options:
         explicit enumeration of valid values.
-    :type options: list or tuple
 
 
     :raises InvalidTypeError:

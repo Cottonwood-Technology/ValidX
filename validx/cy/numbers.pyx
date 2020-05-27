@@ -24,9 +24,8 @@ cdef class Int(abstract.Validator):
     :param int max:
         upper limit.
 
-    :param options:
+    :param iterable options:
         explicit enumeration of valid values.
-    :type options: list or tuple
 
 
     :raises InvalidTypeError:

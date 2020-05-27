@@ -199,8 +199,8 @@ And pass invalid value into it:
 ..  testoutput:: error_context
 
     <SchemaError(errors=[
-        <order.0.1: OptionsError(expected=['asc', 'desc'], actual='ascending')>,
-        <order.1.0: OptionsError(expected=['name', 'added'], actual='description')>
+        <order.0.1: OptionsError(expected=frozenset({...}), actual='ascending')>,
+        <order.1.0: OptionsError(expected=frozenset({...}), actual='description')>
     ])>
 
 Take a note on contexts,
@@ -278,13 +278,6 @@ because they work as pure functions and produce no side effects during validatio
         "name": resource_name,
     })
 
-
-..  warning::
-
-    There is only one validator that does not work as pure function —
-    :class:`validx.py.LazyRef`.
-    See :ref:`usage-recursive-structure-validation` section for details.
-
 However,
 importing each basic validator might be tedious.
 So you can use :ref:`reference-instance-registry` provided by the library.
@@ -309,7 +302,7 @@ So you can use :ref:`reference-instance-registry` provided by the library.
 Cloning Validators
 ------------------
 
-There is another common task to create a new validator,
+Another common task is to create a new validator,
 based on existent one with slightly different parameters.
 You can use cloning for such purpose.
 
@@ -318,21 +311,16 @@ so here is the list of examples,
 that covers the most possible use cases.
 
 Example 1.
-Create a validator adding constraint to base one.
+Create a validator adding a new constraint to existent one.
 
 ..  testcode:: cloning_validators_1
 
     from validx import Int
 
     resource_id = Int(min=1)
-    nullable_resource_id = resource_id.clone(
-        update={
-            "/": {"nullable": True},
-        },
-    )
 
     print(resource_id)
-    print(nullable_resource_id)
+    print(resource_id.clone(nullable=True))
 
 ..  testoutput:: cloning_validators_1
 
@@ -340,29 +328,7 @@ Create a validator adding constraint to base one.
     <Int(nullable=True, min=1)>
 
 Example 2.
-Create a validator removing constraint from base one.
-
-..  testcode:: cloning_validators_2
-
-    from validx import Int
-
-    nullable_resource_id = Int(min=1, nullable=True)
-    resource_id = nullable_resource_id.clone(
-        unset={
-            "/": ["nullable"],
-        },
-    )
-
-    print(nullable_resource_id)
-    print(resource_id)
-
-..  testoutput:: cloning_validators_2
-
-    <Int(nullable=True, min=1)>
-    <Int(min=1)>
-
-Example 3.
-Create a validator updating constraint of base one.
+Create a validator updating options constraint of base one.
 
 ..  testcode:: cloning_validators_3
 
@@ -370,23 +336,21 @@ Create a validator updating constraint of base one.
 
     resource_action = Str(options=("create", "update", "read", "delete"))
     email_action = resource_action.clone(
-        unset={
-            "/options": [1],  # Remove second element ``update``
-        },
-        update={
-            "/options": {"extend": ["spam", "archive"]},
-        },
+        {
+            "options-": ["update"],            # Remove "update" from options
+            "options+": ["spam", "archive"],   # Add "spam" and "archive" to options
+        }
     )
 
-    print(resource_action)
-    print(email_action)
+    print(sorted(resource_action.options))
+    print(sorted(email_action.options))
 
 ..  testoutput:: cloning_validators_3
 
-    <Str(options=('create', 'update', 'read', 'delete'))>
-    <Str(options=('create', 'read', 'delete', 'spam', 'archive'))>
+    ['create', 'delete', 'read', 'update']
+    ['archive', 'create', 'delete', 'read', 'spam']
 
-Example 4.
+Example 3.
 Create a validator updating constraint of nested validator of base one.
 
 ..  testcode:: cloning_validators_4
@@ -398,47 +362,45 @@ Create a validator updating constraint of nested validator of base one.
         Str(options=("asc", "desc")),    # Sort direction
     )
     article_order = resource_order.clone(
-        update={
-            "/items/0/options": {0: "title"},
-        },
-    )
-    search_order = resource_order.clone(
-        update={
-            "/items/0/options": {"extend": ["relevance"]},
+        {
+            "items.0.options+": ["title"],
+            "items.0.options-": ["name"],
         },
     )
 
-    print(resource_order)
-    print(article_order)
-    print(search_order)
+    print(sorted(resource_order.items[0].options))
+    print(sorted(article_order.items[0].options))
 
 ..  testoutput:: cloning_validators_4
 
-    <Tuple(items=(<Str(options=('name', 'added'))>, <Str(options=('asc', 'desc'))>))>
-    <Tuple(items=(<Str(options=('title', 'added'))>, <Str(options=('asc', 'desc'))>))>
-    <Tuple(items=(<Str(options=('name', 'added', 'relevance'))>, <Str(options=('asc', 'desc'))>))>
+    ['added', 'name']
+    ['added', 'title']
 
-In a nutshell,
-method :meth:`validx.py.Validator.clone`
-accepts two arguments ``update`` and ``unset`` in the following format:
+
+In general,
+clone syntax looks like this.
 
 ..  code-block:: python
 
-    update = {
-        "/path/to/element": {
-            "dict_key|list_or_tuple_index|validator_parameter_name": "new value",
-            ...
-        },
-        ...
-    }
+    validator.clone({
+        "path.to.validator.param": "new value",        # set param of validator
+        "path.to.validator+": {"param": "new value"},  # update several params
+        "path.to.validator-": ["param_1", "param_2"],  # unset params of validator
+        "path.to.dict.key": "value",                   # set key of dict
+        "path.to.dict+": {"key": "value"},             # update several keys of dict
+        "path.to.dict-": ["key_1", "key_2"],           # remove keys from dict
+        "path.to.set+": ["value 1", "value 2"],        # update set
+        "path.to.set-": ["value 1", "value 2"],        # remove values from set
+        "path.to.list+": ["value 1", "value 2"],       # extend list
+        "path.to.list-": ["value 1", "value 2"],       # remove values from list
+    })
 
-    unset = {
-        "/path/to/element": [
-            "dict_key|list_or_tuple_index|validator_parameter_name",
-            ...
-        ],
-        ...
-    }
+If path to parameter doesn't contain any dot,
+it can be passed as keyword argument:
+
+..  code-block:: python
+
+    validator.clone(param_1="new value 1", param_2="new value 2")
 
 
 Dumping & Loading Validators
@@ -479,10 +441,8 @@ and use them or clone them later during loading process.
         Validator.load({
             "__clone__": "resource_id",
             "update": {
-                "/": {
-                    "alias": "nullable_resource_id",
-                    "nullable": True,
-                },
+                "alias": "nullable_resource_id",
+                "nullable": True,
             },
         })
     )
@@ -712,9 +672,9 @@ Here is how it can be built:
 Here we use :class:`validx.py.LazyRef`
 to create circular reference on the parent validator.
 Each time it is called,
-it increments its recursive call depth and checks the limit in the following.
+it increments its recursive call depth and checks the limit.
 If the limit is reached,
-it raises :class:`validater.exc.RecursionMaxDepthError`.
+it raises :class:`validx.exc.RecursionMaxDepthError`.
 
 ..  warning::
 

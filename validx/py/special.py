@@ -112,9 +112,8 @@ class Type(abstract.Validator):
     :param int maxlen:
         upper length limit, makes sense only if ``tp`` provides ``__len__()`` method.
 
-    :param options:
+    :param iterable options:
         explicit enumeration of valid values.
-    :type options: list or tuple
 
 
     :raises InvalidTypeError:
