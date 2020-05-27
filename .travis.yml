@@ -1,0 +1,36 @@
+language: python
+
+if: tag IS present
+
+env:
+  global:
+  - CIBW_BEFORE_BUILD="pip install cython"
+  - CIBW_TEST_REQUIRES="pytest pytest-benchmark werkzeug webob pytz python-dateutil"
+  - CIBW_TEST_COMMAND="pytest -c {project}/pytest-ci.ini {project}/tests"
+  - TWINE_USERNAME=__token__
+  # TWINE_PASSWORD
+  - secure: tR0YoikmlbrbffOZNSczVLEV1vjbFIuOsZNRlTGaIzV8PTx9xdYTN87G2BZimR+iS1ZldqkhAY4pQOItEtmoA9kxr1Kp5dgOogv08tjuzk195HVKmVuer13ZLK7LDMZbdj2Vns6U9YS3gkR9r/Ff+KoIDecwYiFNWmHRmyNIMWHHjX+uPxwCQxLKNKmXUjx3fU0TYgp/+/Ewyx3EQmchvyqu7DNoMoicHETdfuEi9mXeisAQ6yrY6+fPgpFvH0OrI/wWYnnXqnAEpIvPzLyI7FqT5vI2ozGglRhwCYpejoXEarriS/cYD0h/Ee3ATOS/rcIkNnT4r2C2aNrBVw1y9Tde6UvAw0eAJzT5NB0Ar0G5IpMKOmfea3shuVnQug7dKbLLXxPnR8+5JXdtu39ok8lP3NH4g3GKMoKZnOOOdwPyuuBYoyj9T27x58O1AGQBSGc8w6y+Z8mrq/BjrfW3nNHjxRUTG24MxYq/mEIz/4Jzk17Y7TdEk8u2quqlqPkRFpJ39ojSJMlAY5irPSBMb9tRurgi3FPzPjg+Yb9VolEWc6PhvZ6C2PR9rFMLTXtX9+MXzrSla04NqCSGFxnLOUKqRMQ41KooIY9Y4j5YHaYnMEZfcbWxxXZNlQeD9YEqPZkRyjZShp7OCet2kfGhNkH7cLk/ZGasTPD5QUMSVBU=
+
+jobs:
+  include:
+  - os: linux
+    services: docker
+
+  - os: osx
+    language: shell
+
+  - os: windows
+    language: shell
+    before_install:
+    - choco install python --version 3.8.0
+    - export PATH="/c/Python38:/c/Python38/Scripts:$PATH"
+    - ln -s /c/Python38/python.exe /c/Python38/python3.exe
+
+install:
+- python3 -m pip install twine cibuildwheel==1.4.2
+
+script:
+- python3 -m cibuildwheel --output-dir wheelhouse
+
+after_success:
+- python3 -m twine upload wheelhouse/*.whl
