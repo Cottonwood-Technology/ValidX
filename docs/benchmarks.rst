@@ -3,16 +3,28 @@
 Benchmarks
 ==========
 
-ValidX is the fastest validation library among the following competitors:
+When ValidX had been released,
+it was the fastest validation library among the following competitors.
+It isn't true anymore.
+However,
+it would be unfair to remove this section from the documentation.
+Once the challenge has been thrown down,
+the competition must go on.
 
-*   `Cerberus 1.2 <http://docs.python-cerberus.org/en/stable/>`_ ~400x slower
-*   `Colander 1.5.1 <https://docs.pylonsproject.org/projects/colander/en/latest/>`_ ~10x slower
-*   `JSONSchema 2.6.0 <https://python-jsonschema.readthedocs.io/en/latest/>`_ ~25x slower
-*   `Marshmallow 2.18.0 <https://marshmallow.readthedocs.io/en/stable/>`_ ~10x slower
-*   `Schema 0.6.8 <https://github.com/keleshev/schema>`_ ~80x slower
-*   `Valideer 0.4.2 <https://github.com/podio/valideer>`_ ~8x slower
-*   `Validr 1.0.6 <https://github.com/guyskk/validr>`_ ~2.5x slower
-*   `Voluptuous 0.11.5 <http://alecthomas.github.io/voluptuous/docs/_build/html/index.html>`_ ~10x slower
+*   `Cerberus 1.3.2 <http://docs.python-cerberus.org/en/stable/>`_ ~130x slower
+*   `Colander 1.7.0 <https://docs.pylonsproject.org/projects/colander/en/latest/>`_ ~2.8x slower
+*   `JSONSchema 3.2.0 <https://python-jsonschema.readthedocs.io/en/latest/>`_ ~11x slower
+*   `Marshmallow 3.6.0 <https://marshmallow.readthedocs.io/en/stable/>`_ ~11x slower
+*   `Schema 0.7.2 <https://github.com/keleshev/schema>`_  ~29x slower
+*   `Valideer 0.4.2 <https://github.com/podio/valideer>`_ ~2x slower,
+    but it has compatible performance with pure-Python implementation of ValidX.
+    In some rounds it is a bit faster,
+    in other is a bit slower.
+*   `Validr 1.2.0 <https://github.com/guyskk/validr>`_
+    has compatible performance with Cython implementation of ValidX.
+    In some rounds it is a bit faster,
+    in other is a bit slower.
+*   `Voluptuous 0.11.7 <http://alecthomas.github.io/voluptuous/docs/_build/html/index.html>`_ ~3x slower
 
 Use the following command to run benchmarks::
 
@@ -22,29 +34,39 @@ I got the following results on my laptop:
 
 *   CPU Intel i5-5200U 2.20GHz
 *   RAM 8GB
-*   OS Xubuntu 18.04, Linux core 4.15.0-43-generic
-*   Python 3.7.1
+*   OS Xubuntu 18.04, Linux core 4.15.0-101-generic
+*   Python 3.8.2
 
 ::
 
     ----------------------------------------------------- benchmark: 10 tests -----------------------------------------------------
     Name (time in us)          Min                    Max                Mean              StdDev            OPS (Kops/s)
     -------------------------------------------------------------------------------------------------------------------------------
-    test_validx_cy          1.8010 (1.0)         31.0580 (1.01)       1.9217 (1.0)       0.4642 (1.0)          520.3821 (1.0)
-    test_validr             4.5810 (2.54)        30.7720 (1.0)        4.8280 (2.51)      0.9594 (2.07)         207.1235 (0.40)
-    test_validx_py         10.9450 (6.08)        43.2970 (1.41)      11.4764 (5.97)      1.4594 (3.14)          87.1353 (0.17)
-    test_valideer          14.3730 (7.98)        50.3890 (1.64)      15.6638 (8.15)      1.8038 (3.89)          63.8415 (0.12)
-    test_marshmallow       18.6680 (10.37)       64.8940 (2.11)      19.8704 (10.34)     3.1400 (6.76)          50.3261 (0.10)
-    test_colander          19.2220 (10.67)       63.8260 (2.07)      20.1110 (10.47)     2.5595 (5.51)          49.7240 (0.10)
-    test_voluptuous        19.5440 (10.85)       74.2500 (2.41)      20.7694 (10.81)     2.2002 (4.74)          48.1477 (0.09)
-    test_jsonschema        46.5160 (25.83)      123.6060 (4.02)      47.9933 (24.97)     4.2259 (9.10)          20.8362 (0.04)
-    test_schema           140.9530 (78.26)      346.2140 (11.25)    152.5474 (79.38)    26.5019 (57.10)          6.5553 (0.01)
-    test_cerberus         760.6310 (422.34)   2,226.9750 (72.37)    808.2582 (420.60)   90.4889 (194.95)         1.2372 (0.00)
+    test_validx_cy          5.8240 (1.0)          41.5310 (1.0)        6.1031 (1.0)        0.9631 (1.0)          163.8516 (1.0)
+    test_validr             6.6680 (1.14)        191.4440 (4.61)       7.0912 (1.16)       1.7589 (1.83)         141.0205 (0.86)
+    test_validx_py         12.1390 (2.08)         63.1280 (1.52)      12.5840 (2.06)       1.5104 (1.57)          79.4661 (0.48)
+    test_valideer          12.9530 (2.22)        101.5800 (2.45)      13.4117 (2.20)       1.4033 (1.46)          74.5618 (0.46)
+    test_colander          16.6500 (2.86)         94.6480 (2.28)      17.3843 (2.85)       2.1166 (2.20)          57.5232 (0.35)
+    test_voluptuous        18.4060 (3.16)         69.2420 (1.67)      19.2751 (3.16)       2.3339 (2.42)          51.8804 (0.32)
+    test_marshmallow       67.0080 (11.51)       291.5290 (7.02)      69.9401 (11.46)      8.1468 (8.46)          14.2980 (0.09)
+    test_jsonschema        70.4520 (12.10)       242.8030 (5.85)      73.0181 (11.96)      7.5669 (7.86)          13.6952 (0.08)
+    test_schema           171.8870 (29.51)       332.5750 (8.01)     177.0150 (29.00)     10.8829 (11.30)          5.6492 (0.03)
+    test_cerberus         725.5970 (124.59)   11,228.9250 (270.37)   801.7096 (131.36)   561.3559 (582.86)         1.2473 (0.01)
     -------------------------------------------------------------------------------------------------------------------------------
+
 
 
 Why you should care about performance
 -------------------------------------
+
+..  note::
+
+    I got tired to update the numbers in this section on each release.
+    So I decided to give up.
+    Let it be as it is.
+    The numbers here are outdated and not based on the benchmark above anymore.
+    But it doesn't change the main point —
+    performance is important.
 
 I have been asked by my colleagues:
 “Why should we care about performance?
