@@ -2,6 +2,15 @@
 ValidX
 ======
 
+..  image:: https://travis-ci.com/Cottonwood-Technology/ValidX.svg?branch=master
+    :target: https://travis-ci.com/Cottonwood-Technology/ValidX
+
+..  image:: https://badge.fury.io/py/ValidX.svg
+    :target: https://badge.fury.io/py/ValidX
+
+..  image:: https://readthedocs.org/projects/validx/badge/?version=latest
+    :target: https://validx.readthedocs.io/en/latest/?badge=latest
+
 ValidX is fast_, powerful, and flexible validator with sane syntax.
 
 ..  code-block:: python
