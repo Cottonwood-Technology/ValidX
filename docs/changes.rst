@@ -1,8 +1,8 @@
 Changes
 =======
 
-0.6.dev0
---------
+0.6
+---
 
 *   Added Python 3.8 into test matrix.
 *   Made validators immutable.
