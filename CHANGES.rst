@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.6.1
+-----
+
+*   Fixed type declarations for ``Validator.clone()`` method.
+
+
 0.6
 ---
 
