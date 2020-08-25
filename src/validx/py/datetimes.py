@@ -161,6 +161,8 @@ class Date(abstract.Validator):
             # Implicitly convert ``datetime`` to ``date``,
             # but localize it first, if timezone info provided
             if value.tzinfo is not None and self.tz is not None:
+                # TODO: Should we force datetime to be naive if self.tz is None
+                # and vice versa???
                 value = value.astimezone(self.tz)
             value = value.date()
 
@@ -169,6 +171,8 @@ class Date(abstract.Validator):
         if self.max is not None and value > self.max:
             raise exc.MaxValueError(expected=self.max, actual=value)
         if self.relmin is not None or self.relmax is not None:
+            # TODO: Fix it, should be
+            # datetime.now(UTC).astimezone(self.tz).date()
             today = date.today()
             if self.relmin is not None and value < today + self.relmin:
                 raise exc.MinValueError(expected=today + self.relmin, actual=value)

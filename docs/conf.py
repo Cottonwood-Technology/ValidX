@@ -25,7 +25,7 @@ copyright = "2018, Cottonwood Technology"
 author = "Cottonwood Technology"
 
 
-with open("../validx/__init__.py") as f:
+with open("../src/validx/__init__.py") as f:
     # The full version, including alpha/beta/rc tags
     release = next(line for line in f if line.startswith("__version__"))
     release = release.strip().split(" = ")[1]

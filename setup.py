@@ -14,9 +14,9 @@ if platform.python_implementation() == "CPython":
         print("Unable to import Cython. Pure Python version will be used.")
     else:
         directives = {"language_level": sys.version_info[0]}
-        ext_modules = cythonize("validx/cy/*.pyx", compiler_directives=directives)
+        ext_modules = cythonize("src/validx/cy/*.pyx", compiler_directives=directives)
 
-with open("validx/__init__.py") as f:
+with open("src/validx/__init__.py") as f:
     version = next(line for line in f if line.startswith("__version__"))
     version = version.strip().split(" = ")[1]
     version = version.strip('"')
@@ -50,16 +50,8 @@ setup(
     author="Cottonwood Technology",
     author_email="info@cottonwood.tech",
     license="BSD",
-    packages=find_packages(
-        exclude=[
-            "tests",
-            "tests.*",
-            "benchmarks",
-            "benchmarks.*",
-            "typechecking",
-            "typechecking.*",
-        ]
-    ),
+    package_dir={"validx": "src/validx"},
+    packages=find_packages(where="src"),
     package_data={"": ["*.pyi"], "validx": ["py.typed"]},
     zip_safe=False,
     ext_modules=ext_modules,
