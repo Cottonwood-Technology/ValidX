@@ -192,6 +192,14 @@ def test_date_tz(module, tz):
         assert v(1543968000) == date.fromtimestamp(1543968000)
 
 
+@pytest.mark.parametrize("tz", [timezone("Etc/GMT-14"), timezone("Etc/GMT+12")])
+def test_date_relmin_relmax_with_tz(module, tz):
+    v = module.Date(relmin=-timedelta(days=1), relmax=timedelta(days=1), tz=tz)
+    today = datetime.now(UTC).astimezone(tz).date()
+    assert v(today - timedelta(days=1)) == today - timedelta(days=1)
+    assert v(today + timedelta(days=1)) == today + timedelta(days=1)
+
+
 # =============================================================================
 
 

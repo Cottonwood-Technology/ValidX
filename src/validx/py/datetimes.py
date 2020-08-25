@@ -79,6 +79,9 @@ class Date(abstract.Validator):
         using ``datetime.fromtimestamp(value, UTC)``.
         And then arrange it to specified timezone,
         and extract date part.
+        It also will be used in the same way
+        to get ``today`` value for ``relmin/relmax`` checks,
+        i.e. ``datetime.now(UTC).astimezone(self.tz).date()``.
 
     """
 
@@ -161,8 +164,6 @@ class Date(abstract.Validator):
             # Implicitly convert ``datetime`` to ``date``,
             # but localize it first, if timezone info provided
             if value.tzinfo is not None and self.tz is not None:
-                # TODO: Should we force datetime to be naive if self.tz is None
-                # and vice versa???
                 value = value.astimezone(self.tz)
             value = value.date()
 
@@ -171,9 +172,10 @@ class Date(abstract.Validator):
         if self.max is not None and value > self.max:
             raise exc.MaxValueError(expected=self.max, actual=value)
         if self.relmin is not None or self.relmax is not None:
-            # TODO: Fix it, should be
-            # datetime.now(UTC).astimezone(self.tz).date()
-            today = date.today()
+            if self.tz is not None:
+                today = datetime.now(UTC).astimezone(self.tz).date()
+            else:
+                today = date.today()
             if self.relmin is not None and value < today + self.relmin:
                 raise exc.MinValueError(expected=today + self.relmin, actual=value)
             if self.relmax is not None and value > today + self.relmax:
