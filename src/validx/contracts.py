@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from collections.abc import Container, Sequence, Mapping, Callable
 
 from .types import chars, frozendict

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import pickle
 from collections import deque
 from datetime import datetime
