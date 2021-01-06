@@ -1,6 +1,14 @@
 Changes
 =======
 
+0.7
+---
+
+*   Dropped Python 2.7 support.
+*   Fixed ``relmin/relmax`` checks for ``Date`` validator with timezone.
+*   Fixed constructing Cython version of ``Type`` validator with type created from metaclass.
+
+
 0.6.1
 -----
 
