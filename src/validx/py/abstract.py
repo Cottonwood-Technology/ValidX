@@ -1,7 +1,7 @@
 from warnings import warn
+from abc import ABC, abstractmethod
 
 from . import classes, instances
-from ..compat.abc import ABC, abstractmethod
 from ..compat.colabc import Mapping, Sequence, Container
 from ..compat.types import chars
 
