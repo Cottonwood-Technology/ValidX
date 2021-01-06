@@ -17,9 +17,9 @@ jobs:
 
 env:
   global:
-  - CIBW_SKIP="cp27-*"
+  - CIBW_SKIP="cp27-* pp*"
   - CIBW_BEFORE_BUILD="pip install cython"
-  - CIBW_TEST_REQUIRES="pytest pytest-cov pytest-flakes pytest-benchmark werkzeug webob pytz python-dateutil"
+  - CIBW_TEST_REQUIRES="pytest pytest-cov pytest-flakes pytest-benchmark werkzeug webob multidict pytz python-dateutil"
   - CIBW_TEST_COMMAND="pytest -c {project}/pytest.ini {project}/tests/unittests"
   - TWINE_USERNAME=__token__
   # TWINE_PASSWORD
