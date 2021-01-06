@@ -2,8 +2,7 @@
 
 from collections.abc import Container, Sequence, Mapping, Callable
 
-from .compat.frozendict import frozendict
-from .compat.types import chars
+from .types import chars, frozendict
 
 
 def expect(

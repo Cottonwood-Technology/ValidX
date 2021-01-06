@@ -5,7 +5,7 @@ from collections.abc import Sequence, Mapping
 
 from .. import exc
 from .. import contracts
-from ..compat.types import chars
+from ..types import chars
 from . cimport abstract
 
 

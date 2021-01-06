@@ -1,6 +1,13 @@
 from collections.abc import Mapping
 
 
+__all__ = ["numbers", "chars", "frozendict"]
+
+
+numbers = (int, float)
+chars = (str, bytes)
+
+
 class frozendict(Mapping):
     def __init__(self, *args, **kw):
         self.__data = dict(*args, **kw)

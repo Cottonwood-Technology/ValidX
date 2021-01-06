@@ -1,4 +1,4 @@
-from validx.compat.frozendict import frozendict
+from validx.types import frozendict
 
 
 def test_frozendict():

@@ -3,7 +3,7 @@ from libc cimport limits
 
 from .. import exc
 from .. import contracts
-from ..compat.types import numbers
+from ..types import numbers
 from . cimport abstract
 
 

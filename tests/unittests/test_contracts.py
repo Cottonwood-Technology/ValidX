@@ -4,8 +4,7 @@ from collections.abc import Sequence, Container, Mapping, Callable
 import pytest
 
 from validx import contracts
-from validx.compat.frozendict import frozendict
-from validx.compat.types import numbers, chars
+from validx.types import numbers, chars, frozendict
 
 
 class ContextMock(object):

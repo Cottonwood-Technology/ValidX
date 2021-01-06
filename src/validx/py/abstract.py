@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence, Container
 
 from . import classes, instances
-from ..compat.types import chars
+from ..types import chars
 
 
 class Validator(ABC):

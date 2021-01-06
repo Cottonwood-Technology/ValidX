@@ -3,7 +3,7 @@ from collections.abc import Sequence, Mapping
 
 from .. import contracts
 from .. import exc
-from ..compat.types import chars
+from ..types import chars
 from . import abstract
 
 

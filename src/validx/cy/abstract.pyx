@@ -2,7 +2,7 @@ from warnings import warn
 from collections.abc import Mapping, Sequence, Container
 
 from . cimport classes, instances
-from ..compat.types import chars
+from ..types import chars
 
 
 cdef class Validator:

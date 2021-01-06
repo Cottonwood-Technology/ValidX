@@ -2,7 +2,7 @@ import math
 
 from .. import contracts
 from .. import exc
-from ..compat.types import numbers
+from ..types import numbers
 from . import abstract
 
 
