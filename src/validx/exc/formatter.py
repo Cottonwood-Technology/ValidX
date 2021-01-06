@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from . import errors
-from ..compat.types import basestr
 
 
 class Formatter(object):
@@ -39,14 +38,14 @@ class Formatter(object):
         for exc_class, template in templates.items():
             assert isinstance(exc_class, type), exc_class
             assert issubclass(exc_class, errors.ValidationError), exc_class
-            assert isinstance(template, (basestr, list, tuple)), template
+            assert isinstance(template, (str, list, tuple)), template
             if isinstance(template, (list, tuple)):
                 for f in template:
-                    assert isinstance(f, (basestr, tuple))
+                    assert isinstance(f, (str, tuple))
                     if isinstance(f, tuple):
                         assert len(f) == 2, f
                         assert callable(f[0]), f[0]
-                        assert isinstance(f[1], basestr), f[1]
+                        assert isinstance(f[1], str), f[1]
         self._templates = templates
 
     def __call__(self, error):
@@ -67,14 +66,14 @@ class Formatter(object):
             template = self._templates.get(type(e))
             if template is None:
                 result.append((context, e.format_error()))
-            elif isinstance(template, basestr):
+            elif isinstance(template, str):
                 result.append((context, template.format(e)))
             elif isinstance(template, (list, tuple)):
                 for f in template:
                     if isinstance(f, tuple) and f[0](e):
                         result.append((context, f[1].format(e)))
                         break
-                    elif isinstance(f, basestr):
+                    elif isinstance(f, str):
                         result.append((context, f.format(e)))
                         break
                 else:
@@ -121,7 +120,7 @@ format_error = Formatter(
         errors.PatternMatchError: "Cannot match “{0.actual}” using “{0.expected}”.",
         errors.DatetimeParseError: [
             (
-                lambda error: isinstance(error.expected, basestr),
+                lambda error: isinstance(error.expected, str),
                 "Cannot parse date/time value from “{0.actual}” using “{0.expected}” format.",
             ),
             "Cannot parse date/time value from “{0.actual}”.",

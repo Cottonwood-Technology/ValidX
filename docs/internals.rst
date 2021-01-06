@@ -13,7 +13,7 @@ Contracts are used to validate parameters of validator itself during its initial
 ..  autofunction:: validx.contracts.expect
 ..  autofunction:: validx.contracts.expect_flag
 ..  autofunction:: validx.contracts.expect_length
-..  autofunction:: validx.contracts.expect_basestr
+..  autofunction:: validx.contracts.expect_str
 ..  autofunction:: validx.contracts.expect_callable
 ..  autofunction:: validx.contracts.expect_container
 ..  autofunction:: validx.contracts.expect_sequence

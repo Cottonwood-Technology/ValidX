@@ -2,7 +2,6 @@ import re
 
 from .. import exc
 from .. import contracts
-from ..compat.types import string
 from . import abstract
 
 
@@ -15,8 +14,7 @@ class Str(abstract.Validator):
         accept ``None`` as a valid value.
 
     :param str encoding:
-        try to decode byte-string to ``str/unicode``,
-        using specified encoding.
+        try to decode ``bytes`` to ``str`` using specified encoding.
 
     :param int minlen:
         lower length limit.
@@ -33,8 +31,7 @@ class Str(abstract.Validator):
 
     :raises InvalidTypeError:
         * if ``value is None`` and ``not self.nullable``;
-        * if ``not isinstance(value, str)`` (Python 3.x)
-          or ``not isinstance(value, unicode)`` (Python 2.x).
+        * if ``not isinstance(value, str)``.
 
     :raises StrDecodeError:
         if ``value.decode(self.encoding)`` raises ``UnicodeDecodeError``.
@@ -67,12 +64,12 @@ class Str(abstract.Validator):
         replace=False,
     ):
         nullable = contracts.expect_flag(self, "nullable", nullable)
-        encoding = contracts.expect_basestr(self, "encoding", encoding, nullable=True)
+        encoding = contracts.expect_str(self, "encoding", encoding, nullable=True)
         minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
         maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
-        pattern = contracts.expect_basestr(self, "pattern", pattern, nullable=True)
+        pattern = contracts.expect_str(self, "pattern", pattern, nullable=True)
         options = contracts.expect_container(
-            self, "options", options, nullable=True, item_type=string
+            self, "options", options, nullable=True, item_type=str
         )
 
         setattr = object.__setattr__
@@ -88,14 +85,14 @@ class Str(abstract.Validator):
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
-        if not isinstance(value, string):
+        if not isinstance(value, str):
             if isinstance(value, bytes) and self.encoding is not None:
                 try:
                     value = value.decode(self.encoding)
                 except UnicodeDecodeError:
                     raise exc.StrDecodeError(expected=self.encoding, actual=value)
             else:
-                raise exc.InvalidTypeError(expected=string, actual=type(value))
+                raise exc.InvalidTypeError(expected=str, actual=type(value))
         length = len(value)
         if self.minlen is not None and length < self.minlen:
             raise exc.MinLengthError(expected=self.minlen, actual=length)

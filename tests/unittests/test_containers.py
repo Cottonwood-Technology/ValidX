@@ -13,7 +13,6 @@ except ImportError:
     pass
 
 from validx import exc
-from validx.compat.types import string
 
 
 NoneType = type(None)
@@ -69,7 +68,7 @@ def test_list(module):
     with pytest.raises(exc.InvalidTypeError) as info:
         v("1, 2, 3")
     assert info.value.expected == Sequence
-    assert info.value.actual == string
+    assert info.value.actual == str
 
     with pytest.raises(exc.SchemaError) as info:
         v([1, "2", 3, None])
@@ -78,7 +77,7 @@ def test_list(module):
     assert isinstance(info.value[0], exc.InvalidTypeError)
     assert info.value[0].context == deque([1])
     assert info.value[0].expected == int
-    assert info.value[0].actual == string
+    assert info.value[0].actual == str
 
     assert isinstance(info.value[1], exc.InvalidTypeError)
     assert info.value[1].context == deque([3])
@@ -199,7 +198,7 @@ def test_tuple(module):
     with pytest.raises(exc.InvalidTypeError) as info:
         v("1, 2")
     assert info.value.expected == Sequence
-    assert info.value.actual == string
+    assert info.value.actual == str
 
     with pytest.raises(exc.TupleLengthError) as info:
         v([1, 2, 3])
@@ -213,7 +212,7 @@ def test_tuple(module):
     assert isinstance(info.value[0], exc.InvalidTypeError)
     assert info.value[0].context == deque([0])
     assert info.value[0].expected == int
-    assert info.value[0].actual == string
+    assert info.value[0].actual == str
 
     assert isinstance(info.value[1], exc.InvalidTypeError)
     assert info.value[1].context == deque([1])
@@ -277,7 +276,7 @@ def test_dict(module):
     assert isinstance(info.value[0], exc.InvalidTypeError)
     assert info.value[0].context == deque(["x"])
     assert info.value[0].expected == int
-    assert info.value[0].actual == string
+    assert info.value[0].actual == str
 
     assert isinstance(info.value[1], exc.InvalidTypeError)
     assert info.value[1].context == deque(["y"])
@@ -447,7 +446,7 @@ def test_dict_extra(module, extra):
 
         assert isinstance(info.value[0], exc.InvalidTypeError)
         assert info.value[0].context == deque([3, exc.EXTRA_KEY])
-        assert info.value[0].expected == string
+        assert info.value[0].expected == str
         assert info.value[0].actual == int
 
         assert isinstance(info.value[1], exc.InvalidTypeError)

@@ -3,7 +3,7 @@
 from collections.abc import Container, Sequence, Mapping, Callable
 
 from .compat.frozendict import frozendict
-from .compat.types import chars, basestr
+from .compat.types import chars
 
 
 def expect(
@@ -128,7 +128,7 @@ def expect_length(obj, attr, value, nullable=False):
     return value
 
 
-def expect_basestr(obj, attr, value, nullable=False):
+def expect_str(obj, attr, value, nullable=False):
     """
     Check, whether the value satisfies expectations of base string
 
@@ -149,11 +149,10 @@ def expect_basestr(obj, attr, value, nullable=False):
         Default: ``False`` — does not accept ``None``.
 
     :raises TypeError:
-        * if ``not isinstance(value, str)`` (Python 3.x);
-        * if ``not isinstance(value, basestring)`` (Python 2.x).
+        if ``not isinstance(value, str)``.
 
     """
-    return expect(obj, attr, value, nullable=nullable, types=basestr)
+    return expect(obj, attr, value, nullable=nullable, types=str)
 
 
 def expect_callable(obj, attr, value, nullable=False):
@@ -214,8 +213,7 @@ def expect_container(obj, attr, value, nullable=False, empty=False, item_type=No
 
     :raises TypeError:
         * if ``not isinstance(value, collections.abc.Container)``;
-        * if ``isinstance(value, (str, bytes))`` (Python 3.x);
-        * if ``isinstance(value, (unicode, bytes))`` (Python 2.x);
+        * if ``isinstance(value, (str, bytes))``;
         * if ``item_type is not None`` and ``isinstance(item, item_type)``,
           ``for item in value``.
 
@@ -290,8 +288,7 @@ def expect_sequence(obj, attr, value, nullable=False, empty=False, item_type=Non
 
     :raises TypeError:
         * if ``not isinstance(value, collections.abc.Sequence)``;
-        * if ``isinstance(value, (str, bytes))`` (Python 3.x);
-        * if ``isinstance(value, (unicode, bytes))`` (Python 2.x);
+        * if ``isinstance(value, (str, bytes))``;
         * if ``item_type is not None`` and ``isinstance(item, item_type)``,
           ``for item in value``.
 
@@ -364,8 +361,7 @@ def expect_mapping(obj, attr, value, nullable=False, empty=False, value_type=Non
 
     :raises TypeError:
         * if ``not isinstance(value, collections.abc.Sequence)``;
-        * if ``isinstance(value, (str, bytes))`` (Python 3.x);
-        * if ``isinstance(value, (unicode, bytes))`` (Python 2.x);
+        * if ``isinstance(value, (str, bytes))``;
         * if ``value_type is not None`` and ``isinstance(val, value_type)``,
           ``for key, val in value.items()``.
 
@@ -426,8 +422,7 @@ def expect_tuple(obj, attr, value, struct, nullable=False):
 
     :raises TypeError:
         * if ``not isinstance(value, collections.abc.Sequence)``;
-        * if ``isinstance(value, (str, bytes))`` (Python 3.x);
-        * if ``isinstance(value, (unicode, bytes))`` (Python 2.x);
+        * if ``isinstance(value, (str, bytes))``;
         * if ``not isinstance(item, item_type)``,
           ``for item_type, item in zip(struct, value)``.
 

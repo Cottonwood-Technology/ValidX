@@ -5,7 +5,7 @@ import pytest
 
 from validx import contracts
 from validx.compat.frozendict import frozendict
-from validx.compat.types import numbers, chars, string, basestr
+from validx.compat.types import numbers, chars
 
 
 class ContextMock(object):
@@ -86,19 +86,15 @@ def test_expect_length():
     )
 
 
-def test_expect_basestr():
-    c = partial(contracts.expect_basestr, obj, "attr")
+def test_expect_str():
+    c = partial(contracts.expect_str, obj, "attr")
     assert c("abc") == "abc"
-    assert c("xyz") == "xyz"
     assert c(None, nullable=True) is None
 
     with pytest.raises(TypeError) as info:
         c(None)
     assert info.value.args == (
-        (
-            "%s.ContextMock.attr should be of type %r"
-            % (ContextMock.__module__, basestr)
-        ),
+        ("%s.ContextMock.attr should be of type %r" % (ContextMock.__module__, str)),
     )
 
 
@@ -154,7 +150,7 @@ def test_expect_container():
     assert info.value.args == (
         (
             "%s.ContextMock.attr items should be of type %r, got %r"
-            % (ContextMock.__module__, int, string)
+            % (ContextMock.__module__, int, str)
         ),
     )
 
@@ -229,7 +225,7 @@ def test_expect_mapping():
 
 
 def test_expect_tuple():
-    c = partial(contracts.expect_tuple, obj, "attr", struct=(int, string))
+    c = partial(contracts.expect_tuple, obj, "attr", struct=(int, str))
     assert c([1, "x"]) == (1, "x")
     assert c(None, nullable=True) is None
 
@@ -254,7 +250,7 @@ def test_expect_tuple():
     assert info.value.args == (
         (
             "%s.ContextMock.attr should be a tuple of %r"
-            % (ContextMock.__module__, (int, string))
+            % (ContextMock.__module__, (int, str))
         ),
     )
     with pytest.raises(TypeError) as info:
@@ -262,6 +258,6 @@ def test_expect_tuple():
     assert info.value.args == (
         (
             "%s.ContextMock.attr[1] value should be of type %r"
-            % (ContextMock.__module__, string)
+            % (ContextMock.__module__, str)
         ),
     )

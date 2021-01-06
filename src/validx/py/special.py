@@ -59,7 +59,7 @@ class LazyRef(abstract.Validator):
     __slots__ = ("use", "maxdepth")
 
     def __init__(self, use, maxdepth=None, alias=None, replace=False):
-        use = contracts.expect_basestr(self, "use", use)
+        use = contracts.expect_str(self, "use", use)
         maxdepth = contracts.expect_length(self, "maxdepth", maxdepth, nullable=True)
 
         setattr = object.__setattr__
