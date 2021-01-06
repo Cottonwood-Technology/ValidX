@@ -335,11 +335,6 @@ class Datetime(abstract.Validator):
         * if ``self.tz is None and value > datetime.now() + self.relmax``.
         * if ``self.tz is not None and value > datetime.now(UTC).astimezone(self.tz) + self.relmax``.
 
-
-    :note:
-        Relative limits are calculated adding deltas to midnight of current date,
-        use negative ``relmin/relmax`` to specify date and time in the past.
-
     """
 
     __slots__ = (
