@@ -13,7 +13,7 @@ NoneType = type(None)
 
 def test_str(module):
     v = module.Str()
-    assert v(u"abc") == u"abc"
+    assert v("abc") == "abc"
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
@@ -21,7 +21,7 @@ def test_str(module):
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_str_nullable(module, nullable):
     v = module.Str(nullable=nullable)
-    assert v(u"abc") == u"abc"
+    assert v("abc") == "abc"
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
@@ -37,14 +37,14 @@ def test_str_nullable(module, nullable):
 @pytest.mark.parametrize("encoding", [None, "utf-8"])
 def test_str_encoding(module, encoding):
     v = module.Str(encoding=encoding)
-    assert v(u"abc") == u"abc"
+    assert v("abc") == "abc"
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
     if encoding:
-        assert v(b"abc") == u"abc"
+        assert v(b"abc") == "abc"
 
-        error = u"café".encode("latin-1")
+        error = "café".encode("latin-1")
         with pytest.raises(exc.StrDecodeError) as info:
             v(error)
         assert info.value.expected == encoding
@@ -60,59 +60,59 @@ def test_str_encoding(module, encoding):
 @pytest.mark.parametrize("maxlen", [None, 5])
 def test_str_minlen_maxlen(module, minlen, maxlen):
     v = module.Str(minlen=minlen, maxlen=maxlen)
-    assert v(u"abc") == u"abc"
+    assert v("abc") == "abc"
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
     if minlen is None:
-        assert v(u"a") == u"a"
+        assert v("a") == "a"
     else:
         with pytest.raises(exc.MinLengthError) as info:
-            v(u"a")
+            v("a")
         assert info.value.expected == minlen
         assert info.value.actual == 1
 
     if maxlen is None:
-        assert v(u"abcdef") == u"abcdef"
+        assert v("abcdef") == "abcdef"
     else:
         with pytest.raises(exc.MaxLengthError) as info:
-            v(u"abcdef")
+            v("abcdef")
         assert info.value.expected == maxlen
         assert info.value.actual == 6
 
 
-@pytest.mark.parametrize("pattern", [None, u"(?i)^[a-z]+$"])
+@pytest.mark.parametrize("pattern", [None, "(?i)^[a-z]+$"])
 def test_str_pattern(module, pattern):
     v = module.Str(pattern=pattern)
-    assert v(u"abc") == u"abc"
-    assert v(u"ABC") == u"ABC"
+    assert v("abc") == "abc"
+    assert v("ABC") == "ABC"
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
     if pattern is None:
-        assert v(u"123") == u"123"
+        assert v("123") == "123"
     else:
         with pytest.raises(exc.PatternMatchError) as info:
-            v(u"123")
+            v("123")
         assert info.value.expected == pattern
-        assert info.value.actual == u"123"
+        assert info.value.actual == "123"
 
 
-@pytest.mark.parametrize("options", [None, [u"abc", u"xyz"]])
+@pytest.mark.parametrize("options", [None, ["abc", "xyz"]])
 def test_str_options(module, options):
     v = module.Str(options=options)
-    assert v(u"abc") == u"abc"
-    assert v(u"xyz") == u"xyz"
+    assert v("abc") == "abc"
+    assert v("xyz") == "xyz"
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
     if options is None:
-        assert v(u"123") == u"123"
+        assert v("123") == "123"
     else:
         with pytest.raises(exc.OptionsError) as info:
-            v(u"123")
+            v("123")
         assert info.value.expected == frozenset(options)
-        assert info.value.actual == u"123"
+        assert info.value.actual == "123"
 
 
 # =============================================================================

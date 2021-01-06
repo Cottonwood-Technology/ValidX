@@ -15,8 +15,8 @@ def test_load_dump(module):
     data = {
         "__class__": "Dict",
         "schema": {
-            u"x": {"__class__": "Int", "min": 0, "max": 10},
-            u"y": {
+            "x": {"__class__": "Int", "min": 0, "max": 10},
+            "y": {
                 "__class__": "List",
                 "item": {"__class__": "Int", "options": {1, 2, 3}},
                 "nullable": True,
@@ -26,16 +26,16 @@ def test_load_dump(module):
     }
     v1 = module.Validator.load(data)
     assert isinstance(v1, module.Dict)
-    assert isinstance(v1.schema[u"x"], module.Int)
-    assert isinstance(v1.schema[u"y"], module.List)
-    assert isinstance(v1.schema[u"y"].item, module.Int)
+    assert isinstance(v1.schema["x"], module.Int)
+    assert isinstance(v1.schema["y"], module.List)
+    assert isinstance(v1.schema["y"].item, module.Int)
     assert isinstance(v1.extra, tuple)
     assert isinstance(v1.extra[0], module.Str)
     assert isinstance(v1.extra[1], module.Str)
-    assert v1.schema[u"x"].min == 0
-    assert v1.schema[u"x"].max == 10
-    assert v1.schema[u"y"].nullable is True
-    assert v1.schema[u"y"].item.options == frozenset([1, 2, 3])
+    assert v1.schema["x"].min == 0
+    assert v1.schema["x"].max == 10
+    assert v1.schema["y"].nullable is True
+    assert v1.schema["y"].item.options == frozenset([1, 2, 3])
     assert v1.dump() == data
 
 

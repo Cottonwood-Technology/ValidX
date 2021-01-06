@@ -89,7 +89,7 @@ def test_expect_length():
 def test_expect_basestr():
     c = partial(contracts.expect_basestr, obj, "attr")
     assert c("abc") == "abc"
-    assert c(u"xyz") == u"xyz"
+    assert c("xyz") == "xyz"
     assert c(None, nullable=True) is None
 
     with pytest.raises(TypeError) as info:
@@ -126,7 +126,7 @@ def test_expect_container():
     assert c([{}, {}]) == ({}, {})
     assert c(None, nullable=True) is None
     assert c([], empty=True) == frozenset([])
-    assert c([1, u"x"]) == frozenset([1, u"x"])
+    assert c([1, "x"]) == frozenset([1, "x"])
 
     with pytest.raises(TypeError) as info:
         c("abc")
@@ -150,7 +150,7 @@ def test_expect_container():
         ("%s.ContextMock.attr should not be empty" % (ContextMock.__module__)),
     )
     with pytest.raises(TypeError) as info:
-        c([1, u"x"], item_type=int)
+        c([1, "x"], item_type=int)
     assert info.value.args == (
         (
             "%s.ContextMock.attr items should be of type %r, got %r"
@@ -165,7 +165,7 @@ def test_expect_sequence():
     assert c([{}, {}]) == ({}, {})
     assert c(None, nullable=True) is None
     assert c([], empty=True) == ()
-    assert c([1, u"x"]) == (1, u"x")
+    assert c([1, "x"]) == (1, "x")
 
     with pytest.raises(TypeError) as info:
         c("abc")
@@ -189,7 +189,7 @@ def test_expect_sequence():
         ("%s.ContextMock.attr should not be empty" % (ContextMock.__module__)),
     )
     with pytest.raises(TypeError) as info:
-        c([1, u"x"], item_type=int)
+        c([1, "x"], item_type=int)
     assert info.value.args == (
         (
             "%s.ContextMock.attr[1] value should be of type %r"
@@ -203,7 +203,7 @@ def test_expect_mapping():
     assert c({"a": 1, "b": 2}) == frozendict({"a": 1, "b": 2})
     assert c({}, empty=True) == frozendict({})
     assert c(None, nullable=True) is None
-    assert c({"a": 1, "b": u"x"}) == frozendict({"a": 1, "b": u"x"})
+    assert c({"a": 1, "b": "x"}) == frozendict({"a": 1, "b": "x"})
 
     with pytest.raises(TypeError) as info:
         c(None)
@@ -219,7 +219,7 @@ def test_expect_mapping():
         ("%s.ContextMock.attr should not be empty" % (ContextMock.__module__)),
     )
     with pytest.raises(TypeError) as info:
-        c({"a": 1, "b": u"x"}, value_type=int)
+        c({"a": 1, "b": "x"}, value_type=int)
     assert info.value.args == (
         (
             "%s.ContextMock.attr['b'] value should be of type %r"
@@ -230,7 +230,7 @@ def test_expect_mapping():
 
 def test_expect_tuple():
     c = partial(contracts.expect_tuple, obj, "attr", struct=(int, string))
-    assert c([1, u"x"]) == (1, u"x")
+    assert c([1, "x"]) == (1, "x")
     assert c(None, nullable=True) is None
 
     with pytest.raises(TypeError) as info:

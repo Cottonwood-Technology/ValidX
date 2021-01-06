@@ -81,15 +81,15 @@ def test_date_format(module, format):
     if format:
         # Python 2.7 should handle both ``str`` and ``unicode``
         assert v("2018-07-03") == date(2018, 7, 3)
-        assert v(u"2018-07-03") == date(2018, 7, 3)
+        assert v("2018-07-03") == date(2018, 7, 3)
 
         with pytest.raises(exc.DatetimeParseError) as info:
-            v(u"03.07.2018")
+            v("03.07.2018")
         assert info.value.expected == format
-        assert info.value.actual == u"03.07.2018"
+        assert info.value.actual == "03.07.2018"
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
-            v(u"2018-07-03")
+            v("2018-07-03")
         assert info.value.expected == date
         assert info.value.actual == string
 
@@ -107,15 +107,15 @@ def test_date_parser(module, parser):
     if parser:
         # Python 2.7 should handle both ``str`` and ``unicode``
         assert v("2018-07-03") == date(2018, 7, 3)
-        assert v(u"2018-07-03") == date(2018, 7, 3)
+        assert v("2018-07-03") == date(2018, 7, 3)
 
         with pytest.raises(exc.DatetimeParseError) as info:
-            v(u"03.07.2018")
+            v("03.07.2018")
         assert info.value.expected == parser
-        assert info.value.actual == u"03.07.2018"
+        assert info.value.actual == "03.07.2018"
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
-            v(u"2018-07-03")
+            v("2018-07-03")
         assert info.value.expected == date
         assert info.value.actual == string
 
@@ -236,15 +236,15 @@ def test_time_format(module, format):
     if format:
         # Python 2.7 should handle both ``str`` and ``unicode``
         assert v("13:35") == time(13, 35)
-        assert v(u"13:35") == time(13, 35)
+        assert v("13:35") == time(13, 35)
 
         with pytest.raises(exc.DatetimeParseError) as info:
-            v(u"13:35:00")
+            v("13:35:00")
         assert info.value.expected == format
-        assert info.value.actual == u"13:35:00"
+        assert info.value.actual == "13:35:00"
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
-            v(u"13:35")
+            v("13:35")
         assert info.value.expected == time
         assert info.value.actual == string
 
@@ -259,15 +259,15 @@ def test_time_parse(module, parser):
     if parser:
         # Python 2.7 should handle both ``str`` and ``unicode``
         assert v("13:35") == time(13, 35)
-        assert v(u"13:35") == time(13, 35)
+        assert v("13:35") == time(13, 35)
 
         with pytest.raises(exc.DatetimeParseError) as info:
-            v(u"13.35.00")
+            v("13.35.00")
         assert info.value.expected == parser
-        assert info.value.actual == u"13.35.00"
+        assert info.value.actual == "13.35.00"
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
-            v(u"13:35")
+            v("13:35")
         assert info.value.expected == time
         assert info.value.actual == string
 
@@ -397,19 +397,19 @@ def test_datetime_format(module, format, tz):
         if tz is None:
             # Python 2.7 should handle both ``str`` and ``unicode``
             assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
-            assert v(u"2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
+            assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
         elif sys.version_info[0] >= 3:
             dt = datetime(2018, 7, 3, 19, 15, tzinfo=UTC).astimezone(tz)
             assert v("2018-07-03T19:15+0000") == dt
-            assert v(u"2018-07-03T19:15+0000") == dt
+            assert v("2018-07-03T19:15+0000") == dt
 
         with pytest.raises(exc.DatetimeParseError) as info:
-            v(u"03.07.2018 19:15")
+            v("03.07.2018 19:15")
         assert info.value.expected == format
-        assert info.value.actual == u"03.07.2018 19:15"
+        assert info.value.actual == "03.07.2018 19:15"
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
-            v(u"2018-07-03T19:15")
+            v("2018-07-03T19:15")
         assert info.value.expected == datetime
         assert info.value.actual == string
 
@@ -429,19 +429,19 @@ def test_datetime_parser(module, parser, tz):
         # Python 2.7 should handle both ``str`` and ``unicode``
         if tz is None:
             assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
-            assert v(u"2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
+            assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
         else:
             dt = datetime(2018, 7, 3, 19, 15, tzinfo=UTC).astimezone(tz)
             assert v("2018-07-03T19:15Z") == dt
-            assert v(u"2018-07-03T19:15Z") == dt
+            assert v("2018-07-03T19:15Z") == dt
 
         with pytest.raises(exc.DatetimeParseError) as info:
-            v(u"03.07.2018 19:15")
+            v("03.07.2018 19:15")
         assert info.value.expected == parser
-        assert info.value.actual == u"03.07.2018 19:15"
+        assert info.value.actual == "03.07.2018 19:15"
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
-            v(u"2018-07-03T19:15")
+            v("2018-07-03T19:15")
         assert info.value.expected == datetime
         assert info.value.actual == string
 

@@ -36,7 +36,7 @@ def test_date_unixts(module, benchmark):
 @pytest.mark.benchmark(group="Date")
 def test_date_format(module, benchmark):
     v = module.Date(format="%Y-%m-%d")
-    assert benchmark(v, u"2018-07-03") == date(2018, 7, 3)
+    assert benchmark(v, "2018-07-03") == date(2018, 7, 3)
 
 
 @pytest.mark.benchmark(group="Date")
@@ -70,7 +70,7 @@ def test_time_nullable(module, benchmark):
 @pytest.mark.benchmark(group="Time")
 def test_time_format(module, benchmark):
     v = module.Time(format="%H:%M")
-    assert benchmark(v, u"13:35") == time(13, 35)
+    assert benchmark(v, "13:35") == time(13, 35)
 
 
 @pytest.mark.benchmark(group="Time")
@@ -112,7 +112,7 @@ def test_datetime_unixts(module, benchmark):
 @pytest.mark.benchmark(group="Datetime")
 def test_datetime_format(module, benchmark):
     v = module.Datetime(format="%Y-%m-%dT%H:%M")
-    assert benchmark(v, u"2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
+    assert benchmark(v, "2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
 
 
 @pytest.mark.benchmark(group="Datetime")

@@ -85,61 +85,61 @@ class Formatter(object):
 format_error = Formatter(
     {
         errors.InvalidTypeError: [
-            (lambda error: error.actual is type(None), u"Value should not be null."),
-            u"Expected type “{0.expected.__name__}”, got “{0.actual.__name__}”.",
+            (lambda error: error.actual is type(None), "Value should not be null."),
+            "Expected type “{0.expected.__name__}”, got “{0.actual.__name__}”.",
         ],
         errors.OptionsError: [
             (
                 lambda error: len(error.expected) == 1,
-                u"Expected {0.expected[0]}, got {0.actual}.",
+                "Expected {0.expected[0]}, got {0.actual}.",
             ),
-            u"Expected one of {0.expected}, got {0.actual}.",
+            "Expected one of {0.expected}, got {0.actual}.",
         ],
-        errors.MinValueError: u"Expected value ≥ {0.expected}, got {0.actual}.",
-        errors.MaxValueError: u"Expected value ≤ {0.expected}, got {0.actual}.",
+        errors.MinValueError: "Expected value ≥ {0.expected}, got {0.actual}.",
+        errors.MaxValueError: "Expected value ≤ {0.expected}, got {0.actual}.",
         errors.FloatValueError: [
             (
                 lambda error: error.expected == "finite" and error.actual < 0,
-                u"Expected finite number, got -∞.",
+                "Expected finite number, got -∞.",
             ),
             (
                 lambda error: error.expected == "finite" and error.actual > 0,
-                u"Expected finite number, got +∞.",
+                "Expected finite number, got +∞.",
             ),
-            (lambda error: error.expected == "number", u"Expected number, got NaN."),
+            (lambda error: error.expected == "number", "Expected number, got NaN."),
         ],
-        errors.StrDecodeError: u"Cannot decode value using “{0.expected}” encoding.",
-        errors.MinLengthError: u"Expected value length ≥ {0.expected}, got {0.actual}.",
-        errors.MaxLengthError: u"Expected value length ≤ {0.expected}, got {0.actual}.",
+        errors.StrDecodeError: "Cannot decode value using “{0.expected}” encoding.",
+        errors.MinLengthError: "Expected value length ≥ {0.expected}, got {0.actual}.",
+        errors.MaxLengthError: "Expected value length ≤ {0.expected}, got {0.actual}.",
         errors.TupleLengthError: [
             (
                 lambda error: error.expected == 1,
-                u"Expected exactly 1 element, got {0.actual}.",
+                "Expected exactly 1 element, got {0.actual}.",
             ),
-            u"Expected exactly {0.expected} elements, got {0.actual}.",
+            "Expected exactly {0.expected} elements, got {0.actual}.",
         ],
-        errors.PatternMatchError: u"Cannot match “{0.actual}” using “{0.expected}”.",
+        errors.PatternMatchError: "Cannot match “{0.actual}” using “{0.expected}”.",
         errors.DatetimeParseError: [
             (
                 lambda error: isinstance(error.expected, basestr),
-                u"Cannot parse date/time value from “{0.actual}” using “{0.expected}” format.",
+                "Cannot parse date/time value from “{0.actual}” using “{0.expected}” format.",
             ),
-            u"Cannot parse date/time value from “{0.actual}”.",
+            "Cannot parse date/time value from “{0.actual}”.",
         ],
         errors.DatetimeTypeError: [
             (
                 lambda error: error.expected == "naive",
-                u"Naive date/time object is expected.",
+                "Naive date/time object is expected.",
             ),
             (
                 lambda error: error.expected == "tzaware",
-                u"Timezone-aware date/time object is expected.",
+                "Timezone-aware date/time object is expected.",
             ),
         ],
         errors.RecursionMaxDepthError: (
-            u"Too many nested structures, limit is {0.expected}."
+            "Too many nested structures, limit is {0.expected}."
         ),
-        errors.ForbiddenKeyError: u"Key is not allowed.",
-        errors.MissingKeyError: u"Required key is not provided.",
+        errors.ForbiddenKeyError: "Key is not allowed.",
+        errors.MissingKeyError: "Required key is not provided.",
     }
 )
