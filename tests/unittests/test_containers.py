@@ -4,13 +4,9 @@ from collections.abc import Sequence, Mapping
 
 import pytest
 
-from webob.multidict import MultiDict as WebObMultiDict  # noqa
-from werkzeug.datastructures import MultiDict as WerkzeugMultiDict  # noqa
-
-try:
-    from multidict import MultiDict  # noqa
-except ImportError:
-    pass
+from webob.multidict import MultiDict as WebObMultiDict
+from werkzeug.datastructures import MultiDict as WerkzeugMultiDict
+from multidict import MultiDict
 
 from validx import exc
 
@@ -18,15 +14,9 @@ from validx import exc
 NoneType = type(None)
 
 
-@pytest.fixture(
-    params=[
-        classname
-        for classname in ("WebObMultiDict", "WerkzeugMultiDict", "MultiDict")
-        if classname in globals()
-    ]
-)
+@pytest.fixture(params=[WebObMultiDict, WerkzeugMultiDict, MultiDict])
 def multidict_class(request):
-    return globals()[request.param]
+    return request.param
 
 
 class CustomSequence(Sequence):

@@ -135,14 +135,9 @@ class Tuple(abstract.Validator):
 
     __slots__ = ("items", "nullable")
 
-    def __init__(self, *args, **kw):
-        # Python 2.7 complains on key-word only arguments
-        kw.setdefault("items", args)
-        self.__init(**kw)
-
-    def __init(self, items=None, nullable=False, alias=None, replace=False):
+    def __init__(self, *items_, items=None, nullable=False, alias=None, replace=False):
         items = contracts.expect_sequence(
-            self, "items", items, item_type=abstract.Validator
+            self, "items", items or items_, item_type=abstract.Validator
         )
         nullable = contracts.expect_flag(self, "nullable", nullable)
 

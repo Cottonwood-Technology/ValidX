@@ -1,4 +1,3 @@
-import sys
 import pickle
 from time import time as timestamp
 from datetime import date, time, datetime, timedelta
@@ -78,8 +77,6 @@ def test_date_format(module, format):
     assert pickle.loads(pickle.dumps(v)) == v
 
     if format:
-        # Python 2.7 should handle both ``str`` and ``unicode``
-        assert v("2018-07-03") == date(2018, 7, 3)
         assert v("2018-07-03") == date(2018, 7, 3)
 
         with pytest.raises(exc.DatetimeParseError) as info:
@@ -104,8 +101,6 @@ def test_date_parser(module, parser):
     assert pickle.loads(pickle.dumps(v)) == v
 
     if parser:
-        # Python 2.7 should handle both ``str`` and ``unicode``
-        assert v("2018-07-03") == date(2018, 7, 3)
         assert v("2018-07-03") == date(2018, 7, 3)
 
         with pytest.raises(exc.DatetimeParseError) as info:
@@ -233,8 +228,6 @@ def test_time_format(module, format):
     assert pickle.loads(pickle.dumps(v)) == v
 
     if format:
-        # Python 2.7 should handle both ``str`` and ``unicode``
-        assert v("13:35") == time(13, 35)
         assert v("13:35") == time(13, 35)
 
         with pytest.raises(exc.DatetimeParseError) as info:
@@ -256,8 +249,6 @@ def test_time_parse(module, parser):
     assert pickle.loads(pickle.dumps(v)) == v
 
     if parser:
-        # Python 2.7 should handle both ``str`` and ``unicode``
-        assert v("13:35") == time(13, 35)
         assert v("13:35") == time(13, 35)
 
         with pytest.raises(exc.DatetimeParseError) as info:
@@ -381,8 +372,7 @@ def test_datetime_unixts(module, unixts, tz):
 @pytest.mark.parametrize("tz", [None, EST])
 @pytest.mark.parametrize("format", [None, "%Y-%m-%dT%H:%M"])
 def test_datetime_format(module, format, tz):
-    if tz is not None and format is not None and sys.version_info[0] >= 3:
-        # Option ``%z`` is not supported by ``datetime.strptime`` in Python 2.7
+    if tz is not None and format is not None:
         format += "%z"
     v = module.Datetime(format=format, tz=tz)
     today = date.today()
@@ -394,12 +384,9 @@ def test_datetime_format(module, format, tz):
 
     if format:
         if tz is None:
-            # Python 2.7 should handle both ``str`` and ``unicode``
             assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
-            assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
-        elif sys.version_info[0] >= 3:
+        else:
             dt = datetime(2018, 7, 3, 19, 15, tzinfo=UTC).astimezone(tz)
-            assert v("2018-07-03T19:15+0000") == dt
             assert v("2018-07-03T19:15+0000") == dt
 
         with pytest.raises(exc.DatetimeParseError) as info:
@@ -425,13 +412,10 @@ def test_datetime_parser(module, parser, tz):
     assert pickle.loads(pickle.dumps(v)) == v
 
     if parser:
-        # Python 2.7 should handle both ``str`` and ``unicode``
         if tz is None:
-            assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
             assert v("2018-07-03T19:15") == datetime(2018, 7, 3, 19, 15)
         else:
             dt = datetime(2018, 7, 3, 19, 15, tzinfo=UTC).astimezone(tz)
-            assert v("2018-07-03T19:15Z") == dt
             assert v("2018-07-03T19:15Z") == dt
 
         with pytest.raises(exc.DatetimeParseError) as info:
