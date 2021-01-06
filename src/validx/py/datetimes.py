@@ -1,8 +1,7 @@
-from datetime import date, time, datetime, timedelta, tzinfo
+from datetime import date, time, datetime, timedelta, timezone, tzinfo
 
 from .. import exc
 from .. import contracts
-from ..compat.datetime import UTC
 from . import abstract
 
 
@@ -142,7 +141,7 @@ class Date(abstract.Validator):
         if not isinstance(value, (date, datetime)):
             if isinstance(value, (int, float)) and self.unixts:
                 # Value will be arranged to ``self.tz`` below.
-                tz = None if self.tz is None else UTC
+                tz = None if self.tz is None else timezone.utc
                 value = datetime.fromtimestamp(value, tz)
             elif isinstance(value, str) and self.format is not None:
                 try:
@@ -170,7 +169,7 @@ class Date(abstract.Validator):
             raise exc.MaxValueError(expected=self.max, actual=value)
         if self.relmin is not None or self.relmax is not None:
             if self.tz is not None:
-                today = datetime.now(UTC).astimezone(self.tz).date()
+                today = datetime.now(timezone.utc).astimezone(self.tz).date()
             else:
                 today = date.today()
             if self.relmin is not None and value < today + self.relmin:
@@ -420,7 +419,7 @@ class Datetime(abstract.Validator):
                 value = datetime.combine(value, time(tzinfo=self.tz))
             elif isinstance(value, (int, float)) and self.unixts:
                 # Value will be arranged to ``self.tz`` below.
-                tz = None if self.tz is None else UTC
+                tz = None if self.tz is None else timezone.utc
                 value = datetime.fromtimestamp(value, tz)
             elif isinstance(value, str) and self.format is not None:
                 try:
@@ -449,7 +448,7 @@ class Datetime(abstract.Validator):
             raise exc.MaxValueError(expected=self.max, actual=value)
         if self.relmin is not None or self.relmax is not None:
             if self.tz is not None:
-                now = datetime.now(UTC).astimezone(self.tz)
+                now = datetime.now(timezone.utc).astimezone(self.tz)
             else:
                 now = datetime.now()
             if self.relmin is not None and value < now + self.relmin:
