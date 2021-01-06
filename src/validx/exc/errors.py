@@ -1,6 +1,5 @@
 from collections import deque
-
-from ..compat.colabc import Sequence
+from collections.abc import Sequence
 
 
 class ValidationError(ValueError, Sequence):

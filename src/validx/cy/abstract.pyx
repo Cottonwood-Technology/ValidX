@@ -1,7 +1,7 @@
 from warnings import warn
+from collections.abc import Mapping, Sequence, Container
 
 from . cimport classes, instances
-from ..compat.colabc import Mapping, Sequence, Container
 from ..compat.types import chars
 
 

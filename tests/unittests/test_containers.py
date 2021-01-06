@@ -1,5 +1,6 @@
 import pickle
 from collections import OrderedDict, defaultdict, deque
+from collections.abc import Sequence, Mapping
 
 import pytest
 
@@ -13,7 +14,6 @@ except ImportError:
 
 from validx import exc
 from validx.compat.types import string
-from validx.compat.colabc import Sequence, Mapping
 
 
 NoneType = type(None)

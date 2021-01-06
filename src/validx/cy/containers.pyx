@@ -1,10 +1,10 @@
 from libc cimport limits
 
 from copy import deepcopy
+from collections.abc import Sequence, Mapping
 
 from .. import exc
 from .. import contracts
-from ..compat.colabc import Sequence, Mapping
 from ..compat.types import chars
 from . cimport abstract
 

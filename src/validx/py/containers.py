@@ -1,8 +1,8 @@
 from copy import deepcopy
+from collections.abc import Sequence, Mapping
 
 from .. import contracts
 from .. import exc
-from ..compat.colabc import Sequence, Mapping
 from ..compat.types import chars
 from . import abstract
 

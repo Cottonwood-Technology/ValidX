@@ -1,10 +1,10 @@
 from functools import partial
+from collections.abc import Sequence, Container, Mapping, Callable
 
 import pytest
 
 from validx import contracts
 from validx.compat.frozendict import frozendict
-from validx.compat.colabc import Sequence, Container, Mapping, Callable
 from validx.compat.types import numbers, chars, string, basestr
 
 

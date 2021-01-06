@@ -1,4 +1,4 @@
-from .colabc import Mapping
+from collections.abc import Mapping
 
 
 class frozendict(Mapping):
