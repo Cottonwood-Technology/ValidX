@@ -74,6 +74,17 @@ def test_type(module):
     assert info.value.actual == float
 
 
+def test_type_metaclass(module):
+    class MetaClass(type):
+        pass
+
+    CustomType = MetaClass("CustomType", (), {})
+
+    v = module.Type(CustomType)
+    obj = CustomType()
+    assert v(obj) is obj
+
+
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_type_nullable(module, nullable):
     v = module.Type(int, nullable=nullable)

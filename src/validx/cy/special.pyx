@@ -162,7 +162,7 @@ cdef class Type(abstract.Validator):
         "options",
     )
 
-    cdef type _tp
+    cdef object _tp
     cdef bint _nullable
     cdef bint _coerce
     cdef object _min
