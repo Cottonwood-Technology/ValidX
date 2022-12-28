@@ -44,6 +44,9 @@ class Date(abstract.Validator):
     :raises InvalidTypeError:
         * if ``value is None`` and ``not self.nullable``;
         * if ``isinstance(value, (int, float))`` and ``not self.unixts``;
+        * if ``isinstance(value, bool) and self.unixts``,
+          because ``issubclass(bool, int) is True``,
+          but it is very unlikely ``bool`` could represent a valid timestamp;
         * if ``not isinstance(value, date)``.
 
     :raises DatetimeParseError:
@@ -52,11 +55,15 @@ class Date(abstract.Validator):
 
     :raises MinValueError:
         * if ``value < self.min``;
-        * if ``value < date.today() + self.relmin``.
+        * if ``value < date.today() + self.relmin``;
+        * if ``self.unixts`` and value cannot be converted from a timestamp,
+          because the timestamp lesser than ``date.min``.
 
     :raises MaxValueError:
         * if ``value > self.max``;
-        * if ``value > date.today() + self.relmax``.
+        * if ``value > date.today() + self.relmax``;
+        * if ``self.unixts`` and value cannot be converted from a timestamp,
+          because the timestamp greater than ``date.max``.
 
 
     :note:
@@ -140,10 +147,21 @@ class Date(abstract.Validator):
             return value
 
         if not isinstance(value, (date, datetime)):
-            if isinstance(value, numbers) and self.unixts:
+            if (
+                isinstance(value, numbers)
+                and not isinstance(value, bool)
+                and self.unixts
+            ):
                 # Value will be arranged to ``self.tz`` below.
                 tz = None if self.tz is None else timezone.utc
-                value = datetime.fromtimestamp(value, tz)
+                try:
+                    value = datetime.fromtimestamp(value, tz)
+                except (ValueError, OSError):
+                    raise (
+                        exc.MaxValueError(expected=date.max, actual=value)
+                        if value > 0
+                        else exc.MinValueError(expected=date.min, actual=value)
+                    )
             elif isinstance(value, str) and self.format is not None:
                 try:
                     value = datetime.strptime(value, self.format)
@@ -308,6 +326,9 @@ class Datetime(abstract.Validator):
     :raises InvalidTypeError:
         * if ``value is None`` and ``not self.nullable``;
         * if ``isinstance(value, (int, float))`` and ``not self.unixts``;
+        * if ``isinstance(value, bool) and self.unixts``,
+          because ``issubclass(bool, int) is True``,
+          but it is very unlikely ``bool`` could represent a valid timestamp;
         * if ``not isinstance(value, datetime)``.
 
     :raises DatetimeParseError:
@@ -321,12 +342,16 @@ class Datetime(abstract.Validator):
     :raises MinValueError:
         * if ``value < self.min``;
         * if ``self.tz is None and value < datetime.now() + self.relmin``.
-        * if ``self.tz is not None and value < datetime.now(UTC).astimezone(self.tz) + self.relmin``.
+        * if ``self.tz is not None and value < datetime.now(UTC).astimezone(self.tz) + self.relmin``;
+        * if ``self.unixts`` and value cannot be converted from a timestamp,
+          because the timestamp lesser than ``datetime.min``.
 
     :raises MaxValueError:
         * if ``value > self.max``;
         * if ``self.tz is None and value > datetime.now() + self.relmax``.
-        * if ``self.tz is not None and value > datetime.now(UTC).astimezone(self.tz) + self.relmax``.
+        * if ``self.tz is not None and value > datetime.now(UTC).astimezone(self.tz) + self.relmax``;
+        * if ``self.unixts`` and value cannot be converted from a timestamp,
+          because the timestamp greater than ``datetime.max``.
 
     """
 
@@ -418,10 +443,21 @@ class Datetime(abstract.Validator):
             if isinstance(value, date):
                 # Implicitly convert ``date`` to ``datetime``
                 value = datetime.combine(value, time(tzinfo=self.tz))
-            elif isinstance(value, numbers) and self.unixts:
+            elif (
+                isinstance(value, numbers)
+                and not isinstance(value, bool)
+                and self.unixts
+            ):
                 # Value will be arranged to ``self.tz`` below.
                 tz = None if self.tz is None else timezone.utc
-                value = datetime.fromtimestamp(value, tz)
+                try:
+                    value = datetime.fromtimestamp(value, tz)
+                except (ValueError, OSError):
+                    raise (
+                        exc.MaxValueError(expected=datetime.max, actual=value)
+                        if value > 0
+                        else exc.MinValueError(expected=datetime.min, actual=value)
+                    )
             elif isinstance(value, str) and self.format is not None:
                 try:
                     value = datetime.strptime(value, self.format)

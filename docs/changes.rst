@@ -6,6 +6,8 @@ Changes
 
 *   Dropped Python 3.5 support.
 *   Added Python 3.10, 3.11 support.
+*   Fixed handling UNIX-timestamps by :class:`validx.py.Date`
+    and :class:`validx.py.Datetime`.
 
 
 0.7

@@ -10,7 +10,7 @@ from validx import exc
 
 
 def isoparse(*args, **kw):
-    """ Pickable version of date/time parser """
+    """Pickable version of date/time parser"""
     return _isoparse(*args, **kw)
 
 
@@ -59,6 +59,30 @@ def test_date_unixts(module, unixts):
 
     if unixts:
         assert v(timestamp()) == today
+        with pytest.raises(exc.MaxValueError) as info:
+            v(1e12)
+        assert info.value.expected == date.max
+        assert info.value.actual == 1e12
+
+        with pytest.raises(exc.MinValueError) as info:
+            v(-1e12)
+        assert info.value.expected == date.min
+        assert info.value.actual == -1e12
+
+        with pytest.raises(exc.MaxValueError) as info:
+            v(1e18)
+        assert info.value.expected == date.max
+        assert info.value.actual == 1e18
+
+        with pytest.raises(exc.MinValueError) as info:
+            v(-1e18)
+        assert info.value.expected == date.min
+        assert info.value.actual == -1e18
+
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(True)
+        assert info.value.expected == date
+        assert info.value.actual == bool
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(timestamp())
@@ -357,11 +381,35 @@ def test_datetime_unixts(module, unixts, tz):
 
     if unixts:
         ts = timestamp()
-        assert (
-            v(ts) == datetime.fromtimestamp(ts)
+        assert v(ts) == (
+            datetime.fromtimestamp(ts)
             if tz is None
             else datetime.fromtimestamp(ts, UTC).astimezone(tz)
         )
+        with pytest.raises(exc.MaxValueError) as info:
+            v(1e12)
+        assert info.value.expected == datetime.max
+        assert info.value.actual == 1e12
+
+        with pytest.raises(exc.MinValueError) as info:
+            v(-1e12)
+        assert info.value.expected == datetime.min
+        assert info.value.actual == -1e12
+
+        with pytest.raises(exc.MaxValueError) as info:
+            v(1e18)
+        assert info.value.expected == datetime.max
+        assert info.value.actual == 1e18
+
+        with pytest.raises(exc.MinValueError) as info:
+            v(-1e18)
+        assert info.value.expected == datetime.min
+        assert info.value.actual == -1e18
+
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(True)
+        assert info.value.expected == datetime
+        assert info.value.actual == bool
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(timestamp())
