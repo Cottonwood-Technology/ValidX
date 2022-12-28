@@ -2,9 +2,6 @@
 ValidX
 ======
 
-..  image:: https://travis-ci.com/Cottonwood-Technology/ValidX.svg?branch=master
-    :target: https://travis-ci.com/Cottonwood-Technology/ValidX
-
 ..  image:: https://badge.fury.io/py/ValidX.svg
     :target: https://badge.fury.io/py/ValidX
 
