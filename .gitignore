@@ -1,17 +1,21 @@
 # IDE
 *.sublime-*
 
+# Virtual envs
+envdev
+.tox
+
+# Build & dist
+*.egg-info
+build
+dist
+docs/_build
 
 # Caches
-.tox
 .pytest_cache
 .mypy_cache
 .coverage
 .benchmarks
-*.egg-info
-build
-dist
-
 
 # Compiled files
 *.pyc

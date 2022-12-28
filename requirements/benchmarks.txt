@@ -1,0 +1,19 @@
+Cython
+
+##
+# PyTest
+#
+pytest
+pytest-benchmark
+
+##
+# Competitors
+#
+cerberus
+colander
+jsonschema
+schema
+valideer
+voluptuous
+validr
+marshmallow

@@ -1,0 +1,23 @@
+Cython
+
+##
+# PyTest
+#
+pytest
+pytest-cov
+pytest-benchmark
+
+##
+# MultiDict implementations
+#
+werkzeug
+webob
+multidict
+
+##
+# Datetime utils
+#
+pytz
+python-dateutil
+
+

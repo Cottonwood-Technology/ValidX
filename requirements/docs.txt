@@ -1,0 +1,3 @@
+sphinx
+pygments
+pyroma

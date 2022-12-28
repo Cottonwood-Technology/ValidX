@@ -1,0 +1,5 @@
+-r check.txt
+-r unittests.txt
+-r benchmarks.txt
+-r docs.txt
+-r tox.txt

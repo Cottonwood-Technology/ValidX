@@ -106,9 +106,9 @@ def test_colander(benchmark):
 
 
 def test_jsonschema(benchmark):
-    from jsonschema import Draft4Validator
+    from jsonschema import Draft202012Validator
 
-    schema = Draft4Validator(
+    schema = Draft202012Validator(
         {
             "type": "object",
             "properties": {
@@ -130,7 +130,6 @@ def test_jsonschema(benchmark):
                 },
             },
         },
-        types={"array": (list, tuple)},
     )
     assert benchmark(schema.validate, data) is None
 
