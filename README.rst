@@ -2,6 +2,9 @@
 ValidX
 ======
 
+..  image:: https://github.com/Cottonwood-Technology/ValidX/actions/workflows/main.yaml/badge.svg
+    :target: https://github.com/Cottonwood-Technology/ValidX/actions/workflows/main.yaml
+
 ..  image:: https://badge.fury.io/py/ValidX.svg
     :target: https://badge.fury.io/py/ValidX
 

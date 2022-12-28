@@ -1,0 +1,67 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+
+jobs:
+  build:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-11]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.11.4
+        env:
+          CIBW_SKIP: pp*
+          CIBW_BEFORE_BUILD: pip install cython
+          CIBW_BEFORE_TEST: pip install -r requirements/check.txt -r requirements/unittests.txt
+          CIBW_TEST_COMMAND: pytest -c {project}/tests/unittests.ini {project}/tests/unittests
+        with:
+          output-dir: wheelhouse
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheelhouse
+          path: ./wheelhouse/*.whl
+
+  deploy:
+    name: Deploy on PyPI
+    needs: build
+    runs-on: ubuntu-20.04
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheelhouse
+          path: dist
+
+      - name: Build pure Python distribution
+        run: |
+          python3 setup.py bdist_wheel
+          python3 setup.py sdist
+
+      - name: Install Twine
+        run: pip3 install twine
+
+      - name: List distributions
+        run: ls -l dist
+
+      # - name: Deploy on PyPI
+      #   run: |
+      #     twine upload \
+      #       --username='${{ secrets.PYPI_USERNAME }}' \
+      #       --password='${{ secrets.PYPI_PASSWORD }}' \
+      #       --skip-existing dist/*
+

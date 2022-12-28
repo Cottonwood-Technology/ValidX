@@ -9,6 +9,7 @@ here = Path(__file__).parent
 
 ext_modules = []
 requirements = []
+package_data = []
 
 if platform.python_implementation() == "CPython":
     try:
@@ -33,6 +34,13 @@ with (here / "CHANGES.rst").open("r") as f:
     changes = f.read()
 
 
+src = here / "validx"
+package_data.append("py.typed")
+package_data.extend(str(p.relative_to(src)) for p in src.glob("**/*.pyi"))
+package_data.extend(str(p.relative_to(src)) for p in src.glob("**/*.pyx"))
+package_data.extend(str(p.relative_to(src)) for p in src.glob("**/*.pxd"))
+
+
 setup(
     name="ValidX",
     version=version,
@@ -43,6 +51,7 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Cython",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -57,7 +66,7 @@ setup(
     author_email="info@cottonwood.tech",
     license="BSD",
     packages=find_packages(),
-    package_data={"validx": ["py.typed"]},
+    package_data={"validx": package_data},
     zip_safe=False,
     ext_modules=ext_modules,
     install_requires=requirements,
