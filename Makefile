@@ -14,14 +14,14 @@ check: envdev
 unittests: T = tests/unittests
 unittests: envdev
 	envdev/bin/python3 setup.py build_ext --inplace
-	envdev/bin/pytest -c tests/unittests.ini $(T)
+	VALIDX_DEV=1 envdev/bin/pytest -c tests/unittests.ini $(T)
 
 benchmarks: envdev
 	envdev/bin/python3 setup.py build_ext --inplace
 	envdev/bin/pytest -c tests/benchmarks.ini tests/benchmarks
 
 .PHONY: docs
-docs: envdev
+docs: envdev clean-docs
 	mkdir -p docs/_build
 	envdev/bin/sphinx-build -W -b doctest docs docs/_build
 	envdev/bin/sphinx-build -W -b html docs docs/_build
