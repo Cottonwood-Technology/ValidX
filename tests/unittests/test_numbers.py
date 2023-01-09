@@ -48,6 +48,8 @@ def test_int_coerce(module, coerce):
     if coerce:
         assert v(5.5) == 5
         assert v("5") == 5
+        assert v(True) == 1
+        assert v(False) == 0
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(5.5)
@@ -58,6 +60,11 @@ def test_int_coerce(module, coerce):
             v("5")
         assert info.value.expected == int
         assert info.value.actual == str
+
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(True)
+        assert info.value.expected == int
+        assert info.value.actual == bool
 
 
 @pytest.mark.parametrize("min", [None, 0])
@@ -143,11 +150,18 @@ def test_float_coerce(module, coerce):
 
     if coerce:
         assert v("5.5") == 5.5
+        assert v(True) == 1.0
+        assert v(False) == 0.0
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v("5.5")
         assert info.value.expected == float
         assert info.value.actual == str
+
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(True)
+        assert info.value.expected == float
+        assert info.value.actual == bool
 
 
 @pytest.mark.parametrize("nan", [None, False, True])

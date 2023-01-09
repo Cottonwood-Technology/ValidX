@@ -106,7 +106,7 @@ cdef class Int(abstract.Validator):
     def __call__(self, value, __context=None):
         if value is None and self.nullable:
             return value
-        if not isinstance(value, int):
+        if not isinstance(value, int) or isinstance(value, bool):
             if isinstance(value, float) and value.is_integer():
                 # Implicitly convert ``float`` to ``int``,
                 # if the value represents integer number
@@ -240,7 +240,7 @@ cdef class Float(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, float):
-            if isinstance(value, int):
+            if isinstance(value, int) and not isinstance(value, bool):
                 # Always implicitly convert ``int`` to ``float``
                 value = float(value)
             elif not self.coerce:

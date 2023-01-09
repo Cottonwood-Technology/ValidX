@@ -7,7 +7,8 @@ Changes
 
 *   Dropped Python 3.5 support.
 *   Added Python 3.10, 3.11 support.
-*   Fixed handling UNIX-timestamps by ``validx.py.Date`` and ``validx.py.Datetime``.
+*   Fixed handling UNIX-timestamps by ``Date`` and ``Datetime`` validators.
+*   Fixed handling ``bool`` values by ``Int`` and ``Float`` validators.
 
 
 0.7
