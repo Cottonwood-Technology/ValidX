@@ -2,7 +2,6 @@ from datetime import date, time, datetime, timedelta, timezone, tzinfo
 
 from .. import exc
 from .. import contracts
-from ..types import numbers
 from . cimport abstract
 
 
@@ -193,7 +192,7 @@ cdef class Date(abstract.Validator):
 
         if not isinstance(value, (date, datetime)):
             if (
-                isinstance(value, numbers)
+                isinstance(value, (int, float))
                 and not isinstance(value, bool)
                 and self.unixts
             ):
@@ -560,7 +559,7 @@ cdef class Datetime(abstract.Validator):
                 # Implicitly convert ``date`` to ``datetime``
                 value = datetime.combine(value, time(tzinfo=self.tz))
             elif (
-                isinstance(value, numbers)
+                isinstance(value, (int, float))
                 and not isinstance(value, bool)
                 and self.unixts
             ):

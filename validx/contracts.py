@@ -1,10 +1,15 @@
 from collections.abc import Container, Sequence, Mapping, Callable
-
-from .types import chars, frozendict
+from types import MappingProxyType
 
 
 def expect(
-    obj, attr, value, nullable=False, types=None, not_types=None, convert_to=None
+    obj,
+    attr,
+    value,
+    nullable=False,
+    types=None,
+    not_types=None,
+    convert_to=None,
 ):
     """
     Check, whether the value satisfies expectations
@@ -224,7 +229,12 @@ def expect_container(obj, attr, value, nullable=False, empty=False, item_type=No
 
     """
     value = expect(
-        obj, attr, value, nullable=nullable, types=Container, not_types=chars
+        obj,
+        attr,
+        value,
+        nullable=nullable,
+        types=Container,
+        not_types=(str, bytes),
     )
     if value is not None:
         if not isinstance(value, frozenset):
@@ -302,7 +312,7 @@ def expect_sequence(obj, attr, value, nullable=False, empty=False, item_type=Non
         value,
         nullable=nullable,
         types=Sequence,
-        not_types=chars,
+        not_types=(str, bytes),
         convert_to=tuple,
     )
     if value is not None:
@@ -366,11 +376,16 @@ def expect_mapping(obj, attr, value, nullable=False, empty=False, value_type=Non
         if ``not empty`` and ``not value``.
 
     :returns:
-        passed mapping converted to ``frozendict``.
+        passed mapping converted to ``mappingproxy``.
 
     """
     value = expect(
-        obj, attr, value, nullable=nullable, types=Mapping, convert_to=frozendict
+        obj,
+        attr,
+        value,
+        nullable=nullable,
+        types=Mapping,
+        convert_to=MappingProxyType,
     )
     if value is not None:
         if not value and not empty:
@@ -436,7 +451,7 @@ def expect_tuple(obj, attr, value, struct, nullable=False):
         value,
         nullable=nullable,
         types=Sequence,
-        not_types=chars,
+        not_types=(str, bytes),
         convert_to=tuple,
     )
     if value is not None:

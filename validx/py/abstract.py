@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence, Container
 
 from . import classes, instances
-from ..types import chars
 
 
 class Validator(ABC):
@@ -93,9 +92,9 @@ class Validator(ABC):
                 return value.dump()
             if isinstance(value, Mapping):
                 return {k: _dump(v) for k, v in value.items()}
-            if isinstance(value, Sequence) and not isinstance(value, chars):
+            if isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
                 return [_dump(i) for i in value]
-            if isinstance(value, Container) and not isinstance(value, chars):
+            if isinstance(value, Container) and not isinstance(value, (str, bytes)):
                 return set(value)
             return value
 

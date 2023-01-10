@@ -2,7 +2,6 @@ import math
 
 from .. import contracts
 from .. import exc
-from ..types import numbers
 from . import abstract
 
 
@@ -163,10 +162,10 @@ class Float(abstract.Validator):
         nan = contracts.expect_flag(self, "nan", nan)
         inf = contracts.expect_flag(self, "inf", inf)
         min = contracts.expect(
-            self, "min", min, nullable=True, types=numbers, convert_to=float
+            self, "min", min, nullable=True, types=(int, float), convert_to=float
         )
         max = contracts.expect(
-            self, "max", max, nullable=True, types=numbers, convert_to=float
+            self, "max", max, nullable=True, types=(int, float), convert_to=float
         )
 
         setattr = object.__setattr__

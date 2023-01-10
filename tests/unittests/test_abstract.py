@@ -4,11 +4,11 @@ import pytest
 def test_repr(module):
     v = module.Dict({"x": module.Int(min=0, max=100)}, nullable=True)
     assert repr(v) == (
-        "<Dict(schema=frozendict({'x': <Int(min=0, max=100)>}), nullable=True)>"
+        "<Dict(schema=mappingproxy({'x': <Int(min=0, max=100)>}), nullable=True)>"
     )
 
     v = module.Dict({"x": module.LazyRef("foo")})
-    assert repr(v) == "<Dict(schema=frozendict({'x': <LazyRef(use='foo')>}))>"
+    assert repr(v) == "<Dict(schema=mappingproxy({'x': <LazyRef(use='foo')>}))>"
 
 
 def test_load_dump(module):

@@ -3,7 +3,6 @@ from libc cimport limits
 
 from .. import exc
 from .. import contracts
-from ..types import numbers
 from . cimport abstract
 
 
@@ -221,10 +220,10 @@ cdef class Float(abstract.Validator):
         nan = contracts.expect_flag(self, "nan", nan)
         inf = contracts.expect_flag(self, "inf", inf)
         min = contracts.expect(
-            self, "min", min, nullable=True, types=numbers, convert_to=float
+            self, "min", min, nullable=True, types=(int, float), convert_to=float
         )
         max = contracts.expect(
-            self, "max", max, nullable=True, types=numbers, convert_to=float
+            self, "max", max, nullable=True, types=(int, float), convert_to=float
         )
 
         self._nullable = nullable

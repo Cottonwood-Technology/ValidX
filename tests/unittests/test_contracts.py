@@ -1,10 +1,10 @@
 from functools import partial
 from collections.abc import Sequence, Container, Mapping, Callable
+from types import MappingProxyType
 
 import pytest
 
 from validx import contracts
-from validx.types import numbers, chars, frozendict
 
 
 class ContextMock(object):
@@ -15,7 +15,7 @@ obj = ContextMock()
 
 
 def test_expect():
-    c = partial(contracts.expect, obj, "attr", types=numbers, convert_to=float)
+    c = partial(contracts.expect, obj, "attr", types=(int, float), convert_to=float)
     assert c(1) == 1.0
     assert c(1.0) == 1.0
     assert c(None, nullable=True) is None
@@ -25,7 +25,7 @@ def test_expect():
     assert info.value.args == (
         (
             "%s.ContextMock.attr should be of type %r"
-            % (ContextMock.__module__, numbers)
+            % (ContextMock.__module__, (int, float))
         ),
     )
 
@@ -34,11 +34,11 @@ def test_expect():
     assert c("abc") == "abc"
 
     with pytest.raises(TypeError) as info:
-        c("abc", not_types=chars)
+        c("abc", not_types=(str, bytes))
     assert info.value.args == (
         (
             "%s.ContextMock.attr should not be of type %r"
-            % (ContextMock.__module__, chars)
+            % (ContextMock.__module__, (str, bytes))
         ),
     )
 
@@ -128,7 +128,7 @@ def test_expect_container():
     assert info.value.args == (
         (
             "%s.ContextMock.attr should not be of type %r"
-            % (ContextMock.__module__, chars)
+            % (ContextMock.__module__, (str, bytes))
         ),
     )
     with pytest.raises(TypeError) as info:
@@ -167,7 +167,7 @@ def test_expect_sequence():
     assert info.value.args == (
         (
             "%s.ContextMock.attr should not be of type %r"
-            % (ContextMock.__module__, chars)
+            % (ContextMock.__module__, (str, bytes))
         ),
     )
     with pytest.raises(TypeError) as info:
@@ -195,10 +195,10 @@ def test_expect_sequence():
 
 def test_expect_mapping():
     c = partial(contracts.expect_mapping, obj, "attr")
-    assert c({"a": 1, "b": 2}) == frozendict({"a": 1, "b": 2})
-    assert c({}, empty=True) == frozendict({})
+    assert c({"a": 1, "b": 2}) == MappingProxyType({"a": 1, "b": 2})
+    assert c({}, empty=True) == MappingProxyType({})
     assert c(None, nullable=True) is None
-    assert c({"a": 1, "b": "x"}) == frozendict({"a": 1, "b": "x"})
+    assert c({"a": 1, "b": "x"}) == MappingProxyType({"a": 1, "b": "x"})
 
     with pytest.raises(TypeError) as info:
         c(None)
@@ -233,7 +233,7 @@ def test_expect_tuple():
     assert info.value.args == (
         (
             "%s.ContextMock.attr should not be of type %r"
-            % (ContextMock.__module__, chars)
+            % (ContextMock.__module__, (str, bytes))
         ),
     )
     with pytest.raises(TypeError) as info:

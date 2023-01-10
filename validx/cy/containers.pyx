@@ -5,7 +5,6 @@ from collections.abc import Sequence, Mapping
 
 from .. import exc
 from .. import contracts
-from ..types import chars
 from . cimport abstract
 
 
@@ -104,7 +103,7 @@ cdef class List(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, chars):
+            if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
 
         result = []
@@ -191,7 +190,7 @@ cdef class Tuple(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, chars):
+            if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
                 raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
         if len(self.items) != len(value):
             raise exc.TupleLengthError(expected=len(self.items), actual=len(value))
