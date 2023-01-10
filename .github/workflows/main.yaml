@@ -58,10 +58,10 @@ jobs:
       - name: List distributions
         run: ls -l dist
 
-      # - name: Deploy on PyPI
-      #   run: |
-      #     twine upload \
-      #       --username='${{ secrets.PYPI_USERNAME }}' \
-      #       --password='${{ secrets.PYPI_PASSWORD }}' \
-      #       --skip-existing dist/*
+      - name: Deploy on PyPI
+        run: |
+          twine upload \
+            --username='__token__' \
+            --password='${{ secrets.PYPI_TOKEN }}' \
+            --skip-existing dist/*
 
