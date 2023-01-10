@@ -67,7 +67,7 @@ setup(
     author="Cottonwood Technology",
     author_email="info@cottonwood.tech",
     license="BSD",
-    packages=find_packages(where=here),
+    packages=find_packages(where=str(here)),
     package_data={"validx": package_data},
     zip_safe=False,
     ext_modules=ext_modules,
