@@ -1,3 +1,4 @@
+import os
 import sys
 import platform
 from pathlib import Path
@@ -6,6 +7,7 @@ from setuptools import setup, find_packages
 
 
 here = Path(__file__).parent
+os.chdir(here)
 
 ext_modules = []
 requirements = []
@@ -65,7 +67,7 @@ setup(
     author="Cottonwood Technology",
     author_email="info@cottonwood.tech",
     license="BSD",
-    packages=find_packages(),
+    packages=find_packages(where=here),
     package_data={"validx": package_data},
     zip_safe=False,
     ext_modules=ext_modules,

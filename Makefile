@@ -40,8 +40,6 @@ clean-build:
 	rm -rf dist
 	rm -rf build
 	rm -rf ValidX.egg-info
-	rm -rf tests/build
-	rm -rf tests/ValidX.egg-info
 
 clean-src:
 	find ./validx -name '*.c' -delete
