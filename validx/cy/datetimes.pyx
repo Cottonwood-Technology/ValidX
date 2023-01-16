@@ -2,6 +2,7 @@ from datetime import date, time, datetime, timedelta, timezone, tzinfo
 
 from .. import exc
 from .. import contracts
+from .. import platform
 from . cimport abstract
 
 
@@ -55,14 +56,12 @@ cdef class Date(abstract.Validator):
     :raises MinValueError:
         * if ``value < self.min``;
         * if ``value < date.today() + self.relmin``;
-        * if ``self.unixts`` and value cannot be converted from a timestamp,
-          because the timestamp lesser than ``date.min``.
+        * if ``self.unixts`` and value lesser than the minimal supported timestamp.
 
     :raises MaxValueError:
         * if ``value > self.max``;
         * if ``value > date.today() + self.relmax``;
-        * if ``self.unixts`` and value cannot be converted from a timestamp,
-          because the timestamp greater than ``date.max``.
+        * if ``self.unixts`` and value greater than the maximal supported timestamp.
 
 
     :note:
@@ -200,11 +199,17 @@ cdef class Date(abstract.Validator):
                 tz = None if self.tz is None else timezone.utc
                 try:
                     value = datetime.fromtimestamp(value, tz)
-                except (ValueError, OSError):
+                except (ValueError, OSError, OverflowError):
                     raise (
-                        exc.MaxValueError(expected=date.max, actual=value)
+                        exc.MaxValueError(
+                            expected=platform.MAX_TIMESTAMP,
+                            actual=value,
+                        )
                         if value > 0
-                        else exc.MinValueError(expected=date.min, actual=value)
+                        else exc.MinValueError(
+                            expected=platform.MIN_TIMESTAMP,
+                            actual=value,
+                        )
                     )
             elif isinstance(value, str) and self.format is not None:
                 try:
@@ -413,15 +418,13 @@ cdef class Datetime(abstract.Validator):
         * if ``value < self.min``;
         * if ``self.tz is None and value < datetime.now() + self.relmin``.
         * if ``self.tz is not None and value < datetime.now(UTC).astimezone(self.tz) + self.relmin``;
-        * if ``self.unixts`` and value cannot be converted from a timestamp,
-          because the timestamp lesser than ``datetime.min``.
+        * if ``self.unixts`` and value lesser than the minimal supported timestamp.
 
     :raises MaxValueError:
         * if ``value > self.max``;
         * if ``self.tz is None and value > datetime.now() + self.relmax``.
         * if ``self.tz is not None and value > datetime.now(UTC).astimezone(self.tz) + self.relmax``;
-        * if ``self.unixts`` and value cannot be converted from a timestamp,
-          because the timestamp greater than ``datetime.max``.
+        * if ``self.unixts`` and value greater than the maximal supported timestamp.
 
     """
 
@@ -567,11 +570,17 @@ cdef class Datetime(abstract.Validator):
                 tz = None if self.tz is None else timezone.utc
                 try:
                     value = datetime.fromtimestamp(value, tz)
-                except (ValueError, OSError):
+                except (ValueError, OSError, OverflowError):
                     raise (
-                        exc.MaxValueError(expected=datetime.max, actual=value)
+                        exc.MaxValueError(
+                            expected=platform.MAX_TIMESTAMP,
+                            actual=value,
+                        )
                         if value > 0
-                        else exc.MinValueError(expected=datetime.min, actual=value)
+                        else exc.MinValueError(
+                            expected=platform.MIN_TIMESTAMP,
+                            actual=value,
+                        )
                     )
             elif isinstance(value, str) and self.format is not None:
                 try:

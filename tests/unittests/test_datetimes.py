@@ -7,6 +7,7 @@ from dateutil.parser import isoparse as _isoparse, parse as dtparse
 from pytz import UTC, timezone
 
 from validx import exc
+from validx import platform
 
 
 def isoparse(*args, **kw):
@@ -59,25 +60,39 @@ def test_date_unixts(module, unixts):
 
     if unixts:
         assert v(timestamp()) == today
+
+        # Should handle ``ValueError`` on 64-bit machine
         with pytest.raises(exc.MaxValueError) as info:
-            v(1e12)
-        assert info.value.expected == date.max
-        assert info.value.actual == 1e12
+            v(1 << 50)
+        assert info.value.expected == platform.MAX_TIMESTAMP
+        assert info.value.actual == 1 << 50
 
         with pytest.raises(exc.MinValueError) as info:
-            v(-1e12)
-        assert info.value.expected == date.min
-        assert info.value.actual == -1e12
+            v(-1 << 50)
+        assert info.value.expected == platform.MIN_TIMESTAMP
+        assert info.value.actual == -1 << 50
 
+        # Should handle ``OSError`` on 64-bit machine
         with pytest.raises(exc.MaxValueError) as info:
-            v(1e18)
-        assert info.value.expected == date.max
-        assert info.value.actual == 1e18
+            v(1 << 60)
+        assert info.value.expected == platform.MAX_TIMESTAMP
+        assert info.value.actual == 1 << 60
 
         with pytest.raises(exc.MinValueError) as info:
-            v(-1e18)
-        assert info.value.expected == date.min
-        assert info.value.actual == -1e18
+            v(-1 << 60)
+        assert info.value.expected == platform.MIN_TIMESTAMP
+        assert info.value.actual == -1 << 60
+
+        # Should handle ``OverflowError`` on 64-bit machine
+        with pytest.raises(exc.MaxValueError) as info:
+            v(1 << 70)
+        assert info.value.expected == platform.MAX_TIMESTAMP
+        assert info.value.actual == 1 << 70
+
+        with pytest.raises(exc.MinValueError) as info:
+            v(-1 << 70)
+        assert info.value.expected == platform.MIN_TIMESTAMP
+        assert info.value.actual == -1 << 70
 
         with pytest.raises(exc.InvalidTypeError) as info:
             v(True)
@@ -386,25 +401,39 @@ def test_datetime_unixts(module, unixts, tz):
             if tz is None
             else datetime.fromtimestamp(ts, UTC).astimezone(tz)
         )
+
+        # Should handle ``ValueError`` on 64-bit machine
         with pytest.raises(exc.MaxValueError) as info:
-            v(1e12)
-        assert info.value.expected == datetime.max
-        assert info.value.actual == 1e12
+            v(1 << 50)
+        assert info.value.expected == platform.MAX_TIMESTAMP
+        assert info.value.actual == 1 << 50
 
         with pytest.raises(exc.MinValueError) as info:
-            v(-1e12)
-        assert info.value.expected == datetime.min
-        assert info.value.actual == -1e12
+            v(-1 << 50)
+        assert info.value.expected == platform.MIN_TIMESTAMP
+        assert info.value.actual == -1 << 50
 
+        # Should handle ``OSError`` on 64-bit machine
         with pytest.raises(exc.MaxValueError) as info:
-            v(1e18)
-        assert info.value.expected == datetime.max
-        assert info.value.actual == 1e18
+            v(1 << 60)
+        assert info.value.expected == platform.MAX_TIMESTAMP
+        assert info.value.actual == 1 << 60
 
         with pytest.raises(exc.MinValueError) as info:
-            v(-1e18)
-        assert info.value.expected == datetime.min
-        assert info.value.actual == -1e18
+            v(-1 << 60)
+        assert info.value.expected == platform.MIN_TIMESTAMP
+        assert info.value.actual == -1 << 60
+
+        # Should handle ``OverflowError`` on 64-bit machine
+        with pytest.raises(exc.MaxValueError) as info:
+            v(1 << 70)
+        assert info.value.expected == platform.MAX_TIMESTAMP
+        assert info.value.actual == 1 << 70
+
+        with pytest.raises(exc.MinValueError) as info:
+            v(-1 << 70)
+        assert info.value.expected == platform.MIN_TIMESTAMP
+        assert info.value.actual == -1 << 70
 
         with pytest.raises(exc.InvalidTypeError) as info:
             v(True)
