@@ -31,6 +31,32 @@ def test_str_nullable(module, nullable):
         assert info.value.actual == NoneType
 
 
+@pytest.mark.parametrize("dontstrip", [None, False, True])
+def test_dontstrip(module, dontstrip):
+    v = module.Str(dontstrip=dontstrip)
+    assert v("abc") == "abc"
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
+
+    if dontstrip:
+        assert v(" \xa0\t\n\r\tabc\xa0\t\n\r\t ") == " \xa0\t\n\r\tabc\xa0\t\n\r\t "
+    else:
+        assert v(" \xa0\t\n\r\tabc\xa0\t\n\r\t ") == "abc"
+
+
+@pytest.mark.parametrize("normspace", [None, False, True])
+def test_normspace(module, normspace):
+    v = module.Str(normspace=normspace)
+    assert v("abc") == "abc"
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
+
+    if normspace:
+        assert v("a  b\xa0\t\n\r\tc") == "a b c"
+    else:
+        assert v("a  b\xa0\t\n\r\tc") == "a  b\xa0\t\n\r\tc"
+
+
 @pytest.mark.parametrize("encoding", [None, "utf-8"])
 def test_str_encoding(module, encoding):
     v = module.Str(encoding=encoding)

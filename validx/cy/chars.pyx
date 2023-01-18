@@ -14,6 +14,12 @@ cdef class Str(abstract.Validator):
     :param bool nullable:
         accept ``None`` as a valid value.
 
+    :param bool dontstrip:
+        do not strip leading & trailing whitespace.
+
+    :param bool normspace:
+        normalize spaces, i.e. replace any space sequence by single space char.
+
     :param str encoding:
         try to decode ``bytes`` to ``str`` using specified encoding.
 
@@ -51,9 +57,20 @@ cdef class Str(abstract.Validator):
 
     """
 
-    __slots__ = ("nullable", "encoding", "minlen", "maxlen", "pattern", "options")
+    __slots__ = (
+        "nullable",
+        "dontstrip",
+        "normspace",
+        "encoding",
+        "minlen",
+        "maxlen",
+        "pattern",
+        "options",
+    )
 
     cdef bint _nullable
+    cdef bint _dontstrip
+    cdef bint _normspace
     cdef str _encoding
     cdef long _minlen
     cdef long _maxlen
@@ -63,6 +80,14 @@ cdef class Str(abstract.Validator):
     @property
     def nullable(self):
         return self._nullable
+
+    @property
+    def dontstrip(self):
+        return self._dontstrip
+
+    @property
+    def normspace(self):
+        return self._normspace
 
     @property
     def encoding(self):
@@ -87,6 +112,8 @@ cdef class Str(abstract.Validator):
     def __init__(
         self,
         nullable=False,
+        dontstrip=False,
+        normspace=False,
         encoding=None,
         minlen=None,
         maxlen=None,
@@ -96,6 +123,8 @@ cdef class Str(abstract.Validator):
         replace=False,
     ):
         nullable = contracts.expect_flag(self, "nullable", nullable)
+        dontstrip = contracts.expect_flag(self, "dontstrip", dontstrip)
+        normspace = contracts.expect_flag(self, "normspace", normspace)
         encoding = contracts.expect_str(self, "encoding", encoding, nullable=True)
         minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
         maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
@@ -105,6 +134,8 @@ cdef class Str(abstract.Validator):
         )
 
         self._nullable = nullable
+        self._dontstrip = dontstrip
+        self._normspace = normspace
         self._encoding = encoding
         self._minlen = 0 if minlen is None else minlen
         self._maxlen = limits.LONG_MAX if maxlen is None else maxlen
@@ -124,6 +155,10 @@ cdef class Str(abstract.Validator):
                     raise exc.StrDecodeError(expected=self.encoding, actual=value)
             else:
                 raise exc.InvalidTypeError(expected=str, actual=type(value))
+        if not self.dontstrip:
+            value = value.strip()
+        if self.normspace:
+            value = re.sub(r"\s+", " ", value)
         cdef long length = len(value)
         if length < self._minlen:
             raise exc.MinLengthError(expected=self.minlen, actual=length)

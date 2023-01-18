@@ -10,6 +10,12 @@ Changes
     and :class:`validx.py.Datetime` validators.
 *   Fixed handling ``bool`` values by :class:`validx.py.Int`
     and :class:`validx.py.Float` validators.
+*   Changed behavior of :class:`validx.py.Str` validator,
+    it now strips leading & trailing whitespace by default.
+    Use ``dontstrip=True`` parameter to disable the stripping.
+*   Added ability to normalize spaces by :class:`validx.py.Str` validator,
+    i.e. replace space sequences by single space character.
+    Use ``normspace=True`` parameter to enable the normalization.
 
 
 0.7

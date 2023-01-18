@@ -9,6 +9,12 @@ Changes
 *   Added Python 3.10, 3.11 support.
 *   Fixed handling UNIX-timestamps by ``Date`` and ``Datetime`` validators.
 *   Fixed handling ``bool`` values by ``Int`` and ``Float`` validators.
+*   Changed behavior of ``Str`` validator,
+    it now strips leading & trailing whitespace by default.
+    Use ``dontstrip=True`` parameter to disable the stripping.
+*   Added ability to normalize spaces by ``Str`` validator,
+    i.e. replace space sequences by single space character.
+    Use ``normspace=True`` parameter to enable the normalization.
 
 
 0.7

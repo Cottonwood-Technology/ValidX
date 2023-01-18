@@ -13,6 +13,12 @@ class Str(abstract.Validator):
     :param bool nullable:
         accept ``None`` as a valid value.
 
+    :param bool dontstrip:
+        do not strip leading & trailing whitespace.
+
+    :param bool normspace:
+        normalize spaces, i.e. replace any space sequence by single space char.
+
     :param str encoding:
         try to decode ``bytes`` to ``str`` using specified encoding.
 
@@ -50,11 +56,22 @@ class Str(abstract.Validator):
 
     """
 
-    __slots__ = ("nullable", "encoding", "minlen", "maxlen", "pattern", "options")
+    __slots__ = (
+        "nullable",
+        "dontstrip",
+        "normspace",
+        "encoding",
+        "minlen",
+        "maxlen",
+        "pattern",
+        "options",
+    )
 
     def __init__(
         self,
         nullable=False,
+        dontstrip=False,
+        normspace=False,
         encoding=None,
         minlen=None,
         maxlen=None,
@@ -64,6 +81,8 @@ class Str(abstract.Validator):
         replace=False,
     ):
         nullable = contracts.expect_flag(self, "nullable", nullable)
+        dontstrip = contracts.expect_flag(self, "dontstrip", dontstrip)
+        normspace = contracts.expect_flag(self, "normspace", normspace)
         encoding = contracts.expect_str(self, "encoding", encoding, nullable=True)
         minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
         maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
@@ -74,6 +93,8 @@ class Str(abstract.Validator):
 
         setattr = object.__setattr__
         setattr(self, "nullable", nullable)
+        setattr(self, "dontstrip", dontstrip)
+        setattr(self, "normspace", normspace)
         setattr(self, "encoding", encoding)
         setattr(self, "minlen", minlen)
         setattr(self, "maxlen", maxlen)
@@ -93,6 +114,10 @@ class Str(abstract.Validator):
                     raise exc.StrDecodeError(expected=self.encoding, actual=value)
             else:
                 raise exc.InvalidTypeError(expected=str, actual=type(value))
+        if not self.dontstrip:
+            value = value.strip()
+        if self.normspace:
+            value = re.sub(r"\s+", " ", value)
         length = len(value)
         if self.minlen is not None and length < self.minlen:
             raise exc.MinLengthError(expected=self.minlen, actual=length)
