@@ -82,10 +82,6 @@ def expect_flag(obj, attr, value):
     :param value:
         checked value itself.
 
-    :param bool nullable:
-        accept ``None`` as a valid value.
-        Default: ``False`` — does not accept ``None``.
-
     :raises TypeError:
         if ``not isinstance(value, (bool, int, type(None)))``.
 
