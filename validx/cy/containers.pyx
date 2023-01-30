@@ -1,7 +1,7 @@
 from libc cimport limits
 
 from copy import deepcopy
-from collections.abc import Sequence, Mapping
+from collections.abc import Sequence, Mapping, Iterable
 
 from .. import exc
 from .. import contracts
@@ -30,7 +30,7 @@ cdef class List(abstract.Validator):
 
 
     :raises InvalidTypeError:
-        if ``not isinstance(value, (list, tuple))``.
+        if ``not isinstance(value, Iterable)``.
 
     :raises MinLengthError:
         if ``len(value) < self.minlen``.
@@ -102,16 +102,16 @@ cdef class List(abstract.Validator):
 
         if value is None and self.nullable:
             return value
-        if not isinstance(value, (list, tuple)):
-            if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
-                raise exc.InvalidTypeError(expected=Sequence, actual=type(value))
+        if not isinstance(value, (list, tuple, set, frozenset)):
+            if not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
+                raise exc.InvalidTypeError(expected=Iterable, actual=type(value))
 
         result = []
         errors = []
         if self.unique:
             unique = set()
 
-        for num, val in enumerate(value):
+        for num, val in _enumerate(value):
             try:
                 val = self.item(val, __context)
             except exc.ValidationError as e:
@@ -122,6 +122,116 @@ cdef class List(abstract.Validator):
                     continue
                 unique.add(val)
             result.append(val)
+
+        if errors:
+            raise exc.SchemaError(errors)
+
+        cdef long length = len(result)
+        if length < self._minlen:
+            raise exc.MinLengthError(expected=self.minlen, actual=length)
+        if length > self._maxlen:
+            raise exc.MaxLengthError(expected=self.maxlen, actual=length)
+
+        return result
+
+
+cdef class Set(abstract.Validator):
+    """
+    Set Validator
+
+
+    :param Validator item:
+        validator for set items.
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param int minlen:
+        lower length limit.
+
+    :param int maxlen:
+        upper length limit.
+
+
+    :raises InvalidTypeError:
+        if ``not isinstance(value, Iterable)``.
+
+    :raises MinLengthError:
+        if ``len(value) < self.minlen``.
+
+    :raises MaxLengthError:
+        if ``len(value) > self.maxlen``.
+
+    :raises SchemaError:
+        with all errors,
+        raised by item validator.
+
+    """
+
+    __slots__ = ("item", "nullable", "minlen", "maxlen")
+
+    cdef object _item
+    cdef bint _nullable
+    cdef long _minlen
+    cdef long _maxlen
+
+    @property
+    def item(self):
+        return self._item
+
+    @property
+    def nullable(self):
+        return self._nullable
+
+    @property
+    def minlen(self):
+        return None if self._minlen == 0 else self._minlen
+
+    @property
+    def maxlen(self):
+        return None if self._maxlen == limits.LONG_MAX else self._maxlen
+
+    def __init__(
+        self,
+        item,
+        nullable=False,
+        minlen=None,
+        maxlen=None,
+        alias=None,
+        replace=False,
+    ):
+        item = contracts.expect(self, "item", item, types=abstract.Validator)
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
+        maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
+
+        self._item = item
+        self._nullable = nullable
+        self._minlen = 0 if minlen is None else minlen
+        self._maxlen = limits.LONG_MAX if maxlen is None else maxlen
+
+        self._register(alias, replace)
+
+    def __call__(self, value, __context=None):
+        if __context is None:
+            __context = {}  # Setup context, if it's top level call
+
+        if value is None and self.nullable:
+            return value
+        if not isinstance(value, (list, tuple, set, frozenset)):
+            if not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
+                raise exc.InvalidTypeError(expected=Iterable, actual=type(value))
+
+        result = set()
+        errors = []
+
+        for num, val in _enumerate(value):
+            try:
+                val = self.item(val, __context)
+            except exc.ValidationError as e:
+                errors.extend(ne.add_context(num) for ne in e)
+                continue
+            result.add(val)
 
         if errors:
             raise exc.SchemaError(errors)
@@ -485,3 +595,11 @@ cdef class Dict(abstract.Validator):
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
 
         return result
+
+def _enumerate(iterable):
+    if isinstance(iterable, (list, tuple, Sequence)):
+        yield from enumerate(iterable)
+    else:
+        for value in iterable:
+            yield None, value
+

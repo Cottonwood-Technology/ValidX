@@ -3,7 +3,7 @@ from .numbers import Int, Float
 from .chars import Str, Bytes
 from .datetimes import Date, Time, Datetime
 from .bools import Bool
-from .containers import List, Tuple, Dict
+from .containers import List, Set, Tuple, Dict
 from .pipelines import AllOf, OneOf
 from .special import LazyRef, Type, Const, Any
 from . import classes, instances
@@ -22,6 +22,7 @@ __all__ = [
     "Datetime",
     "Bool",
     "List",
+    "Set",
     "Tuple",
     "Dict",
     "AllOf",
@@ -44,6 +45,7 @@ classes.add(Time)
 classes.add(Datetime)
 classes.add(Bool)
 classes.add(List)
+classes.add(Set)
 classes.add(Tuple)
 classes.add(Dict)
 classes.add(AllOf)

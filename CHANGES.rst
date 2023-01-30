@@ -15,6 +15,7 @@ Changes
 *   Added ability to normalize spaces by ``Str`` validator,
     i.e. replace space sequences by single space character.
     Use ``normspace=True`` parameter to enable the normalization.
+*   Added new ``Set`` validator.
 
 
 0.7

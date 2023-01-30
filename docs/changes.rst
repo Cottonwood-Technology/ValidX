@@ -16,6 +16,7 @@ Changes
 *   Added ability to normalize spaces by :class:`validx.py.Str` validator,
     i.e. replace space sequences by single space character.
     Use ``normspace=True`` parameter to enable the normalization.
+*   Added new :class:`validx.py.Set` validator.
 
 
 0.7

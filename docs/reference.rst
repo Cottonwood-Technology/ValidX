@@ -46,6 +46,7 @@ Containers
 ----------
 
 ..  autoclass:: validx.py.List
+..  autoclass:: validx.py.Set
 ..  autoclass:: validx.py.Tuple
 ..  autoclass:: validx.py.Dict
 

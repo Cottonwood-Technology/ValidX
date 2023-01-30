@@ -1,6 +1,6 @@
 import pickle
 from collections import OrderedDict, defaultdict, deque
-from collections.abc import Sequence, Mapping
+from collections.abc import Sequence, Mapping, Iterable
 
 import pytest
 
@@ -30,6 +30,14 @@ class CustomSequence(Sequence):
         return len(self.items)
 
 
+class CustomIterable(Iterable):
+    def __init__(self, *items):
+        self.items = items
+
+    def __iter__(self):
+        return iter(self.items)
+
+
 class CustomMapping(Mapping):
     def __init__(self, content):
         self.content = content
@@ -51,15 +59,19 @@ def test_list(module):
     v = module.List(module.Int())
     assert v([1, 2, 3]) == [1, 2, 3]
     assert v((1, 2, 3)) == [1, 2, 3]
+    assert v({1}) == [1]
+    assert v(frozenset([1])) == [1]
     assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
+    assert v(CustomIterable(1, 2, 3)) == [1, 2, 3]
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
     with pytest.raises(exc.InvalidTypeError) as info:
         v("1, 2, 3")
-    assert info.value.expected == Sequence
+    assert info.value.expected == Iterable
     assert info.value.actual == str
 
+    # Test error context from sequence
     with pytest.raises(exc.SchemaError) as info:
         v([1, "2", 3, None])
     assert len(info.value) == 2
@@ -74,13 +86,26 @@ def test_list(module):
     assert info.value[1].expected == int
     assert info.value[1].actual == NoneType
 
+    # Test error context from iterable
+    with pytest.raises(exc.SchemaError) as info:
+        v(CustomIterable(1, "2", 3, None))
+    assert len(info.value) == 2
+
+    assert isinstance(info.value[0], exc.InvalidTypeError)
+    assert info.value[0].context == deque([None])
+    assert info.value[0].expected == int
+    assert info.value[0].actual == str
+
+    assert isinstance(info.value[1], exc.InvalidTypeError)
+    assert info.value[1].context == deque([None])
+    assert info.value[1].expected == int
+    assert info.value[1].actual == NoneType
+
 
 @pytest.mark.parametrize("nullable", [None, False, True])
 def test_list_nullable(module, nullable):
     v = module.List(module.Int(), nullable=nullable)
     assert v([1, 2, 3]) == [1, 2, 3]
-    assert v((1, 2, 3)) == [1, 2, 3]
-    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
@@ -89,7 +114,7 @@ def test_list_nullable(module, nullable):
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(None)
-        assert info.value.expected == Sequence
+        assert info.value.expected == Iterable
         assert info.value.actual == NoneType
 
 
@@ -98,8 +123,6 @@ def test_list_nullable(module, nullable):
 def test_list_minlen_maxlen(module, minlen, maxlen):
     v = module.List(module.Int(), minlen=minlen, maxlen=maxlen)
     assert v([1, 2, 3]) == [1, 2, 3]
-    assert v((1, 2, 3)) == [1, 2, 3]
-    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
@@ -129,8 +152,6 @@ def test_list_minlen_maxlen(module, minlen, maxlen):
 def test_list_minlen_maxlen_unique(module):
     v = module.List(module.Int(), minlen=2, maxlen=5, unique=True)
     assert v([1, 2, 3]) == [1, 2, 3]
-    assert v((1, 2, 3)) == [1, 2, 3]
-    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
@@ -151,8 +172,6 @@ def test_list_minlen_maxlen_unique(module):
 def test_list_unique(module, unique):
     v = module.List(module.Int(), unique=unique)
     assert v([1, 2, 3]) == [1, 2, 3]
-    assert v((1, 2, 3)) == [1, 2, 3]
-    assert v(CustomSequence(1, 2, 3)) == [1, 2, 3]
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
@@ -169,6 +188,115 @@ def test_list_context(module):
             return value
 
     v = module.List(MarkContext())
+    context = {}
+    v([None], context)
+    assert context["marked"]
+
+
+# =============================================================================
+
+
+def test_set(module):
+    v = module.Set(module.Int())
+    assert v([1, 2, 3]) == {1, 2, 3}
+    assert v((1, 2, 3)) == {1, 2, 3}
+    assert v({1, 2, 3}) == {1, 2, 3}
+    assert v(frozenset([1, 2, 3])) == {1, 2, 3}
+    assert v(CustomSequence(1, 2, 3)) == {1, 2, 3}
+    assert v(CustomIterable(1, 2, 3)) == {1, 2, 3}
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
+
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v("1, 2, 3")
+    assert info.value.expected == Iterable
+    assert info.value.actual == str
+
+    # Test error context from sequence
+    with pytest.raises(exc.SchemaError) as info:
+        v([1, "2", 3, None])
+    assert len(info.value) == 2
+
+    assert isinstance(info.value[0], exc.InvalidTypeError)
+    assert info.value[0].context == deque([1])
+    assert info.value[0].expected == int
+    assert info.value[0].actual == str
+
+    assert isinstance(info.value[1], exc.InvalidTypeError)
+    assert info.value[1].context == deque([3])
+    assert info.value[1].expected == int
+    assert info.value[1].actual == NoneType
+
+    # Test error context from iterable
+    with pytest.raises(exc.SchemaError) as info:
+        v(CustomIterable(1, "2", 3, None))
+    assert len(info.value) == 2
+
+    assert isinstance(info.value[0], exc.InvalidTypeError)
+    assert info.value[0].context == deque([None])
+    assert info.value[0].expected == int
+    assert info.value[0].actual == str
+
+    assert isinstance(info.value[1], exc.InvalidTypeError)
+    assert info.value[1].context == deque([None])
+    assert info.value[1].expected == int
+    assert info.value[1].actual == NoneType
+
+
+@pytest.mark.parametrize("nullable", [None, False, True])
+def test_set_nullable(module, nullable):
+    v = module.Set(module.Int(), nullable=nullable)
+    assert v([1, 2, 3]) == {1, 2, 3}
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
+
+    if nullable:
+        assert v(None) is None
+    else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(None)
+        assert info.value.expected == Iterable
+        assert info.value.actual == NoneType
+
+
+@pytest.mark.parametrize("minlen", [None, 2])
+@pytest.mark.parametrize("maxlen", [None, 5])
+def test_set_minlen_maxlen(module, minlen, maxlen):
+    v = module.Set(module.Int(), minlen=minlen, maxlen=maxlen)
+    assert v([1, 2, 3]) == {1, 2, 3}
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
+
+    if minlen is None:
+        assert v([1]) == {1}
+    else:
+        with pytest.raises(exc.MinLengthError) as info:
+            v([1])
+        assert info.value.expected == minlen
+        assert info.value.actual == 1
+
+        # First item doesn't pass validation, so the result length is 1.
+        # However, it should not raise MinLengthError, but SchemaError instead.
+        with pytest.raises(exc.SchemaError) as info:
+            v(["1", 2])
+        assert len(info.value) == 1
+
+    if maxlen is None:
+        assert v([1, 2, 3, 4, 5, 6]) == {1, 2, 3, 4, 5, 6}
+    else:
+        with pytest.raises(exc.MaxLengthError) as info:
+            v([1, 2, 3, 4, 5, 6])
+        assert info.value.expected == maxlen
+        assert info.value.actual == 6
+
+
+def test_set_context(module):
+    class MarkContext(module.Validator):
+        def __call__(self, value, __context=None):
+            __context["marked"] = True
+            return value
+
+    v = module.Set(MarkContext())
     context = {}
     v([None], context)
     assert context["marked"]
@@ -333,7 +461,7 @@ def test_dict_minlen_maxlen(module, minlen, maxlen):
 
 
 def default_x():
-    """ Pickable version of callable default value """
+    """Pickable version of callable default value"""
     return 0
 
 
