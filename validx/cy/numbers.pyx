@@ -1,5 +1,6 @@
 from libc cimport math
 from libc cimport limits
+import decimal
 
 from .. import exc
 from .. import contracts
@@ -122,7 +123,7 @@ cdef class Int(abstract.Validator):
             raise exc.MinValueError(expected=self.min, actual=value)
         if _value > self._max:
             raise exc.MaxValueError(expected=self.max, actual=value)
-        if self.options is not None and value not in self.options:
+        if self._options is not None and value not in self._options:
             raise exc.OptionsError(expected=self.options, actual=value)
         return value
 
@@ -156,7 +157,7 @@ cdef class Float(abstract.Validator):
         * if ``not isinstance(value, float)`` and ``not self.coerce``;
         * if ``float(value)`` raises ``ValueError`` or ``TypeError``.
 
-    :raises FloatValueError:
+    :raises NumberError:
         * if ``math.isnan(value)`` and ``not self.nan``;
         * if ``math.isinf(value)`` and ``not self.inf``.
 
@@ -251,14 +252,183 @@ cdef class Float(abstract.Validator):
                     raise exc.InvalidTypeError(expected=float, actual=type(value))
         cdef double _value = value
         if math.isnan(_value):
-            if not self.nan:
-                raise exc.FloatValueError(expected="number", actual=value)
+            if not self._nan:
+                raise exc.NumberError(expected="number", actual=value)
             # It doesn't make sence to future checks if value is ``Nan``
             return value
-        if math.isinf(_value) and not self.inf:
-            raise exc.FloatValueError(expected="finite", actual=value)
+        if math.isinf(_value) and not self._inf:
+            raise exc.NumberError(expected="finite", actual=value)
         if _value < self._min:
             raise exc.MinValueError(expected=self.min, actual=value)
         if _value > self._max:
+            raise exc.MaxValueError(expected=self.max, actual=value)
+        return value
+
+
+cdef class Decimal(abstract.Validator):
+    """
+    Fixed Point Number Validator
+
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param bool coerce:
+        try to convert non-decimal value to ``decimal.Decimal``.
+
+    :param int precision:
+        number of decimal places after point.
+
+    :param bool nan:
+        accept ``Not-a-Number`` as a valid value.
+
+    :param bool inf:
+        accept ``Infinity`` as a valid value.
+
+    :param decimal.Decimal min:
+        lower limit.
+
+    :param decimal.Decimal max:
+        upper limit.
+
+
+    :raises InvalidTypeError:
+        * if ``value is None`` and ``not self.nullable``;
+        * if ``not isinstance(value, decimal.Decimal)`` and ``not self.coerce``;
+        * if ``decimal.Decimal(value)`` raises ``ValueError``,
+          ``TypeError`` or ``decimal.DecimalException``.
+
+    :raises NumberError:
+        * if ``value.is_nan()`` and ``not self.nan``;
+        * if ``value.is_infinite()`` and ``not self.inf``.
+
+    :raises MinValueError:
+        if ``value < self.min``.
+
+    :raises MaxValueError:
+        if ``value > self.max``.
+
+
+    :note: It always converts ``int`` and ``float`` to ``decimal.Decimal``.
+
+    """
+
+    __slots__ = ("nullable", "coerce", "precision", "nan", "inf", "min", "max")
+
+    cdef bint _nullable
+    cdef bint _coerce
+    cdef unsigned char _precision
+    cdef bint _nan
+    cdef bint _inf
+    cdef object _min
+    cdef object _max
+
+    @property
+    def nullable(self):
+        return self._nullable
+
+    @property
+    def coerce(self):
+        return self._coerce
+
+    @property
+    def precision(self):
+        return None if self._precision == limits.UCHAR_MAX else self._precision
+
+    @property
+    def nan(self):
+        return self._nan
+
+    @property
+    def inf(self):
+        return self._inf
+
+    @property
+    def min(self):
+        return self._min
+
+    @property
+    def max(self):
+        return self._max
+
+    def __init__(
+        self,
+        nullable=False,
+        coerce=False,
+        precision=None,
+        nan=False,
+        inf=False,
+        min=None,
+        max=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce = contracts.expect_flag(self, "coerce", coerce)
+        precision = contracts.expect(
+            self,
+            "precision",
+            precision,
+            nullable=True,
+            types=int,
+        )
+        nan = contracts.expect_flag(self, "nan", nan)
+        inf = contracts.expect_flag(self, "inf", inf)
+        min = contracts.expect(
+            self,
+            "min",
+            min,
+            nullable=True,
+            types=(int, float, str, decimal.Decimal),
+            convert_to=decimal.Decimal,
+        )
+        max = contracts.expect(
+            self,
+            "max",
+            max,
+            nullable=True,
+            types=(int, float, str, decimal.Decimal),
+            convert_to=decimal.Decimal,
+        )
+
+        self._nullable = nullable
+        self._coerce = coerce
+        self._precision = limits.UCHAR_MAX if precision is None else precision
+        self._nan = nan
+        self._inf = inf
+        self._min = min
+        self._max = max
+
+        self._register(alias, replace)
+
+    def __call__(self, value, __context=None):
+        if value is None and self.nullable:
+            return value
+        if not isinstance(value, decimal.Decimal):
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                value = decimal.Decimal(value)
+            elif not self.coerce:
+                raise exc.InvalidTypeError(expected=decimal.Decimal, actual=type(value))
+            else:
+                try:
+                    value = decimal.Decimal(value)
+                except (TypeError, ValueError, decimal.DecimalException):
+                    raise exc.InvalidTypeError(
+                        expected=decimal.Decimal,
+                        actual=type(value),
+                    )
+        if value.is_nan():
+            if not self.nan:
+                raise exc.NumberError(expected="number", actual=value)
+            # It doesn't make sence to future checks if value is ``Nan``
+            return value
+        if value.is_infinite() and not self.inf:
+            raise exc.NumberError(expected="finite", actual=value)
+        if self._precision < limits.UCHAR_MAX and value.is_finite():
+            with decimal.localcontext(decimal.BasicContext):
+                value = round(value, self._precision)
+        if self._min is not None and value < self._min:
+            raise exc.MinValueError(expected=self.min, actual=value)
+        if self._max is not None and value > self._max:
             raise exc.MaxValueError(expected=self.max, actual=value)
         return value

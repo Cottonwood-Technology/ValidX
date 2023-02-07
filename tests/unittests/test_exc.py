@@ -154,13 +154,13 @@ def test_format_error():
         ("", "Expected value ≤ 10, got 15.")
     ]
     assert exc.format_error(
-        exc.FloatValueError(expected="finite", actual=float("-inf"))
+        exc.NumberError(expected="finite", actual=float("-inf"))
     ) == [("", "Expected finite number, got -∞.")]
     assert exc.format_error(
-        exc.FloatValueError(expected="finite", actual=float("+inf"))
+        exc.NumberError(expected="finite", actual=float("+inf"))
     ) == [("", "Expected finite number, got +∞.")]
     assert exc.format_error(
-        exc.FloatValueError(expected="number", actual=float("nan"))
+        exc.NumberError(expected="number", actual=float("nan"))
     ) == [("", "Expected number, got NaN.")]
     assert exc.format_error(exc.StrDecodeError(expected="utf-8", actual=b"\xFF")) == [
         ("", "Cannot decode value using “utf-8” encoding.")
@@ -208,8 +208,8 @@ def test_format_error():
     assert exc.format_error(exc.ConditionError(expected=1, actual=2)) == [
         ("", "ConditionError(expected=1, actual=2)")
     ]
-    assert exc.format_error(exc.FloatValueError(expected="something", actual=0.0)) == [
-        ("", "FloatValueError(expected='something', actual=0.0)")
+    assert exc.format_error(exc.NumberError(expected="something", actual=0.0)) == [
+        ("", "NumberError(expected='something', actual=0.0)")
     ]
     assert exc.format_error(
         exc.DatetimeTypeError(expected="something", actual=datetime(2018, 12, 5))

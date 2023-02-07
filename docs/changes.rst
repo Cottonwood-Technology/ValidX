@@ -17,6 +17,10 @@ Changes
     i.e. replace space sequences by single space character.
     Use ``normspace=True`` parameter to enable the normalization.
 *   Added new :class:`validx.py.Set` validator.
+*   Added new :class:`validx.py.Decimal` validator.
+*   Renamed ``FloatValueError`` to :class:`validx.exc.NumberError`,
+    so it is now used for both :class:`validx.py.Float`
+    and :class:`validx.py.Decimal` validators.
 
 
 0.7
@@ -76,7 +80,8 @@ Changes
 0.2
 ---
 
-*   Added support of timezones into :class:`validx.py.Date` and :class:`validx.py.Datetime` validators.
+*   Added support of timezones into :class:`validx.py.Date`
+    and :class:`validx.py.Datetime` validators.
 *   Added support of custom parsers into :class:`validx.py.Date`,
     :class:`validx.py.Time`,
     and :class:`validx.py.Datetime` validators.

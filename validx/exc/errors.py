@@ -239,16 +239,18 @@ class MaxValueError(ConditionError):
     __slots__ = ConditionError.__slots__
 
 
-class FloatValueError(ConditionError):
+class NumberError(ConditionError):
     """
-    Float Value Error
+    Number Error
 
     :param str expected:
         * ``"number"`` on test for ``Not-a-Number``;
         * ``"finite"`` on test for ``Infinity``.
 
-    :param float actual:
+    :param actual:
         actual value.
+    :type actual:
+        float or decimal.Decimal
 
     """
 

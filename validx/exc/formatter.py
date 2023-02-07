@@ -94,7 +94,7 @@ format_error = Formatter(
         ],
         errors.MinValueError: "Expected value ≥ {0.expected}, got {0.actual}.",
         errors.MaxValueError: "Expected value ≤ {0.expected}, got {0.actual}.",
-        errors.FloatValueError: [
+        errors.NumberError: [
             (
                 lambda error: error.expected == "finite" and error.actual < 0,
                 "Expected finite number, got -∞.",

@@ -1,5 +1,5 @@
 from .abstract import Validator
-from .numbers import Int, Float
+from .numbers import Int, Float, Decimal
 from .chars import Str, Bytes
 from .datetimes import Date, Time, Datetime
 from .bools import Bool
@@ -15,6 +15,7 @@ __all__ = [
     "Validator",
     "Int",
     "Float",
+    "Decimal",
     "Str",
     "Bytes",
     "Date",
@@ -38,6 +39,7 @@ __all__ = [
 
 classes.add(Int)
 classes.add(Float)
+classes.add(Decimal)
 classes.add(Str)
 classes.add(Bytes)
 classes.add(Date)

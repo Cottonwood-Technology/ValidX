@@ -19,6 +19,7 @@ Numbers
 
 ..  autoclass:: validx.py.Int
 ..  autoclass:: validx.py.Float
+..  autoclass:: validx.py.Decimal
 
 
 Chars
@@ -102,7 +103,7 @@ The class hierarchy for exceptions is:
             *   :class:`OptionsError`
             *   :class:`MinValueError`
             *   :class:`MaxValueError`
-            *   :class:`FloatValueError`
+            *   :class:`NumberError`
             *   :class:`StrDecodeError`
             *   :class:`MinLengthError`
             *   :class:`MaxLengthError`
@@ -129,7 +130,7 @@ The class hierarchy for exceptions is:
 ..  autoclass:: validx.exc.OptionsError
 ..  autoclass:: validx.exc.MinValueError
 ..  autoclass:: validx.exc.MaxValueError
-..  autoclass:: validx.exc.FloatValueError
+..  autoclass:: validx.exc.NumberError
 ..  autoclass:: validx.exc.StrDecodeError
 ..  autoclass:: validx.exc.MinLengthError
 ..  autoclass:: validx.exc.MaxLengthError

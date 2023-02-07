@@ -1,4 +1,5 @@
 import math
+import decimal
 
 from .. import contracts
 from .. import exc
@@ -129,7 +130,7 @@ class Float(abstract.Validator):
         * if ``not isinstance(value, float)`` and ``not self.coerce``;
         * if ``float(value)`` raises ``ValueError`` or ``TypeError``.
 
-    :raises FloatValueError:
+    :raises NumberError:
         * if ``math.isnan(value)`` and ``not self.nan``;
         * if ``math.isinf(value)`` and ``not self.inf``.
 
@@ -194,11 +195,145 @@ class Float(abstract.Validator):
                     raise exc.InvalidTypeError(expected=float, actual=type(value))
         if math.isnan(value):
             if not self.nan:
-                raise exc.FloatValueError(expected="number", actual=value)
+                raise exc.NumberError(expected="number", actual=value)
             # It doesn't make sence to future checks if value is ``Nan``
             return value
         if math.isinf(value) and not self.inf:
-            raise exc.FloatValueError(expected="finite", actual=value)
+            raise exc.NumberError(expected="finite", actual=value)
+        if self.min is not None and value < self.min:
+            raise exc.MinValueError(expected=self.min, actual=value)
+        if self.max is not None and value > self.max:
+            raise exc.MaxValueError(expected=self.max, actual=value)
+        return value
+
+
+class Decimal(abstract.Validator):
+    """
+    Fixed Point Number Validator
+
+
+    :param bool nullable:
+        accept ``None`` as a valid value.
+
+    :param bool coerce:
+        try to convert non-decimal value to ``decimal.Decimal``.
+
+    :param int precision:
+        number of decimal places after point.
+
+    :param bool nan:
+        accept ``Not-a-Number`` as a valid value.
+
+    :param bool inf:
+        accept ``Infinity`` as a valid value.
+
+    :param decimal.Decimal min:
+        lower limit.
+
+    :param decimal.Decimal max:
+        upper limit.
+
+
+    :raises InvalidTypeError:
+        * if ``value is None`` and ``not self.nullable``;
+        * if ``not isinstance(value, decimal.Decimal)`` and ``not self.coerce``;
+        * if ``decimal.Decimal(value)`` raises ``ValueError``,
+          ``TypeError`` or ``decimal.DecimalException``.
+
+    :raises NumberError:
+        * if ``value.is_nan()`` and ``not self.nan``;
+        * if ``value.is_infinite()`` and ``not self.inf``.
+
+    :raises MinValueError:
+        if ``value < self.min``.
+
+    :raises MaxValueError:
+        if ``value > self.max``.
+
+
+    :note: It always converts ``int`` and ``float`` to ``decimal.Decimal``.
+
+    """
+
+    __slots__ = ("nullable", "coerce", "precision", "nan", "inf", "min", "max")
+
+    def __init__(
+        self,
+        nullable=False,
+        coerce=False,
+        precision=None,
+        nan=False,
+        inf=False,
+        min=None,
+        max=None,
+        alias=None,
+        replace=False,
+    ):
+        nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce = contracts.expect_flag(self, "coerce", coerce)
+        precision = contracts.expect(
+            self,
+            "precision",
+            precision,
+            nullable=True,
+            types=int,
+        )
+        nan = contracts.expect_flag(self, "nan", nan)
+        inf = contracts.expect_flag(self, "inf", inf)
+        min = contracts.expect(
+            self,
+            "min",
+            min,
+            nullable=True,
+            types=(int, float, str, decimal.Decimal),
+            convert_to=decimal.Decimal,
+        )
+        max = contracts.expect(
+            self,
+            "max",
+            max,
+            nullable=True,
+            types=(int, float, str, decimal.Decimal),
+            convert_to=decimal.Decimal,
+        )
+
+        setattr = object.__setattr__
+        setattr(self, "nullable", nullable)
+        setattr(self, "coerce", coerce)
+        setattr(self, "precision", precision)
+        setattr(self, "nan", nan)
+        setattr(self, "inf", inf)
+        setattr(self, "min", min)
+        setattr(self, "max", max)
+
+        self._register(alias, replace)
+
+    def __call__(self, value, __context=None):
+        if value is None and self.nullable:
+            return value
+        if not isinstance(value, decimal.Decimal):
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                value = decimal.Decimal(value)
+            elif not self.coerce:
+                raise exc.InvalidTypeError(expected=decimal.Decimal, actual=type(value))
+            else:
+                try:
+                    value = decimal.Decimal(value)
+                except (TypeError, ValueError, decimal.DecimalException):
+                    raise exc.InvalidTypeError(
+                        expected=decimal.Decimal,
+                        actual=type(value),
+                    )
+        if value.is_nan():
+            if not self.nan:
+                raise exc.NumberError(expected="number", actual=value)
+            # It doesn't make sence to future checks if value is ``Nan``
+            return value
+        if value.is_infinite() and not self.inf:
+            raise exc.NumberError(expected="finite", actual=value)
+        if self.precision is not None and value.is_finite():
+            with decimal.localcontext(decimal.BasicContext):
+                value = round(value, self.precision)
         if self.min is not None and value < self.min:
             raise exc.MinValueError(expected=self.min, actual=value)
         if self.max is not None and value > self.max:

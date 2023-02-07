@@ -36,7 +36,7 @@ class MinValueError(ConditionError):
 class MaxValueError(ConditionError):
     __slots__: t.Tuple[str, ...]
 
-class FloatValueError(ConditionError):
+class NumberError(ConditionError):
     __slots__: t.Tuple[str, ...]
 
 class StrDecodeError(ConditionError):

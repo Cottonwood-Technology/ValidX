@@ -16,6 +16,9 @@ Changes
     i.e. replace space sequences by single space character.
     Use ``normspace=True`` parameter to enable the normalization.
 *   Added new ``Set`` validator.
+*   Added new ``Decimal`` validator.
+*   Renamed ``FloatValueError`` to ``NumberError``,
+    so it is now used for both ``Float`` and ``Decimal`` validators.
 
 
 0.7

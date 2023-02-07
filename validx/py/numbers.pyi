@@ -40,3 +40,26 @@ class Float(abstract.Validator):
         alias: str = None,
         replace: bool = False,
     ) -> None: ...
+
+class Decimal(abstract.Validator):
+    __slots__: t.Tuple[str, ...]
+    nullable: t.Optional[bool]
+    coerce: t.Optional[bool]
+    precision: t.Optional[int]
+    nan: t.Optional[bool]
+    inf: t.Optional[bool]
+    min: t.Optional[float]
+    max: t.Optional[float]
+    def __init__(
+        self,
+        *,
+        nullable: bool = None,
+        coerce: bool = None,
+        precision: int = None,
+        nan: bool = None,
+        inf: bool = None,
+        min: float = None,
+        max: float = None,
+        alias: str = None,
+        replace: bool = False,
+    ) -> None: ...
