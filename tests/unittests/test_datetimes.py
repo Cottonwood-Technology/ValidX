@@ -11,7 +11,7 @@ from validx import platform
 
 
 def isoparse(*args, **kw):
-    """Pickable version of date/time parser"""
+    """Pickleable version of date/time parser"""
     return _isoparse(*args, **kw)
 
 
