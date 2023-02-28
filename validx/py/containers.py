@@ -17,6 +17,13 @@ class List(abstract.Validator):
     :param bool nullable:
         accept ``None`` as a valid value.
 
+    :param int sort:
+        ``1`` for ascending,
+        ``-1`` for descending.
+
+    :param callable sort_key:
+        function to extract a comparison key.
+
     :param int minlen:
         lower length limit.
 
@@ -42,12 +49,22 @@ class List(abstract.Validator):
 
     """
 
-    __slots__ = ("item", "nullable", "minlen", "maxlen", "unique")
+    __slots__ = (
+        "item",
+        "nullable",
+        "sort",
+        "sort_key",
+        "minlen",
+        "maxlen",
+        "unique",
+    )
 
     def __init__(
         self,
         item,
         nullable=False,
+        sort=None,
+        sort_key=None,
         minlen=None,
         maxlen=None,
         unique=False,
@@ -56,6 +73,8 @@ class List(abstract.Validator):
     ):
         item = contracts.expect(self, "item", item, types=abstract.Validator)
         nullable = contracts.expect_flag(self, "nullable", nullable)
+        sort = contracts.expect(self, "sort", sort, types=int, nullable=True)
+        sort_key = contracts.expect_callable(self, "sort_key", sort_key, nullable=True)
         minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
         maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
         unique = contracts.expect_flag(self, "unique", unique)
@@ -63,6 +82,8 @@ class List(abstract.Validator):
         setattr = object.__setattr__
         setattr(self, "item", item)
         setattr(self, "nullable", nullable)
+        setattr(self, "sort", sort)
+        setattr(self, "sort_key", sort_key)
         setattr(self, "minlen", minlen)
         setattr(self, "maxlen", maxlen)
         setattr(self, "unique", unique)
@@ -104,6 +125,9 @@ class List(abstract.Validator):
             raise exc.MinLengthError(expected=self.minlen, actual=length)
         if self.maxlen is not None and length > self.maxlen:
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
+
+        if self.sort:
+            result.sort(reverse=self.sort < 0, key=self.sort_key)
 
         return result
 

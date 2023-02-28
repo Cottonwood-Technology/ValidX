@@ -19,6 +19,13 @@ cdef class List(abstract.Validator):
     :param bool nullable:
         accept ``None`` as a valid value.
 
+    :param int sort:
+        ``1`` for ascending,
+        ``-1`` for descending.
+
+    :param callable sort_key:
+        function to extract a comparison key.
+
     :param int minlen:
         lower length limit.
 
@@ -44,10 +51,20 @@ cdef class List(abstract.Validator):
 
     """
 
-    __slots__ = ("item", "nullable", "minlen", "maxlen", "unique")
+    __slots__ = (
+        "item",
+        "nullable",
+        "sort",
+        "sort_key",
+        "minlen",
+        "maxlen",
+        "unique",
+    )
 
     cdef object _item
     cdef bint _nullable
+    cdef char _sort
+    cdef object _sort_key
     cdef long _minlen
     cdef long _maxlen
     cdef bint _unique
@@ -59,6 +76,14 @@ cdef class List(abstract.Validator):
     @property
     def nullable(self):
         return self._nullable
+
+    @property
+    def sort(self):
+        return self._sort if self._sort else None
+
+    @property
+    def sort_key(self):
+        return self._sort_key
 
     @property
     def minlen(self):
@@ -76,6 +101,8 @@ cdef class List(abstract.Validator):
         self,
         item,
         nullable=False,
+        sort=None,
+        sort_key=None,
         minlen=None,
         maxlen=None,
         unique=False,
@@ -84,12 +111,16 @@ cdef class List(abstract.Validator):
     ):
         item = contracts.expect(self, "item", item, types=abstract.Validator)
         nullable = contracts.expect_flag(self, "nullable", nullable)
+        sort = contracts.expect(self, "sort", sort, nullable=True, types=int)
+        sort_key = contracts.expect_callable(self, "sort_key", sort_key, nullable=True)
         minlen = contracts.expect_length(self, "minlen", minlen, nullable=True)
         maxlen = contracts.expect_length(self, "maxlen", maxlen, nullable=True)
         unique = contracts.expect_flag(self, "unique", unique)
 
         self._item = item
         self._nullable = nullable
+        self._sort = 0 if sort is None else sort
+        self._sort_key = sort_key
         self._minlen = 0 if minlen is None else minlen
         self._maxlen = limits.LONG_MAX if maxlen is None else maxlen
         self._unique = unique
@@ -131,6 +162,9 @@ cdef class List(abstract.Validator):
             raise exc.MinLengthError(expected=self.minlen, actual=length)
         if length > self._maxlen:
             raise exc.MaxLengthError(expected=self.maxlen, actual=length)
+
+        if self._sort:
+            result.sort(reverse=self._sort < 0, key=self._sort_key)
 
         return result
 

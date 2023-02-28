@@ -118,6 +118,33 @@ def test_list_nullable(module, nullable):
         assert info.value.actual == NoneType
 
 
+@pytest.mark.parametrize("sort", [None, 1, -1])
+def test_list_sort(module, sort):
+    v = module.List(module.Int(), sort=sort)
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
+    if not sort:
+        assert v([3, 1, 2]) == [3, 1, 2]
+    elif sort > 0:
+        assert v([3, 1, 2]) == [1, 2, 3]
+    elif sort < 0:
+        assert v([3, 1, 2]) == [3, 2, 1]
+
+    v = module.List(
+        module.Dict({"x": module.Int()}),
+        sort=sort,
+        sort_key=lambda item: item["x"],
+    )
+    assert v.clone() == v
+    # assert pickle.loads(pickle.dumps(v)) == v  # lambda is not pickleable
+    if not sort:
+        assert v([{"x": 1}, {"x": 3}, {"x": 2}]) == [{"x": 1}, {"x": 3}, {"x": 2}]
+    elif sort > 0:
+        assert v([{"x": 1}, {"x": 3}, {"x": 2}]) == [{"x": 1}, {"x": 2}, {"x": 3}]
+    elif sort < 0:
+        assert v([{"x": 1}, {"x": 3}, {"x": 2}]) == [{"x": 3}, {"x": 2}, {"x": 1}]
+
+
 @pytest.mark.parametrize("minlen", [None, 2])
 @pytest.mark.parametrize("maxlen", [None, 5])
 def test_list_minlen_maxlen(module, minlen, maxlen):
