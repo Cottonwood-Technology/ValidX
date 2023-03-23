@@ -118,8 +118,10 @@ class Type(abstract.Validator):
 
     :raises InvalidTypeError:
         * if ``value is None`` and ``not self.nullable``;
-        * if ``not isinstance(value, self.tp)`` and ``not self.coerce``;
-        * if ``self.tp(value)`` raises ``ValueError`` or ``TypeError``.
+        * if ``not isinstance(value, self.tp)`` and ``not self.coerce``.
+
+    :raises CoerceError:
+        if ``self.coerce`` and ``tp(value)`` raises an exception.
 
     :raises MinValueError:
         if ``value < self.min``.
@@ -198,8 +200,8 @@ class Type(abstract.Validator):
             else:
                 try:
                     value = self.tp(value)
-                except (TypeError, ValueError):
-                    raise exc.InvalidTypeError(expected=self.tp, actual=type(value))
+                except Exception:
+                    raise exc.CoerceError(expected=self.tp, actual=value)
         if self.min is not None and value < self.min:
             raise exc.MinValueError(expected=self.min, actual=value)
         if self.max is not None and value > self.max:

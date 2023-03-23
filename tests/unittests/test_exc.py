@@ -141,6 +141,9 @@ def test_format_error():
     assert exc.format_error(exc.InvalidTypeError(expected=int, actual=str)) == [
         ("", "Expected type “int”, got “str”.")
     ]
+    assert exc.format_error(exc.CoerceError(expected=int, actual=float("inf"))) == [
+        ("", "Cannot coerce “inf” to type “int”.")
+    ]
     assert exc.format_error(exc.OptionsError(expected=[1], actual=2)) == [
         ("", "Expected 1, got 2.")
     ]

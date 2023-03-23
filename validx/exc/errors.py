@@ -181,12 +181,27 @@ class InvalidTypeError(ConditionError):
     """
     Invalid Type Error
 
-    :param type expected:
+    :param expected:
         expected type (types).
     :type expected: type or tuple
 
     :param type actual:
         actual type of value.
+
+    """
+
+    __slots__ = ConditionError.__slots__
+
+
+class CoerceError(ConditionError):
+    """
+    Coerce Error
+
+    :param type expected:
+        expected type.
+
+    :param actual:
+        actual value.
 
     """
 

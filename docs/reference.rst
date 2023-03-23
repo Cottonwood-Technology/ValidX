@@ -100,6 +100,7 @@ The class hierarchy for exceptions is:
         *   :class:`ConditionError`
 
             *   :class:`InvalidTypeError`
+            *   :class:`CoerceError`
             *   :class:`OptionsError`
             *   :class:`MinValueError`
             *   :class:`MaxValueError`
@@ -127,6 +128,7 @@ The class hierarchy for exceptions is:
 
 ..  autoclass:: validx.exc.ConditionError
 ..  autoclass:: validx.exc.InvalidTypeError
+..  autoclass:: validx.exc.CoerceError
 ..  autoclass:: validx.exc.OptionsError
 ..  autoclass:: validx.exc.MinValueError
 ..  autoclass:: validx.exc.MaxValueError

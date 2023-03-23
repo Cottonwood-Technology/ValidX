@@ -30,6 +30,9 @@ class InvalidTypeError(ConditionError):
 class OptionsError(ConditionError):
     __slots__: t.Tuple[str, ...]
 
+class CoerceError(ConditionError):
+    __slots__: t.Tuple[str, ...]
+
 class MinValueError(ConditionError):
     __slots__: t.Tuple[str, ...]
 

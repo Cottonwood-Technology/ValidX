@@ -1,3 +1,4 @@
+import sys
 import math
 import pickle
 from decimal import Decimal
@@ -41,17 +42,37 @@ def test_int_coerce(module, coerce):
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
-    with pytest.raises(exc.InvalidTypeError) as info:
-        v("abc")
-    assert info.value.expected == int
-    assert info.value.actual == str
-
     if coerce:
         assert v(5.5) == 5
         assert v("5") == 5
         assert v(True) == 1
         assert v(False) == 0
+
+        with pytest.raises(exc.CoerceError) as info:
+            v("abc")
+        assert info.value.expected == int
+        assert info.value.actual == "abc"
+
+        with pytest.raises(exc.CoerceError) as info:
+            v(float("inf"))
+        assert info.value.expected == int
+        assert info.value.actual == float("inf")
+
+        with pytest.raises(exc.CoerceError) as info:
+            v(float("nan"))
+        assert info.value.expected == int
+        assert math.isnan(info.value.actual)
+
+        with pytest.raises(exc.CoerceError) as info:
+            v(Decimal("Infinity"))
+        assert info.value.expected == int
+        assert info.value.actual == Decimal("Infinity")
     else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v("abc")
+        assert info.value.expected == int
+        assert info.value.actual == str
+
         with pytest.raises(exc.InvalidTypeError) as info:
             v(5.5)
         assert info.value.expected == int
@@ -144,16 +165,22 @@ def test_float_coerce(module, coerce):
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
-    with pytest.raises(exc.InvalidTypeError) as info:
-        v("abc")
-    assert info.value.expected == float
-    assert info.value.actual == str
-
     if coerce:
         assert v("5.5") == 5.5
         assert v(True) == 1.0
         assert v(False) == 0.0
+
+        with pytest.raises(exc.CoerceError) as info:
+            v("abc")
+        assert info.value.expected == float
+        assert info.value.actual == "abc"
+
     else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v("abc")
+        assert info.value.expected == float
+        assert info.value.actual == str
+
         with pytest.raises(exc.InvalidTypeError) as info:
             v("5.5")
         assert info.value.expected == float
@@ -190,11 +217,35 @@ def test_float_inf(module, inf):
 
     if inf:
         assert v("inf") == float("inf")
+        assert v(int(sys.float_info.max) << 1) == float("inf")
+        assert v(int(-sys.float_info.max) << 1) == float("-inf")
+        assert v(str(int(sys.float_info.max) << 1)) == float("inf")
+        assert v(str(int(-sys.float_info.max) << 1)) == float("-inf")
     else:
         with pytest.raises(exc.NumberError) as info:
             v("inf")
         assert info.value.expected == "finite"
         assert info.value.actual == float("inf")
+
+        with pytest.raises(exc.NumberError) as info:
+            v(int(sys.float_info.max) << 1)
+        assert info.value.expected == "finite"
+        assert info.value.actual == float("inf")
+
+        with pytest.raises(exc.NumberError) as info:
+            v(int(sys.float_info.max) << 1)
+        assert info.value.expected == "finite"
+        assert info.value.actual == float("inf")
+
+        with pytest.raises(exc.NumberError) as info:
+            v(str(int(sys.float_info.max) << 1))
+        assert info.value.expected == "finite"
+        assert info.value.actual == float("inf")
+
+        with pytest.raises(exc.NumberError) as info:
+            v(str(int(-sys.float_info.max) << 1))
+        assert info.value.expected == "finite"
+        assert info.value.actual == float("-inf")
 
 
 @pytest.mark.parametrize("min", [None, 0])
@@ -272,15 +323,16 @@ def test_decimal_coerce(module, coerce):
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
-    with pytest.raises(exc.InvalidTypeError) as info:
-        v("abc")
-    assert info.value.expected == Decimal
-    assert info.value.actual == str
-
     if coerce:
         assert v("5.5") == Decimal("5.5")
         assert v(True) == Decimal("1.0")
         assert v(False) == Decimal("0.0")
+
+        with pytest.raises(exc.CoerceError) as info:
+            v("abc")
+        assert info.value.expected == Decimal
+        assert info.value.actual == "abc"
+
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v("5.5")

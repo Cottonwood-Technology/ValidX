@@ -85,6 +85,9 @@ format_error = Formatter(
             (lambda error: error.actual is type(None), "Value should not be null."),
             "Expected type “{0.expected.__name__}”, got “{0.actual.__name__}”.",
         ],
+        errors.CoerceError: [
+            "Cannot coerce “{0.actual!r}” to type “{0.expected.__name__}”.",
+        ],
         errors.OptionsError: [
             (
                 lambda error: len(error.expected) == 1,

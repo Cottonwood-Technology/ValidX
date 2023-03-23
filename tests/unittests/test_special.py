@@ -108,14 +108,14 @@ def test_type_coerce(module, coerce):
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
-    with pytest.raises(exc.InvalidTypeError) as info:
-        v("abc")
-    assert info.value.expected == int
-    assert info.value.actual == str
-
     if coerce:
         assert v(5.5) == 5
         assert v("5") == 5
+
+        with pytest.raises(exc.CoerceError) as info:
+            v("abc")
+        assert info.value.expected == int
+        assert info.value.actual == "abc"
     else:
         with pytest.raises(exc.InvalidTypeError) as info:
             v(5.5)

@@ -29,8 +29,10 @@ class Int(abstract.Validator):
 
     :raises InvalidTypeError:
         * if ``value is None`` and ``not self.nullable``;
-        * if ``not isinstance(value, int)`` and ``not self.coerce``;
-        * if ``int(value)`` raises ``ValueError`` or ``TypeError``.
+        * if ``not isinstance(value, int)`` and ``not self.coerce``.
+
+    :raises CoerceError:
+        if ``self.coerce`` and ``int(value)`` raises an exception.
 
     :raises MinValueError:
         if ``value < self.min``.
@@ -90,8 +92,8 @@ class Int(abstract.Validator):
             else:
                 try:
                     value = int(value)
-                except (TypeError, ValueError):
-                    raise exc.InvalidTypeError(expected=int, actual=type(value))
+                except Exception:
+                    raise exc.CoerceError(expected=int, actual=value)
         if self.min is not None and value < self.min:
             raise exc.MinValueError(expected=self.min, actual=value)
         if self.max is not None and value > self.max:
@@ -127,8 +129,10 @@ class Float(abstract.Validator):
 
     :raises InvalidTypeError:
         * if ``value is None`` and ``not self.nullable``;
-        * if ``not isinstance(value, float)`` and ``not self.coerce``;
-        * if ``float(value)`` raises ``ValueError`` or ``TypeError``.
+        * if ``not isinstance(value, float)`` and ``not self.coerce``.
+
+    :raises CoerceError:
+        if ``self.coerce`` and ``float(value)`` raises an exception.
 
     :raises NumberError:
         * if ``math.isnan(value)`` and ``not self.nan``;
@@ -184,15 +188,20 @@ class Float(abstract.Validator):
             return value
         if not isinstance(value, float):
             if isinstance(value, int) and not isinstance(value, bool):
-                # Always implicitly convert ``int`` to ``float``
-                value = float(value)
+                try:
+                    # Always implicitly convert ``int`` to ``float``
+                    value = float(value)
+                except OverflowError:
+                    # Treat big numbers as infinity,
+                    # in the same way as conversion from string does.
+                    value = float("inf") if value > 0 else float("-inf")
             elif not self.coerce:
                 raise exc.InvalidTypeError(expected=float, actual=type(value))
             else:
                 try:
                     value = float(value)
-                except (TypeError, ValueError):
-                    raise exc.InvalidTypeError(expected=float, actual=type(value))
+                except Exception:
+                    raise exc.CoerceError(expected=float, actual=value)
         if math.isnan(value):
             if not self.nan:
                 raise exc.NumberError(expected="number", actual=value)
@@ -236,9 +245,10 @@ class Decimal(abstract.Validator):
 
     :raises InvalidTypeError:
         * if ``value is None`` and ``not self.nullable``;
-        * if ``not isinstance(value, decimal.Decimal)`` and ``not self.coerce``;
-        * if ``decimal.Decimal(value)`` raises ``ValueError``,
-          ``TypeError`` or ``decimal.DecimalException``.
+        * if ``not isinstance(value, decimal.Decimal)`` and ``not self.coerce``.
+
+    :raises CoerceError:
+        if ``self.coerce`` and ``decimal.Decimal(value)`` raises an exception.
 
     :raises NumberError:
         * if ``value.is_nan()`` and ``not self.nan``;
@@ -319,11 +329,8 @@ class Decimal(abstract.Validator):
             else:
                 try:
                     value = decimal.Decimal(value)
-                except (TypeError, ValueError, decimal.DecimalException):
-                    raise exc.InvalidTypeError(
-                        expected=decimal.Decimal,
-                        actual=type(value),
-                    )
+                except Exception:
+                    raise exc.CoerceError(expected=decimal.Decimal, actual=value)
         if value.is_nan():
             if not self.nan:
                 raise exc.NumberError(expected="number", actual=value)

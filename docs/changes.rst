@@ -21,6 +21,8 @@ Changes
 *   Renamed ``FloatValueError`` to :class:`validx.exc.NumberError`,
     so it is now used for both :class:`validx.py.Float`
     and :class:`validx.py.Decimal` validators.
+*   Added new :class:`validx.exc.CoerceError` which is raised 
+    instead of :class:`validx.exc.InvalidTypeError` when type coercion fails.    
 
 
 0.7

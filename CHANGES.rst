@@ -19,6 +19,8 @@ Changes
 *   Added new ``Decimal`` validator.
 *   Renamed ``FloatValueError`` to ``NumberError``,
     so it is now used for both ``Float`` and ``Decimal`` validators.
+*   Added new ``CoerceError`` which is raised 
+    instead of ``InvalidTypeError`` when type coercion fails.
 
 
 0.7
