@@ -1,18 +1,22 @@
 import typing as t
 from . import abstract
 
+
 class LazyRef(abstract.Validator):
     __slots__: t.Tuple[str, ...]
     use: str
     maxdepth: t.Optional[int]
+
     def __init__(
         self,
         use: str,
         *,
-        maxdepth: int = None,
-        alias: str = None,
+        maxdepth: t.Optional[int] = None,
+        alias: t.Optional[str] = None,
         replace: bool = False,
-    ) -> None: ...
+    ) -> None:
+        ...
+
 
 class Type(abstract.Validator):
     __slots__: t.Tuple[str, ...]
@@ -24,27 +28,33 @@ class Type(abstract.Validator):
     minlen: t.Optional[int]
     maxlen: t.Optional[int]
     options: t.Optional[t.Container[t.Any]]
+
     def __init__(
         self,
         tp: t.Type[t.Any],
         *,
-        nullable: bool = None,
-        coerce: bool = None,
-        min: t.Any = None,
-        max: t.Any = None,
-        minlen: int = None,
-        maxlen: int = None,
-        options: t.Container[t.Any] = None,
-        alias: str = None,
+        nullable: t.Optional[bool] = None,
+        coerce: t.Optional[bool] = None,
+        min: t.Optional[t.Any] = None,
+        max: t.Optional[t.Any] = None,
+        minlen: t.Optional[int] = None,
+        maxlen: t.Optional[int] = None,
+        options: t.Optional[t.Container[t.Any]] = None,
+        alias: t.Optional[str] = None,
         replace: bool = False,
-    ) -> None: ...
+    ) -> None:
+        ...
+
 
 class Const(abstract.Validator):
     __slots__: t.Tuple[str, ...]
     value: t.Any
+
     def __init__(
-        self, value: t.Any, *, alias: str = None, replace: bool = False
-    ) -> None: ...
+        self, value: t.Any, *, alias: t.Optional[str] = None, replace: bool = False
+    ) -> None:
+        ...
+
 
 class Any(abstract.Validator):
     pass

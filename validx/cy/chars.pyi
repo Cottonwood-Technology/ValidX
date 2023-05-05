@@ -1,6 +1,7 @@
 import typing as t
 from . import abstract
 
+
 class Str(abstract.Validator):
     __slots__: t.Tuple[str, ...]
     nullable: t.Optional[bool]
@@ -11,32 +12,37 @@ class Str(abstract.Validator):
     maxlen: t.Optional[int]
     pattern: t.Optional[str]
     options: t.Optional[t.Container[str]]
+
     def __init__(
         self,
         *,
-        nullable: bool = None,
-        dontstrip: bool = None,
-        normspace: bool = None,
-        encoding: str = None,
-        minlen: int = None,
-        maxlen: int = None,
-        pattern: str = None,
-        options: t.Container[str] = None,
-        alias: str = None,
+        nullable: t.Optional[bool] = None,
+        dontstrip: t.Optional[bool] = None,
+        normspace: t.Optional[bool] = None,
+        encoding: t.Optional[str] = None,
+        minlen: t.Optional[int] = None,
+        maxlen: t.Optional[int] = None,
+        pattern: t.Optional[str] = None,
+        options: t.Optional[t.Container[str]] = None,
+        alias: t.Optional[str] = None,
         replace: bool = False,
-    ) -> None: ...
+    ) -> None:
+        ...
+
 
 class Bytes(abstract.Validator):
     __slots__: t.Tuple[str, ...]
     nullable: t.Optional[bool]
     minlen: t.Optional[int]
     maxlen: t.Optional[int]
+
     def __init__(
         self,
         *,
-        nullable: bool = None,
-        minlen: int = None,
-        maxlen: int = None,
-        alias: str = None,
+        nullable: t.Optional[bool] = None,
+        minlen: t.Optional[int] = None,
+        maxlen: t.Optional[int] = None,
+        alias: t.Optional[str] = None,
         replace: bool = False,
-    ) -> None: ...
+    ) -> None:
+        ...

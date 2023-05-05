@@ -8,8 +8,8 @@ envdev:
 check: envdev
 	envdev/bin/python3 setup.py build_ext --inplace
 	envdev/bin/pytest --flakes validx
-	envdev/bin/mypy --implicit-optional validx
-	envdev/bin/mypy --implicit-optional tests/typechecking
+	envdev/bin/mypy validx
+	envdev/bin/mypy tests/typechecking
 
 unittests: T = tests/unittests
 unittests: envdev

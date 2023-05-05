@@ -1,6 +1,7 @@
 import typing as t
 from . import abstract
 
+
 class Int(abstract.Validator):
     __slots__: t.Tuple[str, ...]
     nullable: t.Optional[bool]
@@ -8,17 +9,20 @@ class Int(abstract.Validator):
     min: t.Optional[int]
     max: t.Optional[int]
     options: t.Optional[t.Container[int]]
+
     def __init__(
         self,
         *,
-        nullable: bool = None,
-        coerce: bool = None,
-        min: int = None,
-        max: int = None,
-        options: t.Container[int] = None,
-        alias: str = None,
+        nullable: t.Optional[bool] = None,
+        coerce: t.Optional[bool] = None,
+        min: t.Optional[int] = None,
+        max: t.Optional[int] = None,
+        options: t.Optional[t.Container[int]] = None,
+        alias: t.Optional[str] = None,
         replace: bool = False,
-    ) -> None: ...
+    ) -> None:
+        ...
+
 
 class Float(abstract.Validator):
     __slots__: t.Tuple[str, ...]
@@ -28,18 +32,21 @@ class Float(abstract.Validator):
     inf: t.Optional[bool]
     min: t.Optional[float]
     max: t.Optional[float]
+
     def __init__(
         self,
         *,
-        nullable: bool = None,
-        coerce: bool = None,
-        nan: bool = None,
-        inf: bool = None,
-        min: float = None,
-        max: float = None,
-        alias: str = None,
+        nullable: t.Optional[bool] = None,
+        coerce: t.Optional[bool] = None,
+        nan: t.Optional[bool] = None,
+        inf: t.Optional[bool] = None,
+        min: t.Optional[float] = None,
+        max: t.Optional[float] = None,
+        alias: t.Optional[str] = None,
         replace: bool = False,
-    ) -> None: ...
+    ) -> None:
+        ...
+
 
 class Decimal(abstract.Validator):
     __slots__: t.Tuple[str, ...]
@@ -50,16 +57,18 @@ class Decimal(abstract.Validator):
     inf: t.Optional[bool]
     min: t.Optional[float]
     max: t.Optional[float]
+
     def __init__(
         self,
         *,
-        nullable: bool = None,
-        coerce: bool = None,
-        precision: int = None,
-        nan: bool = None,
-        inf: bool = None,
-        min: float = None,
-        max: float = None,
-        alias: str = None,
+        nullable: t.Optional[bool] = None,
+        coerce: t.Optional[bool] = None,
+        precision: t.Optional[int] = None,
+        nan: t.Optional[bool] = None,
+        inf: t.Optional[bool] = None,
+        min: t.Optional[float] = None,
+        max: t.Optional[float] = None,
+        alias: t.Optional[str] = None,
         replace: bool = False,
-    ) -> None: ...
+    ) -> None:
+        ...
