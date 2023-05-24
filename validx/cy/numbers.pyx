@@ -55,8 +55,8 @@ cdef class Int(abstract.Validator):
 
     cdef bint _nullable
     cdef bint _coerce
-    cdef long _min
-    cdef long _max
+    cdef object _min
+    cdef object _max
     cdef frozenset _options
 
     @property
@@ -69,11 +69,11 @@ cdef class Int(abstract.Validator):
 
     @property
     def min(self):
-        return None if self._min == limits.LONG_MIN else self._min
+        return self._min
 
     @property
     def max(self):
-        return None if self._max == limits.LONG_MAX else self._max
+        return self._max
 
     @property
     def options(self):
@@ -99,8 +99,8 @@ cdef class Int(abstract.Validator):
 
         self._nullable = nullable
         self._coerce = coerce
-        self._min = limits.LONG_MIN if min is None else min
-        self._max = limits.LONG_MAX if max is None else max
+        self._min = min
+        self._max = max
         self._options = options
 
         self._register(alias, replace)
@@ -120,11 +120,10 @@ cdef class Int(abstract.Validator):
                     value = int(value)
                 except Exception:
                     raise exc.CoerceError(expected=int, actual=value)
-        cdef long _value = value
-        if _value < self._min:
-            raise exc.MinValueError(expected=self.min, actual=value)
-        if _value > self._max:
-            raise exc.MaxValueError(expected=self.max, actual=value)
+        if self._min is not None and value < self._min:
+            raise exc.MinValueError(expected=self._min, actual=value)
+        if self._max is not None and value > self._max:
+            raise exc.MaxValueError(expected=self._max, actual=value)
         if self._options is not None and value not in self._options:
             raise exc.OptionsError(expected=self.options, actual=value)
         return value

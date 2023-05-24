@@ -99,6 +99,7 @@ def test_int_min_max(module, min, max):
 
     if min is None:
         assert v(-1) == -1
+        assert v(-(2**64)) == -(2**64)
     else:
         with pytest.raises(exc.MinValueError) as info:
             v(-1)
@@ -107,6 +108,7 @@ def test_int_min_max(module, min, max):
 
     if max is None:
         assert v(11) == 11
+        assert v(2**64) == 2**64
     else:
         with pytest.raises(exc.MaxValueError) as info:
             v(11)
