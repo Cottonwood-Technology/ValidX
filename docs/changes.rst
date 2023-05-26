@@ -16,6 +16,8 @@ Changes
 *   Added ability to normalize spaces by :class:`validx.py.Str` validator,
     i.e. replace space sequences by single space character.
     Use ``normspace=True`` parameter to enable the normalization.
+*   Unified behavior of Python and Cython versions of :class:`validx.py.Int` validator.
+    Both versions support unlimited integer numbers now.
 *   Added new :class:`validx.py.Set` validator.
 *   Added new :class:`validx.py.Decimal` validator.
 *   Renamed ``FloatValueError`` to :class:`validx.exc.NumberError`,
