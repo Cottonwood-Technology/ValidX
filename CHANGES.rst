@@ -8,6 +8,8 @@ Changes
 *   Dropped Python 3.5 support.
 *   Added Python 3.10, 3.11 support.
 *   Fixed handling UNIX-timestamps by ``Date`` and ``Datetime`` validators.
+*   Added ability to specify default time which is used to implicitly convert
+    ``date`` to ``datetime`` within ``Datetime`` validator.
 *   Fixed handling ``bool`` values by ``Int`` and ``Float`` validators.
 *   Changed behavior of ``Str`` validator,
     it now strips leading & trailing whitespace by default.

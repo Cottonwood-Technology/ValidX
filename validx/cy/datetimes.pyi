@@ -65,6 +65,7 @@ class Datetime(abstract.Validator):
     max: t.Optional[datetime]
     relmin: t.Optional[timedelta]
     relmax: t.Optional[timedelta]
+    default_time: t.Optional[time]
     tz: t.Optional[tzinfo]
 
     def __init__(
@@ -78,6 +79,7 @@ class Datetime(abstract.Validator):
         max: t.Optional[datetime] = None,
         relmin: t.Optional[timedelta] = None,
         relmax: t.Optional[timedelta] = None,
+        default_time: t.Optional[time] = None,
         tz: t.Optional[tzinfo] = None,
         alias: t.Optional[str] = None,
         replace: bool = False,

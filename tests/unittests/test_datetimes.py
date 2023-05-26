@@ -353,6 +353,12 @@ def test_datetime_contracts(module):
         % module.Datetime.__module__,
     )
     with pytest.raises(ValueError) as info:
+        module.Datetime(default_time=time(7, 30), tz=UTC)
+    assert info.value.args == (
+        "%s.Datetime.default_time should be timezone-aware time object"
+        % module.Datetime.__module__,
+    )
+    with pytest.raises(ValueError) as info:
         module.Datetime(min=datetime.now(UTC))
     assert info.value.args == (
         "%s.Datetime.min should be naive datetime object" % module.Datetime.__module__,
@@ -361,6 +367,12 @@ def test_datetime_contracts(module):
         module.Datetime(max=datetime.now(UTC))
     assert info.value.args == (
         "%s.Datetime.max should be naive datetime object" % module.Datetime.__module__,
+    )
+    with pytest.raises(ValueError) as info:
+        module.Datetime(default_time=time(7, 30, tzinfo=UTC))
+    assert info.value.args == (
+        "%s.Datetime.default_time should be naive time object"
+        % module.Datetime.__module__,
     )
 
 
@@ -564,6 +576,19 @@ def test_datetime_relmin_relmax(module, relmin, relmax, tz):
         assert info.value.expected >= now + relmax
         assert info.value.expected <= now + relmax + timedelta(seconds=1)
         assert info.value.actual == now + timedelta(hours=9)
+
+
+@pytest.mark.parametrize("tz", [None, EST])
+@pytest.mark.parametrize("default_time", [None, time(7, 30)])
+def test_datetime_default_time(module, default_time, tz):
+    if default_time is not None:
+        default_time = default_time.replace(tzinfo=tz)
+    v = module.Datetime(default_time=default_time, tz=tz)
+
+    today = date.today()
+    assert v(today) == datetime.combine(today, default_time or time(tzinfo=tz))
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
 
 
 @pytest.mark.parametrize("tz", [None, EST])

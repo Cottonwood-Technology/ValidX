@@ -323,6 +323,10 @@ class Datetime(abstract.Validator):
     :param timedelta relmax:
         relative upper limit.
 
+    :param time default_time:
+        is used to implicitly convert ``date`` to ``datetime``
+        using ``datetime.combine(value, self.default_time or time(tzinfo=self.tz))``.
+
     :param tzinfo tz:
         timezone.
 
@@ -366,6 +370,7 @@ class Datetime(abstract.Validator):
         "max",
         "relmin",
         "relmax",
+        "default_time",
         "tz",
     )
 
@@ -379,6 +384,7 @@ class Datetime(abstract.Validator):
         max=None,
         relmin=None,
         relmax=None,
+        default_time=None,
         tz=None,
         alias=None,
         replace=False,
@@ -394,6 +400,9 @@ class Datetime(abstract.Validator):
         )
         relmax = contracts.expect(
             self, "relmax", relmax, types=timedelta, nullable=True
+        )
+        default_time = contracts.expect(
+            self, "default_time", default_time, types=time, nullable=True
         )
         tz = contracts.expect(self, "tz", tz, types=tzinfo, nullable=True)
 
@@ -412,6 +421,12 @@ class Datetime(abstract.Validator):
                         % (self.__class__.__module__, self.__class__.__name__)
                     )
                 max = max.astimezone(tz)
+            if default_time is not None:
+                if default_time.tzinfo is None:
+                    raise ValueError(
+                        "%s.%s.default_time should be timezone-aware time object"
+                        % (self.__class__.__module__, self.__class__.__name__)
+                    )
         else:
             if min is not None and min.tzinfo is not None:
                 raise ValueError(
@@ -421,6 +436,11 @@ class Datetime(abstract.Validator):
             if max is not None and max.tzinfo is not None:
                 raise ValueError(
                     "%s.%s.max should be naive datetime object"
+                    % (self.__class__.__module__, self.__class__.__name__)
+                )
+            if default_time is not None and default_time.tzinfo is not None:
+                raise ValueError(
+                    "%s.%s.default_time should be naive time object"
                     % (self.__class__.__module__, self.__class__.__name__)
                 )
 
@@ -433,6 +453,7 @@ class Datetime(abstract.Validator):
         setattr(self, "max", max)
         setattr(self, "relmin", relmin)
         setattr(self, "relmax", relmax)
+        setattr(self, "default_time", default_time)
         setattr(self, "tz", tz)
 
         self._register(alias, replace)
@@ -444,7 +465,10 @@ class Datetime(abstract.Validator):
         if not isinstance(value, datetime):
             if isinstance(value, date):
                 # Implicitly convert ``date`` to ``datetime``
-                value = datetime.combine(value, time(tzinfo=self.tz))
+                value = datetime.combine(
+                    value,
+                    self.default_time or time(tzinfo=self.tz),
+                )
             elif (
                 isinstance(value, (int, float))
                 and not isinstance(value, bool)

@@ -8,6 +8,8 @@ Changes
 *   Added Python 3.10, 3.11 support.
 *   Fixed handling UNIX-timestamps by :class:`validx.py.Date`
     and :class:`validx.py.Datetime` validators.
+*   Added ability to specify default time which is used to implicitly convert
+    ``date`` to ``datetime`` within :class:`validx.py.Datetime` validator.
 *   Fixed handling ``bool`` values by :class:`validx.py.Int`
     and :class:`validx.py.Float` validators.
 *   Changed behavior of :class:`validx.py.Str` validator,
