@@ -1,5 +1,5 @@
 envdev:
-	python3.9 -m venv envdev
+	python3 -m venv envdev
 	envdev/bin/pip install -r requirements/all.txt
 	envdev/bin/pip install -e .
 
