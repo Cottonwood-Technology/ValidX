@@ -3,57 +3,53 @@
 Benchmarks
 ==========
 
-When ValidX had been released,
-it was the fastest validation library among the following competitors.
-It isn't true anymore.
-However,
-it would be unfair to remove this section from the documentation.
-Once the challenge has been thrown down,
-the competition must go on.
+ValidX is the fastest validation library among the following competitors.
 
-*   `Cerberus 1.3.2 <http://docs.python-cerberus.org/en/stable/>`_ ~130x slower
-*   `Colander 1.7.0 <https://docs.pylonsproject.org/projects/colander/en/latest/>`_ ~2.8x slower
-*   `JSONSchema 3.2.0 <https://python-jsonschema.readthedocs.io/en/latest/>`_ ~11x slower
-*   `Marshmallow 3.6.0 <https://marshmallow.readthedocs.io/en/stable/>`_ ~11x slower
-*   `Schema 0.7.2 <https://github.com/keleshev/schema>`_  ~29x slower
-*   `Valideer 0.4.2 <https://github.com/podio/valideer>`_ ~2x slower,
-    but it has compatible performance with pure-Python implementation of ValidX.
-    In some rounds it is a bit faster,
-    in other is a bit slower.
-*   `Validr 1.2.0 <https://github.com/guyskk/validr>`_
-    has compatible performance with Cython implementation of ValidX.
-    In some rounds it is a bit faster,
-    in other is a bit slower.
-*   `Voluptuous 0.11.7 <http://alecthomas.github.io/voluptuous/docs/_build/html/index.html>`_ ~3x slower
+*   `Cerberus 1.3.4 <http://docs.python-cerberus.org/en/stable/>`_ ~145x slower
+*   `Colander 2.0 <https://docs.pylonsproject.org/projects/colander/en/latest/>`_ ~3x slower
+*   `JSONSchema 4.17.3 <https://python-jsonschema.readthedocs.io/en/latest/>`_ ~20x slower
+*   `Marshmallow 3.19.0 <https://marshmallow.readthedocs.io/en/stable/>`_ ~14x slower
+*   `Pydantic 1.10.8 <https://docs.pydantic.dev/1.10/>`_ ~5x slower
+*   `Schema 0.7.5 <https://github.com/keleshev/schema>`_  ~30x slower
+*   `Voluptuous 0.13.1 <http://alecthomas.github.io/voluptuous/docs/_build/html/index.html>`_ ~3.5x slower
+
+
+The following competitors have been excluded from the benchmark,
+because the libraries do not work on Python >= 3.10.
+
+*   `Valideer 0.4.2 <https://github.com/podio/valideer>`_
+    had compatible performance with pure-Python implementation of ValidX.
+    Excluded until `issue #27 <https://github.com/podio/valideer/issues/27>`_ is fixed.
+*   `Validr 1.2.1 <https://github.com/guyskk/validr>`_
+    had compatible performance with Cython implementation of ValidX.
+    Excluded until `issue #60 <https://github.com/guyskk/validr/issues/60>`_ is fixed.
 
 Use the following command to run benchmarks::
 
-    tox -ebm
+    make benchmarks
 
 I got the following results on my laptop:
 
-*   CPU Intel i5-5200U 2.20GHz
-*   RAM 8GB
-*   OS Xubuntu 18.04, Linux core 4.15.0-101-generic
-*   Python 3.8.2
+*   CPU Intel i7-1260P
+*   RAM 32GB
+*   OS Xubuntu 22.04.2, Linux core 5.15.0-72-generic
+*   Python 3.10.6
 
 ::
 
-    ----------------------------------------------------- benchmark: 10 tests -----------------------------------------------------
-    Name (time in us)          Min                    Max                Mean              StdDev            OPS (Kops/s)
-    -------------------------------------------------------------------------------------------------------------------------------
-    test_validx_cy          5.8240 (1.0)          41.5310 (1.0)        6.1031 (1.0)        0.9631 (1.0)          163.8516 (1.0)
-    test_validr             6.6680 (1.14)        191.4440 (4.61)       7.0912 (1.16)       1.7589 (1.83)         141.0205 (0.86)
-    test_validx_py         12.1390 (2.08)         63.1280 (1.52)      12.5840 (2.06)       1.5104 (1.57)          79.4661 (0.48)
-    test_valideer          12.9530 (2.22)        101.5800 (2.45)      13.4117 (2.20)       1.4033 (1.46)          74.5618 (0.46)
-    test_colander          16.6500 (2.86)         94.6480 (2.28)      17.3843 (2.85)       2.1166 (2.20)          57.5232 (0.35)
-    test_voluptuous        18.4060 (3.16)         69.2420 (1.67)      19.2751 (3.16)       2.3339 (2.42)          51.8804 (0.32)
-    test_marshmallow       67.0080 (11.51)       291.5290 (7.02)      69.9401 (11.46)      8.1468 (8.46)          14.2980 (0.09)
-    test_jsonschema        70.4520 (12.10)       242.8030 (5.85)      73.0181 (11.96)      7.5669 (7.86)          13.6952 (0.08)
-    test_schema           171.8870 (29.51)       332.5750 (8.01)     177.0150 (29.00)     10.8829 (11.30)          5.6492 (0.03)
-    test_cerberus         725.5970 (124.59)   11,228.9250 (270.37)   801.7096 (131.36)   561.3559 (582.86)         1.2473 (0.01)
-    -------------------------------------------------------------------------------------------------------------------------------
-
+    ----------------------------------------------------- benchmark: 9 tests -----------------------------------------------------
+    Name (time in us)          Min                   Max                Mean              StdDev            OPS (Kops/s)
+    ------------------------------------------------------------------------------------------------------------------------------
+    test_validx_cy          1.8540 (1.0)          6.6900 (1.0)        2.0220 (1.0)        0.1247 (1.0)          494.5673 (1.0)
+    test_validx_py          3.5870 (1.93)        11.1630 (1.67)       4.0128 (1.98)       0.2350 (1.88)         249.2040 (0.50)
+    test_colander           5.9800 (3.23)        19.6410 (2.94)       6.6070 (3.27)       0.3332 (2.67)         151.3540 (0.31)
+    test_voluptuous         7.0590 (3.81)        18.3420 (2.74)       7.6800 (3.80)       0.3089 (2.48)         130.2080 (0.26)
+    test_pydantic           8.7520 (4.72)        23.0670 (3.45)      10.5461 (5.22)       0.5650 (4.53)          94.8216 (0.19)
+    test_marshmallow       26.5630 (14.33)       47.8270 (7.15)      28.7742 (14.23)      0.9160 (7.34)          34.7533 (0.07)
+    test_jsonschema        44.2580 (23.87)       62.9430 (9.41)      47.4968 (23.49)      1.3421 (10.76)         21.0540 (0.04)
+    test_schema            61.0670 (32.94)       82.3220 (12.31)     65.3104 (32.30)      1.5263 (12.24)         15.3115 (0.03)
+    test_cerberus         250.4110 (135.07)   6,304.0850 (942.31)   295.1710 (145.98)   207.4218 (>1000.0)        3.3879 (0.01)
+    ------------------------------------------------------------------------------------------------------------------------------
 
 
 Why you should care about performance

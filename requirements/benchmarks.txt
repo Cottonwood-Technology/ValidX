@@ -12,8 +12,13 @@ pytest-benchmark
 cerberus
 colander
 jsonschema
+pydantic
 schema
-valideer
 voluptuous
-validr
 marshmallow
+
+##
+# Excluded competitors (do not work on Python >= 3.10)
+#
+# valideer
+# validr

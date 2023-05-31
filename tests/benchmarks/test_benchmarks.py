@@ -7,10 +7,13 @@ Competitors
 4.  Colander: https://docs.pylonsproject.org/projects/colander/en/latest/
 5.  JSONSchema: https://python-jsonschema.readthedocs.io/en/latest/
 6.  Schema: https://github.com/keleshev/schema
-7.  Valideer: https://github.com/podio/valideer
-8.  Voluptuous: http://alecthomas.github.io/voluptuous/docs/_build/html/index.html
-9.  Validr: https://github.com/guyskk/validr
-10. Marshmallow: https://marshmallow.readthedocs.io/en/stable/
+7.  Voluptuous: http://alecthomas.github.io/voluptuous/docs/_build/html/index.html
+8.  Marshmallow: https://marshmallow.readthedocs.io/en/stable/
+
+Excluded competitors (do not work on Python >= 3.10)
+
+1.  Valideer: https://github.com/podio/valideer
+2.  Validr: https://github.com/guyskk/validr (excluded, because project seems to be abandoned)
 
 """
 
@@ -134,6 +137,45 @@ def test_jsonschema(benchmark):
     assert benchmark(schema.validate, data) is None
 
 
+def test_pydantic(benchmark):
+    from typing import List
+    from pydantic import BaseModel, validator
+
+    class Point(BaseModel):
+        lat: float
+        lng: float
+
+        @validator("lat")
+        def lat_range(cls, v):
+            if not -90 <= v <= 90:
+                raise ValueError("Latitude must be between -90 and 90")
+            return v
+
+        @validator("lng")
+        def lng_range(cls, v):
+            if not -180 <= v <= 180:
+                raise ValueError("Longitude must be between -180 and 180")
+            return v
+
+    class Population(BaseModel):
+        city: int
+        metro: int
+
+        @validator("city", "metro")
+        def population_range(cls, v):
+            if v < 0:
+                raise ValueError("Population must be greater than 0")
+            return v
+
+    class City(BaseModel):
+        location: Point
+        name: str
+        alt_names: List[str]
+        population: Population
+
+    assert benchmark(City.parse_obj, data).dict() == data
+
+
 def test_schema(benchmark):
     from schema import Schema, And
 
@@ -154,24 +196,25 @@ def test_schema(benchmark):
     assert benchmark(schema.validate, data) == data
 
 
-def test_valideer(benchmark):
-    import valideer
+# # Excluded until https://github.com/podio/valideer/issues/27 is fixed.
+# def test_valideer(benchmark):
+#     import valideer
 
-    schema = valideer.parse(
-        {
-            "+location": {
-                "+lat": valideer.Range("number", min_value=-90, max_value=90),
-                "+lng": valideer.Range("number", min_value=-180, max_value=180),
-            },
-            "+name": "string",
-            "+alt_names": ["string"],
-            "+population": {
-                "+city": valideer.Range("number", min_value=0),
-                "+metro": valideer.Range("number", min_value=0),
-            },
-        }
-    )
-    assert benchmark(schema.is_valid, data) is True
+#     schema = valideer.parse(
+#         {
+#             "+location": {
+#                 "+lat": valideer.Range("number", min_value=-90, max_value=90),
+#                 "+lng": valideer.Range("number", min_value=-180, max_value=180),
+#             },
+#             "+name": "string",
+#             "+alt_names": ["string"],
+#             "+population": {
+#                 "+city": valideer.Range("number", min_value=0),
+#                 "+metro": valideer.Range("number", min_value=0),
+#             },
+#         }
+#     )
+#     assert benchmark(schema.is_valid, data) is True
 
 
 def test_voluptuous(benchmark):
@@ -194,20 +237,21 @@ def test_voluptuous(benchmark):
     assert benchmark(schema, data) == data
 
 
-def test_validr(benchmark):
-    from validr import T, Compiler
+# # Excluded until https://github.com/guyskk/validr/issues/60 is fixed.
+# def test_validr(benchmark):
+#     from validr import T, Compiler
 
-    schema = Compiler().compile(
-        T.dict(
-            location=T.dict(
-                lat=T.float.min(-90).max(90), lng=T.float.min(-180).max(180)
-            ),
-            name=T.str,
-            alt_names=T.list(T.str),
-            population=T.dict(city=T.int.min(0), metro=T.int.min(0)),
-        )
-    )
-    assert benchmark(schema, data) == data
+#     schema = Compiler().compile(
+#         T.dict(
+#             location=T.dict(
+#                 lat=T.float.min(-90).max(90), lng=T.float.min(-180).max(180)
+#             ),
+#             name=T.str,
+#             alt_names=T.list(T.str),
+#             population=T.dict(city=T.int.min(0), metro=T.int.min(0)),
+#         )
+#     )
+#     assert benchmark(schema, data) == data
 
 
 def test_marshmallow(benchmark):
