@@ -31,6 +31,30 @@ def test_str_nullable(module, nullable):
         assert info.value.actual == NoneType
 
 
+@pytest.mark.parametrize("coerce", [None, False, True])
+@pytest.mark.parametrize("encoding", [None, "ascii"])
+def test_str_coerce(module, coerce, encoding):
+    v = module.Str(coerce=coerce, encoding=encoding)
+    assert v("abc") == "abc"
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
+
+    if coerce:
+        assert v(None) == "None"
+        assert v(False) == "False"
+        assert v(100) == "100"
+        assert v(1.5) == "1.5"
+        if encoding:
+            assert v(b"abc") == "abc"
+        else:
+            assert v(b"abc") == "b'abc'"
+    else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(1.5)
+        assert info.value.expected == str
+        assert info.value.actual == float
+
+
 @pytest.mark.parametrize("dontstrip", [None, False, True])
 def test_dontstrip(module, dontstrip):
     v = module.Str(dontstrip=dontstrip)

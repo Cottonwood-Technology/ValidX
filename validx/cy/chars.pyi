@@ -5,6 +5,7 @@ from . import abstract
 class Str(abstract.Validator):
     __slots__: t.Tuple[str, ...]
     nullable: t.Optional[bool]
+    coerce: t.Optional[bool]
     dontstrip: t.Optional[bool]
     normspace: t.Optional[bool]
     encoding: t.Optional[str]
@@ -17,6 +18,7 @@ class Str(abstract.Validator):
         self,
         *,
         nullable: t.Optional[bool] = None,
+        coerce: t.Optional[bool] = None,
         dontstrip: t.Optional[bool] = None,
         normspace: t.Optional[bool] = None,
         encoding: t.Optional[str] = None,

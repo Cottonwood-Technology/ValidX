@@ -17,6 +17,9 @@ Changes
 *   Added ability to normalize spaces by ``Str`` validator,
     i.e. replace space sequences by single space character.
     Use ``normspace=True`` parameter to enable the normalization.
+*   Added ``coerce`` parameter to ``Str`` validator,
+    which can be useful to sanitize data from sources with automatic type inferring,
+    where string data might be incorrectly interpreted as another type.
 *   Unified behavior of Python and Cython versions of ``Int`` validator.
     Both versions support unlimited integer numbers now.
 *   Added new ``Set`` validator.

@@ -14,6 +14,10 @@ cdef class Str(abstract.Validator):
     :param bool nullable:
         accept ``None`` as a valid value.
 
+    :param bool coerce:
+        convert non-string value to ``str``,
+        **use with caution** (see notes below).
+
     :param bool dontstrip:
         do not strip leading & trailing whitespace.
 
@@ -55,10 +59,19 @@ cdef class Str(abstract.Validator):
     :raises OptionsError:
         if ``value not in self.options``.
 
+
+    :note:
+        Since any Python object can be converted to a string,
+        using ``coerce`` without other checks in fact validates nothing.
+        It can be useful though to sanitize data from sources with automatic type inferring,
+        where string data might be incorrectly interpreted as another type.
+        For example, phone number as ``int``, version number as ``float``, etc.
+
     """
 
     __slots__ = (
         "nullable",
+        "coerce",
         "dontstrip",
         "normspace",
         "encoding",
@@ -69,6 +82,7 @@ cdef class Str(abstract.Validator):
     )
 
     cdef bint _nullable
+    cdef bint _coerce
     cdef bint _dontstrip
     cdef bint _normspace
     cdef str _encoding
@@ -80,6 +94,10 @@ cdef class Str(abstract.Validator):
     @property
     def nullable(self):
         return self._nullable
+
+    @property
+    def coerce(self):
+        return self._coerce
 
     @property
     def dontstrip(self):
@@ -112,6 +130,7 @@ cdef class Str(abstract.Validator):
     def __init__(
         self,
         nullable=False,
+        coerce=False,
         dontstrip=False,
         normspace=False,
         encoding=None,
@@ -123,6 +142,7 @@ cdef class Str(abstract.Validator):
         replace=False,
     ):
         nullable = contracts.expect_flag(self, "nullable", nullable)
+        coerce = contracts.expect_flag(self, "coerce", coerce)
         dontstrip = contracts.expect_flag(self, "dontstrip", dontstrip)
         normspace = contracts.expect_flag(self, "normspace", normspace)
         encoding = contracts.expect_str(self, "encoding", encoding, nullable=True)
@@ -134,6 +154,7 @@ cdef class Str(abstract.Validator):
         )
 
         self._nullable = nullable
+        self._coerce = coerce
         self._dontstrip = dontstrip
         self._normspace = normspace
         self._encoding = encoding
@@ -153,6 +174,8 @@ cdef class Str(abstract.Validator):
                     value = value.decode(self.encoding)
                 except UnicodeDecodeError:
                     raise exc.StrDecodeError(expected=self.encoding, actual=value)
+            elif self.coerce:
+                value = str(value)
             else:
                 raise exc.InvalidTypeError(expected=str, actual=type(value))
         if not self.dontstrip:
