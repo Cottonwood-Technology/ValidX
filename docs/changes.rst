@@ -1,8 +1,8 @@
 Changes
 =======
 
-0.8.dev0
---------
+0.8
+---
 
 *   Dropped Python 3.5 support.
 *   Added Python 3.10, 3.11 support.
