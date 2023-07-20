@@ -215,6 +215,14 @@ def test_const(module):
     assert info.value.actual == 2
 
 
+@pytest.mark.parametrize("value", [False, None])
+def test_const_false_and_none(module, value):
+    v = module.Const(value)
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
+    assert repr(v) == f"<Const(value={value!r})>"
+
+
 # =============================================================================
 
 

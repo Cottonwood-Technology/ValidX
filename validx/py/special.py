@@ -246,6 +246,9 @@ class Const(abstract.Validator):
             raise exc.OptionsError(expected=[self.value], actual=value)
         return value
 
+    def params(self):
+        yield "value", self.value
+
 
 class Any(abstract.Validator):
     """
