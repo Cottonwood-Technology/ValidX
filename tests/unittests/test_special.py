@@ -101,6 +101,22 @@ def test_type_nullable(module, nullable):
         assert info.value.actual == NoneType
 
 
+@pytest.mark.parametrize("nullable", [None, False, True])
+def test_type_object_nullable(module, nullable):
+    v = module.Type(object, nullable=nullable)
+    assert v(5) == 5
+    assert v.clone() == v
+    assert pickle.loads(pickle.dumps(v)) == v
+
+    if nullable:
+        assert v(None) is None
+    else:
+        with pytest.raises(exc.InvalidTypeError) as info:
+            v(None)
+        assert info.value.expected == object
+        assert info.value.actual == NoneType
+
+
 @pytest.mark.parametrize("coerce", [None, False, True])
 def test_type_coerce(module, coerce):
     v = module.Type(int, coerce=coerce)

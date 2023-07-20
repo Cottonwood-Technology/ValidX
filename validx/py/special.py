@@ -192,8 +192,10 @@ class Type(abstract.Validator):
         self._register(alias, replace)
 
     def __call__(self, value, __context=None):
-        if value is None and self.nullable:
-            return value
+        if value is None:
+            if self.nullable:
+                return value
+            raise exc.InvalidTypeError(expected=self.tp, actual=type(value))
         if not isinstance(value, self.tp):
             if not self.coerce:
                 raise exc.InvalidTypeError(expected=self.tp, actual=type(value))
