@@ -1,6 +1,14 @@
 Changes
 =======
 
+0.8.1
+-----
+
+*   Fixed ``List`` and ``Set`` restricting mappings from their valid input.
+*   Fixed cloning and representing of ``Const`` validator
+    constructed with ``False`` or ``None`` a value.
+*   Fixed nullable check of ``Type`` validator constructed with ``object`` as a type.
+
 
 0.8
 ---

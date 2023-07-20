@@ -1,6 +1,17 @@
 Changes
 =======
 
+0.8.1
+-----
+
+*   Fixed :class:`validx.py.List` and :class:`validx.py.Set`
+    restricting mappings from their valid input.
+*   Fixed cloning and representing of :class:`validx.py.Const` validator
+    constructed with ``False`` or ``None`` a value.
+*   Fixed nullable check of :class:`validx.py.Type` validator
+    constructed with ``object`` as a type.
+
+
 0.8
 ---
 
