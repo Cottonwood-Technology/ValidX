@@ -66,10 +66,29 @@ def test_list(module):
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
+    # Any ``Iterable``, but not ``str`` is allowed
     with pytest.raises(exc.InvalidTypeError) as info:
         v("1, 2, 3")
     assert info.value.expected == Iterable
     assert info.value.actual == str
+
+    # Any ``Iterable``, but not ``bytes`` is allowed
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v(b"1, 2, 3")
+    assert info.value.expected == Iterable
+    assert info.value.actual == bytes
+
+    # Any ``Iterable``, but not ``dict`` is allowed
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v({1: 1, 2: 2, 3: 3})
+    assert info.value.expected == Iterable
+    assert info.value.actual == dict
+
+    # Any ``Iterable``, but not ``Mapping`` is allowed
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v(CustomMapping({1: 1, 2: 2, 3: 3}))
+    assert info.value.expected == Iterable
+    assert info.value.actual == CustomMapping
 
     # Test error context from sequence
     with pytest.raises(exc.SchemaError) as info:
@@ -234,10 +253,29 @@ def test_set(module):
     assert v.clone() == v
     assert pickle.loads(pickle.dumps(v)) == v
 
+    # Any ``Iterable``, but not ``str`` is allowed
     with pytest.raises(exc.InvalidTypeError) as info:
         v("1, 2, 3")
     assert info.value.expected == Iterable
     assert info.value.actual == str
+
+    # Any ``Iterable``, but not ``bytes`` is allowed
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v(b"1, 2, 3")
+    assert info.value.expected == Iterable
+    assert info.value.actual == bytes
+
+    # Any ``Iterable``, but not ``dict`` is allowed
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v({1: 1, 2: 2, 3: 3})
+    assert info.value.expected == Iterable
+    assert info.value.actual == dict
+
+    # Any ``Iterable``, but not ``Mapping`` is allowed
+    with pytest.raises(exc.InvalidTypeError) as info:
+        v(CustomMapping({1: 1, 2: 2, 3: 3}))
+    assert info.value.expected == Iterable
+    assert info.value.actual == CustomMapping
 
     # Test error context from sequence
     with pytest.raises(exc.SchemaError) as info:

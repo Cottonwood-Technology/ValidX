@@ -37,7 +37,8 @@ cdef class List(abstract.Validator):
 
 
     :raises InvalidTypeError:
-        if ``not isinstance(value, Iterable)``.
+        if ``not isinstance(value, Iterable)``
+        or ``isinstance(value, (str, bytes, Mapping))``.
 
     :raises MinLengthError:
         if ``len(value) < self.minlen``.
@@ -134,7 +135,9 @@ cdef class List(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple, set, frozenset)):
-            if not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
+            if not isinstance(value, Iterable) or isinstance(
+                value, (str, bytes, dict, Mapping)
+            ):
                 raise exc.InvalidTypeError(expected=Iterable, actual=type(value))
 
         result = []
@@ -188,7 +191,8 @@ cdef class Set(abstract.Validator):
 
 
     :raises InvalidTypeError:
-        if ``not isinstance(value, Iterable)``.
+        if ``not isinstance(value, Iterable)``
+        or ``isinstance(value, (str, bytes, Mapping))``.
 
     :raises MinLengthError:
         if ``len(value) < self.minlen``.
@@ -253,7 +257,9 @@ cdef class Set(abstract.Validator):
         if value is None and self.nullable:
             return value
         if not isinstance(value, (list, tuple, set, frozenset)):
-            if not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
+            if not isinstance(value, Iterable) or isinstance(
+                value, (str, bytes, dict, Mapping)
+            ):
                 raise exc.InvalidTypeError(expected=Iterable, actual=type(value))
 
         result = set()
